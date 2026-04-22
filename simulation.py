@@ -1,6 +1,6 @@
 import numpy as np
 from models import Athlete, RaceModel, SimResult
-from config import DEFAULT_SIGMA, N_SIMULATIONS, SEASON_DECAY, SEASON_START_MONTH
+from config import DEFAULT_SIGMA, N_SIMULATIONS, SEASON_DECAY, SEASON_START_MONTH, MAX_SEASONS
 
 
 def _get_season_year(date: str) -> int:
@@ -22,10 +22,13 @@ def build_model(athlete: Athlete) -> RaceModel:
     if not dated:
         raise ValueError(f"No LCM 50m freestyle times found for {athlete.name}.")
 
+    most_recent = max(_get_season_year(r.date) for r in dated)
+    cutoff = most_recent - MAX_SEASONS  # seasons strictly older than this are dropped
+    dated = [r for r in dated if _get_season_year(r.date) > cutoff]
+
     times = np.array([r.time_seconds for r in dated])
     seasons = np.array([_get_season_year(r.date) for r in dated])
 
-    most_recent = int(seasons.max())
     weights = np.array([SEASON_DECAY ** (most_recent - s) for s in seasons])
 
     mu = float(np.average(times, weights=weights))

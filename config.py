@@ -8,6 +8,7 @@ DEFAULT_SIGMA = 0.3  # seconds — fallback when athlete has only 1 recorded tim
 # of the next season. 0.5 = each older season is half as influential.
 SEASON_DECAY = 0.5
 SEASON_START_MONTH = 9  # September
+MAX_SEASONS = 4  # Olympic cycle — ignore results older than 4 seasons
 
 TARGET_DISCIPLINE = "Men's 50m Freestyle"
 SHORT_COURSE_MARKER = "25m"  # skip any competition name containing this

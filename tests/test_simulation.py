@@ -80,6 +80,19 @@ def test_get_season_year_september_starts_new_season():
     assert _get_season_year("2023-12-01") == 2023  # Dec = mid-season
 
 
+def test_build_model_ignores_results_beyond_four_seasons():
+    """Results more than 4 seasons old must not influence the model."""
+    athlete = Athlete(id="0", name="Test")
+    athlete.results = [
+        SwimResult("VeryOld", 25.0, "2018-01-01"),  # season 2017 — 6 seasons ago, excluded
+        SwimResult("Recent",  21.0, "2024-01-01"),  # season 2023 — included
+        SwimResult("Recent",  21.0, "2024-06-01"),  # season 2023 — included
+    ]
+    model = build_model(athlete)
+    # If the 25.0 were included, mu would be pulled well above 21.0
+    assert model.mu < 22.0
+
+
 def test_build_model_weights_recent_seasons_more():
     """The weighted mean should be pulled toward the most recent season's times."""
     athlete = Athlete(id="0", name="Test")
