@@ -1,16 +1,40 @@
 import numpy as np
 from models import Athlete, RaceModel, SimResult
-from config import DEFAULT_SIGMA, N_SIMULATIONS
+from config import DEFAULT_SIGMA, N_SIMULATIONS, SEASON_DECAY, SEASON_START_MONTH
+
+
+def _get_season_year(date: str) -> int:
+    """Return the season start year for a YYYY-MM-DD date.
+    Seasons start in September: Sep–Dec of year Y is season Y,
+    Jan–Aug of year Y is season Y-1.
+    """
+    year, month = int(date[:4]), int(date[5:7])
+    return year if month >= SEASON_START_MONTH else year - 1
 
 
 def build_model(athlete: Athlete) -> RaceModel:
-    """Fit a normal distribution to the athlete's historical times."""
-    times = athlete.times
-    if len(times) == 0:
+    """Fit a seasonally-weighted normal distribution to the athlete's times.
+
+    Results from the most recent season carry weight 1.0; each prior season
+    is multiplied by SEASON_DECAY, so older data has diminishing influence.
+    """
+    dated = [r for r in athlete.results if r.date]
+    if not dated:
         raise ValueError(f"No LCM 50m freestyle times found for {athlete.name}.")
 
-    mu = float(np.mean(times))
-    sigma = float(np.std(times)) if len(times) > 1 else DEFAULT_SIGMA
+    times = np.array([r.time_seconds for r in dated])
+    seasons = np.array([_get_season_year(r.date) for r in dated])
+
+    most_recent = int(seasons.max())
+    weights = np.array([SEASON_DECAY ** (most_recent - s) for s in seasons])
+
+    mu = float(np.average(times, weights=weights))
+
+    if len(times) == 1:
+        sigma = DEFAULT_SIGMA
+    else:
+        variance = float(np.average((times - mu) ** 2, weights=weights))
+        sigma = float(np.sqrt(variance))
 
     return RaceModel(name=athlete.name, mu=mu, sigma=sigma)
 

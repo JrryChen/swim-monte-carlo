@@ -3,13 +3,14 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import pytest
+import numpy as np
 from models import Athlete, SwimResult
-from simulation import build_model, run
+from simulation import build_model, run, _get_season_year
 
 
-def make_athlete(name: str, times: list[float]) -> Athlete:
+def make_athlete(name: str, times: list[float], date: str = "2024-01-01") -> Athlete:
     athlete = Athlete(id="0", name=name)
-    athlete.results = [SwimResult(competition="Test", time_seconds=t, date="2024-01-01") for t in times]
+    athlete.results = [SwimResult(competition="Test", time_seconds=t, date=date) for t in times]
     return athlete
 
 
@@ -70,3 +71,28 @@ def test_run_faster_swimmer_wins_more_often():
     slow_result = next(r for r in results if r.name == "Slow")
 
     assert fast_result.place_probs[1] > slow_result.place_probs[1]
+
+
+def test_get_season_year_september_starts_new_season():
+    assert _get_season_year("2024-09-01") == 2024  # Sep = new season starts
+    assert _get_season_year("2024-08-31") == 2023  # Aug = still old season
+    assert _get_season_year("2024-01-15") == 2023  # Jan = still old season
+    assert _get_season_year("2023-12-01") == 2023  # Dec = mid-season
+
+
+def test_build_model_weights_recent_seasons_more():
+    """The weighted mean should be pulled toward the most recent season's times."""
+    athlete = Athlete(id="0", name="Test")
+    athlete.results = [
+        # Old season (2019-2020): slow times
+        SwimResult("Old", 23.0, "2020-01-01"),
+        SwimResult("Old", 23.0, "2020-06-01"),
+        # Recent season (2023-2024): fast times
+        SwimResult("Recent", 21.0, "2024-01-01"),
+        SwimResult("Recent", 21.0, "2024-06-01"),
+    ]
+    model = build_model(athlete)
+    unweighted_mean = np.mean([23.0, 23.0, 21.0, 21.0])  # = 22.0
+
+    # Weighted mean must be pulled below 22.0 toward the recent fast times
+    assert model.mu < unweighted_mean
