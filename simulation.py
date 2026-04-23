@@ -58,7 +58,11 @@ def build_model(athlete: Athlete) -> RaceModel:
     season_drop = float(np.average(rel_drops, weights=drop_weights))
     mu = mu_raw * (1 - season_drop)
 
-    return RaceModel(name=athlete.name, mu=mu, sigma=sigma, season_drop=season_drop)
+    # Hard cap: never project faster than the swimmer's actual best in the window.
+    pb = float(np.min(times))
+    mu = max(mu, pb)
+
+    return RaceModel(name=athlete.name, mu=mu, sigma=sigma, season_drop=season_drop, pb=pb)
 
 
 def run(models: list[RaceModel], n: int = N_SIMULATIONS) -> list[SimResult]:

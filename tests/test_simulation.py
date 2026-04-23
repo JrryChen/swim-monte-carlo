@@ -15,14 +15,13 @@ def make_athlete(name: str, times: list[float], date: str = "2024-01-01") -> Ath
 
 
 def test_build_model_computes_mean_and_std():
-    # Proximity + season-drop weighting pulls mu below the simple mean (21.5)
-    # and at or below the best time (21.0).
+    # Proximity + season-drop weighting pulls mu toward best; PB cap floors it at 21.0.
     athlete = make_athlete("Alice", [21.0, 21.5, 22.0])
     model = build_model(athlete)
 
     assert model.name == "Alice"
-    assert model.mu <= 21.0        # proximity + drop adjustment pulls at/below best
-    assert model.mu > 20.0         # but not unrealistically low
+    assert model.mu == 21.0        # capped at PB
+    assert model.pb == 21.0
     assert model.sigma > 0
 
 
@@ -94,6 +93,20 @@ def test_build_model_ignores_results_beyond_four_seasons():
     model = build_model(athlete)
     # If the 25.0 were included, mu would be pulled well above 21.0
     assert model.mu < 22.0
+
+
+def test_build_model_caps_mu_at_pb():
+    """Model must never project a swimmer faster than their actual best time."""
+    athlete = Athlete(id="0", name="Taper King")
+    # Large season drop would push mu below PB without the cap
+    athlete.results = [
+        SwimResult("T", 22.5, "2024-01-01"),
+        SwimResult("T", 22.5, "2024-02-01"),
+        SwimResult("T", 21.8, "2024-03-01"),  # season best
+    ]
+    model = build_model(athlete)
+    assert model.mu >= model.pb
+    assert model.pb == 21.8
 
 
 def test_season_drop_lowers_mu_for_variable_swimmer():
