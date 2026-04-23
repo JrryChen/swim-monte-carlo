@@ -13,8 +13,8 @@ MAX_SEASONS = 4  # Olympic cycle — ignore results older than 4 seasons
 # Proximity weighting: times closer to the world record receive more weight.
 # weight = exp(-BEST_TIME_DECAY * (time - WORLD_RECORD))
 # Higher values = faster drop-off away from the world record.
-BEST_TIME_DECAY = 1.0
+BEST_TIME_DECAY = 2.0
 WORLD_RECORD = 20.91  # men's 50m freestyle LCM WR at time of event
 
 TARGET_DISCIPLINE = "Men's 50m Freestyle"
-EXCLUDED_COMPETITIONS = ["World Cup", "25m", "Short Course", "NCAA Dual Meet"]
+EXCLUDED_COMPETITIONS = ["World Cup", "25m", "Short Course", "NCAA Dual Meet", "ISL"]
