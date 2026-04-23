@@ -1,8 +1,8 @@
 # swim-monte-carlo
 
-A Monte Carlo simulation that models finishing-position probabilities for competitive swimming finals using historical LCM (long course metre) results fetched from the World Aquatics API.
+A Monte Carlo simulation that models finishing-position probabilities for competitive swimming finals using historical LCM (long course metre) results.
 
-The current target is the **2024 Paris Olympics — Men's 50m Freestyle Final**.
+The current event used is the **2024 Paris Olympics — Men's 50m Freestyle Final**.
 
 ---
 
