@@ -1,6 +1,6 @@
 import requests
 from models import Athlete, SwimResult
-from config import EVENT_URL, ATHLETE_URL, TARGET_DISCIPLINE, SHORT_COURSE_MARKER
+from config import EVENT_URL, ATHLETE_URL, TARGET_DISCIPLINE, EXCLUDED_COMPETITIONS
 
 
 def get_finalists() -> tuple[list[Athlete], str]:
@@ -43,8 +43,9 @@ def get_athlete_times(athlete: Athlete, before_date: str) -> Athlete:
     for entry in data["Results"]:
         if entry["DisciplineName"] != TARGET_DISCIPLINE:
             continue
-        if SHORT_COURSE_MARKER in entry["CompetitionName"]:
-            continue
+        for excluded_competition in EXCLUDED_COMPETITIONS:
+            if excluded_competition in entry["CompetitionName"]:
+                continue
 
         date = entry.get("Date", "")
         if date >= before_date:
