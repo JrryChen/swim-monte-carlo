@@ -138,6 +138,38 @@ def test_season_drop_zero_for_single_result():
     assert model.season_drop == 0.0
 
 
+def test_build_model_tau_positive_for_right_skewed_data():
+    """Swimmer with occasional slow outliers should get tau > DEFAULT_TAU."""
+    from config import DEFAULT_TAU
+    athlete = Athlete(id="0", name="Skewed")
+    athlete.results = [
+        SwimResult("T", 21.0, "2024-01-01"),
+        SwimResult("T", 21.1, "2024-02-01"),
+        SwimResult("T", 21.1, "2024-03-01"),
+        SwimResult("T", 21.8, "2024-04-01"),  # outlier pulls skew right
+        SwimResult("T", 21.9, "2024-05-01"),
+    ]
+    model = build_model(athlete)
+    assert model.tau > DEFAULT_TAU
+
+
+def test_build_model_tau_defaults_for_sparse_data():
+    """With fewer than 3 results, tau should fall back to DEFAULT_TAU."""
+    from config import DEFAULT_TAU
+    athlete = make_athlete("Solo", [21.0, 21.5])
+    model = build_model(athlete)
+    assert model.tau == DEFAULT_TAU
+
+
+def test_run_sampled_times_right_skewed():
+    """Ex-Gaussian samples should be right-skewed: mean > median."""
+    fast = make_athlete("Fast", [21.0, 21.1, 21.2, 21.5, 21.8])
+    models = [build_model(fast)]
+    _, winning_times = run(models, n=5000)
+    # Right-skewed distribution: mean pulled above median by the long right tail
+    assert np.mean(winning_times) > np.median(winning_times)
+
+
 def test_build_model_weights_recent_seasons_more():
     """The weighted mean should be pulled toward the most recent season's times."""
     athlete = Athlete(id="0", name="Test")

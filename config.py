@@ -3,6 +3,7 @@ ATHLETE_URL = "https://api.worldaquatics.com/fina/athletes/{athlete_id}/results"
 
 N_SIMULATIONS = 10_000
 DEFAULT_SIGMA = 0.3  # seconds — fallback when athlete has only 1 recorded time
+DEFAULT_TAU = 0.05  # seconds — fallback exponential component when data is too sparse to estimate
 
 # Seasonal decay: each prior season's results receive this fraction of the weight
 # of the next season. 0.5 = each older season is half as influential.

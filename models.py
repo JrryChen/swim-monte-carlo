@@ -22,8 +22,9 @@ class Athlete:
 @dataclass
 class RaceModel:
     name: str
-    mu: float         # championship-adjusted mean time in seconds
-    sigma: float      # std dev in seconds
+    mu: float         # mean of the ex-Gaussian distribution (= mu_normal + tau)
+    sigma: float      # total std dev in seconds (sqrt(sigma_normal^2 + tau^2))
+    tau: float = 0.0  # exponential component: controls right-tail skew
     season_drop: float = 0.0  # relative drop fraction: (season_avg - season_best) / season_avg
     pb: float = 0.0           # personal best in the 4-season window
 

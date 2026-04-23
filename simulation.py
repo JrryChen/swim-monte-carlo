@@ -1,6 +1,6 @@
 import numpy as np
 from models import Athlete, RaceModel, SimResult
-from config import DEFAULT_SIGMA, N_SIMULATIONS, SEASON_DECAY, SEASON_START_MONTH, MAX_SEASONS, BEST_TIME_DECAY, WORLD_RECORD
+from config import DEFAULT_SIGMA, DEFAULT_TAU, N_SIMULATIONS, SEASON_DECAY, SEASON_START_MONTH, MAX_SEASONS, BEST_TIME_DECAY, WORLD_RECORD
 
 
 def _get_season_year(date: str) -> int:
@@ -62,7 +62,18 @@ def build_model(athlete: Athlete) -> RaceModel:
     pb = float(np.min(times))
     mu = max(mu, pb)
 
-    return RaceModel(name=athlete.name, mu=mu, sigma=sigma, season_drop=season_drop, pb=pb)
+    # Estimate tau (exponential component) from weighted third central moment.
+    # For ex-Gaussian: third central moment = 2*tau^3, so tau = (m3/2)^(1/3).
+    # Fall back to DEFAULT_TAU if data is too sparse or skew is non-positive.
+    if len(times) >= 3:
+        m3 = float(np.average((times - mu_raw) ** 3, weights=weights))
+        tau = float((m3 / 2) ** (1 / 3)) if m3 > 0 else DEFAULT_TAU
+    else:
+        tau = DEFAULT_TAU
+    # tau can't exceed sigma (would leave no room for the normal component)
+    tau = min(tau, sigma * 0.9)
+
+    return RaceModel(name=athlete.name, mu=mu, sigma=sigma, tau=tau, season_drop=season_drop, pb=pb)
 
 
 def run(models: list[RaceModel], n: int = N_SIMULATIONS) -> tuple[list[SimResult], np.ndarray]:
@@ -77,8 +88,13 @@ def run(models: list[RaceModel], n: int = N_SIMULATIONS) -> tuple[list[SimResult
     rng = np.random.default_rng()
 
     for _ in range(n):
+        # Ex-Gaussian: Normal(mu - tau, sigma_n) + Exponential(tau)
+        # Expected value = (mu - tau) + tau = mu  (preserves projected mean)
         sampled_times = np.array([
-            rng.normal(m.mu, m.sigma) for m in models
+            rng.normal(m.mu - m.tau, max(np.sqrt(m.sigma**2 - m.tau**2), 1e-6))
+            + rng.exponential(m.tau) if m.tau > 0
+            else rng.normal(m.mu, m.sigma)
+            for m in models
         ])
         winning_times.append(float(np.min(sampled_times)))
         # argsort ascending: index 0 = fastest swimmer
