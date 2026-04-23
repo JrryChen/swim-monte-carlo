@@ -3,6 +3,7 @@ import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from scipy.stats import exponnorm
 from tabulate import tabulate
 from models import RaceModel, SimResult
 
@@ -86,6 +87,41 @@ def print_odds(results: list[SimResult], winning_times: np.ndarray) -> None:
         tablefmt="rounded_outline",
     ))
     print(f"  Projected winning time: {np.mean(winning_times):.3f}s  (median {np.median(winning_times):.3f}s)")
+
+
+def show_distributions(models: list[RaceModel]) -> None:
+    """Plot each swimmer's ex-Gaussian time distribution with a mean line."""
+    # Sort by projected mean so the legend reads fastest → slowest
+    sorted_models = sorted(models, key=lambda m: m.mu)
+
+    x_min = min(m.pb for m in sorted_models) - 0.3
+    x_max = max(m.mu for m in sorted_models) + 1.2
+    x = np.linspace(x_min, x_max, 500)
+
+    fig, ax = plt.subplots(figsize=(12, 6))
+    colors = plt.cm.tab10.colors
+
+    pdfs = []
+    for i, m in enumerate(sorted_models):
+        sigma_n = float(np.sqrt(max(m.sigma**2 - m.tau**2, 1e-9)))
+        K = m.tau / sigma_n if m.tau > 0 else 1e-6
+        pdfs.append(exponnorm.pdf(x, K=K, loc=m.mu - m.tau, scale=sigma_n))
+
+    y_max = max(pdf.max() for pdf in pdfs)
+
+    for i, (m, pdf) in enumerate(zip(sorted_models, pdfs)):
+        color = colors[i % len(colors)]
+        ax.plot(x, pdf, color=color, linewidth=1.8, label=m.name)
+        ax.axvline(m.mu, color=color, linewidth=0.9, linestyle="--", alpha=0.7)
+        ax.text(m.mu + 0.01, y_max * 0.02, f"{m.mu:.3f}s",
+                color=color, fontsize=7, va="bottom", rotation=90)
+
+    ax.set_xlabel("Race Time (s)")
+    ax.set_ylabel("Probability Density")
+    ax.set_title("2024 Paris Olympics — Men's 50m Freestyle Final\nSwimmer Time Distributions (Ex-Gaussian)")
+    ax.legend(fontsize=8, loc="upper right")
+    plt.tight_layout()
+    plt.show()
 
 
 def show_chart(results: list[SimResult]) -> None:

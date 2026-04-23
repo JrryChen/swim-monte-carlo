@@ -4,7 +4,7 @@ matplotlib.use("Agg")  # non-interactive backend, no window
 
 from fetcher import get_finalists, get_athlete_times
 from simulation import build_model, run
-from output import print_models, print_table, print_odds, save_csv, save_json
+from output import print_models, print_table, print_odds, show_distributions, save_csv, save_json
 from config import N_SIMULATIONS
 
 print("Fetching finalists...")
@@ -25,6 +25,7 @@ results, winning_times = run(models, n=N_SIMULATIONS)
 
 print_table(results)
 print_odds(results, winning_times)
+show_distributions(models)
 save_csv(results)
 save_json(results)
 print("\nDone.")

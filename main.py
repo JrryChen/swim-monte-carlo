@@ -1,6 +1,6 @@
 from fetcher import get_finalists, get_athlete_times
 from simulation import build_model, run
-from output import print_models, print_table, print_odds, show_chart, save_csv, save_json
+from output import print_models, print_table, print_odds, show_distributions, show_chart, save_csv, save_json
 from config import N_SIMULATIONS
 
 
@@ -25,6 +25,7 @@ def main() -> None:
     print_odds(results, winning_times)
     save_csv(results)
     save_json(results)
+    show_distributions(models)
     show_chart(results)
 
 
