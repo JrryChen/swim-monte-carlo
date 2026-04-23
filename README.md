@@ -2,7 +2,7 @@
 
 A Monte Carlo simulation that models finishing-position probabilities for competitive swimming finals using historical LCM (long course metre) results.
 
-The current event used is the **2024 Paris Olympics — Men's 50m Freestyle Final**.
+All 28 individual swimming events from the **2024 Paris Olympics** are supported.
 
 ---
 
@@ -19,12 +19,19 @@ pip install -r requirements.txt
 ### 2. Run the simulation
 
 ```bash
-# With matplotlib GUI charts
+# Default event (Men's 50m Freestyle)
 python main.py
 
-# Headless (saves charts to results/ without opening windows)
-python run_headless.py
+# Specify any 2024 Paris Olympics event with --event
+python main.py --event men_200_breast
+python main.py --event women_100_fly
+python main.py --event men_400_im
+
+# Headless mode — saves charts to results/ without opening windows
+python run_headless.py --event men_200_breast
 ```
+
+Available event slugs follow the pattern `{men|women}_{distance}_{stroke}`, e.g. `men_50_free`, `women_200_back`, `men_400_im`. Run `python main.py --help` to list all 28 options.
 
 Results are written to `results/`:
 | File | Contents |
@@ -53,8 +60,8 @@ pytest tests/
 | `SEASON_START_MONTH` | `9` | Month that starts a new swim season (September). Adjust if targeting a league with a different season calendar. |
 | `MAX_SEASONS` | `4` | Maximum number of seasons of history used. `4` covers the Olympic cycle. Higher = more historical data but risks stale results. Lower = only recent seasons matter. |
 | `BEST_TIME_DECAY` | `2.0` | Controls how strongly times near the world record are upweighted relative to slower times. `weight = exp(-BEST_TIME_DECAY × (time − WR))`. Higher = elite performances dominate the model almost completely. Lower = off-days drag the projected mean up more. |
-| `WORLD_RECORD` | `20.91` | The LCM 50m freestyle world record at the time of the target event. Used as the anchor for proximity weighting. Update this when targeting a different event or discipline. |
 | `EXCLUDED_COMPETITIONS` | `["World Cup", "25m", "Short Course", "NCAA Dual Meet", "ISL"]` | Any competition whose name contains one of these strings is excluded. World Cup and ISL events are short-course (25m pool) and not comparable to LCM. Add strings here to filter out other non-standard meets. |
+| `DEFAULT_EVENT` | `"men_50_free"` | The event run when no `--event` flag is passed. Change to any slug from `events.py` to switch the default. |
 
 ---
 
@@ -101,7 +108,7 @@ X = Normal(μ − τ, σ_n)  +  Exponential(τ)
 
 ## Results — 2024 Paris Olympics Men's 50m Freestyle Final
 
-*Based on 1,000,000 simulated races using LCM 50m freestyle results recorded before 2024-08-02.*
+*Based on 1,000,000 simulated races using LCM results recorded before 2024-08-02.*
 
 ### Swimmer models
 
