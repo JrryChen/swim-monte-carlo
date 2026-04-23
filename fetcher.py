@@ -53,7 +53,12 @@ def get_athlete_times(athlete: Athlete, before_date: str, discipline_name: str) 
             continue
 
         try:
-            time_seconds = float(entry["Time"])
+            raw = entry.get("Time") or ""
+            if ":" in raw:
+                minutes, rest = raw.split(":", 1)
+                time_seconds = int(minutes) * 60 + float(rest)
+            else:
+                time_seconds = float(raw)
         except (ValueError, TypeError):
             continue
 
