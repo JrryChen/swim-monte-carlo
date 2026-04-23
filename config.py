@@ -10,10 +10,11 @@ SEASON_DECAY = 0.3
 SEASON_START_MONTH = 9  # September
 MAX_SEASONS = 4  # Olympic cycle — ignore results older than 4 seasons
 
-# Proximity weighting: times closer to the swimmer's best receive more weight.
-# weight = exp(-BEST_TIME_DECAY * (time - best_time))
-# Higher values = faster drop-off away from best time.
+# Proximity weighting: times closer to the world record receive more weight.
+# weight = exp(-BEST_TIME_DECAY * (time - WORLD_RECORD))
+# Higher values = faster drop-off away from the world record.
 BEST_TIME_DECAY = 2.0
+WORLD_RECORD = 20.91  # men's 50m freestyle LCM WR at time of event
 
 TARGET_DISCIPLINE = "Men's 50m Freestyle"
 SHORT_COURSE_MARKER = "25m"  # skip any competition name containing this
