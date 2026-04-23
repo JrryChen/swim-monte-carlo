@@ -15,14 +15,14 @@ def make_athlete(name: str, times: list[float], date: str = "2024-01-01") -> Ath
 
 
 def test_build_model_computes_mean_and_std():
-    # Times [21.0, 21.5, 22.0] in one season: raw_mean=21.5, best=21.0, drop=0.5
-    # adjusted mu = 21.5 - 0.5 = 21.0
+    # Times [21.0, 21.5, 22.0] in one season: raw_mean=21.5, best=21.0
+    # relative_drop = 0.5/21.5; adjusted mu = 21.5 * (1 - 0.5/21.5) = 21.0
     athlete = make_athlete("Alice", [21.0, 21.5, 22.0])
     model = build_model(athlete)
 
     assert model.name == "Alice"
     assert abs(model.mu - 21.0) < 1e-9
-    assert abs(model.season_drop - 0.5) < 1e-9
+    assert abs(model.season_drop - 0.5 / 21.5) < 1e-9
     assert model.sigma > 0
 
 
@@ -97,7 +97,7 @@ def test_build_model_ignores_results_beyond_four_seasons():
 
 
 def test_season_drop_lowers_mu_for_variable_swimmer():
-    """A swimmer with a big gap between avg and best gets a lower projected μ."""
+    """A swimmer with a big relative gap between avg and best gets a lower projected μ."""
     consistent = Athlete(id="0", name="Consistent")
     consistent.results = [SwimResult("T", 21.5, "2024-01-01")] * 5  # no variance
 
@@ -112,7 +112,7 @@ def test_season_drop_lowers_mu_for_variable_swimmer():
     m_variable = build_model(variable)
 
     assert m_consistent.season_drop == 0.0
-    assert m_variable.season_drop > 0.3          # significant drop
+    assert m_variable.season_drop > 0.01         # significant relative drop (>1%)
     assert m_variable.mu < m_consistent.mu       # variable swimmer projects faster
 
 

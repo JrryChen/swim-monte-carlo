@@ -39,17 +39,19 @@ def build_model(athlete: Athlete) -> RaceModel:
         variance = float(np.average((times - mu_raw) ** 2, weights=weights))
         sigma = float(np.sqrt(variance))
 
-    # Season-best adjustment: compute each season's avg→best drop, then
-    # weight-average those drops (same decay) and subtract from mu.
+    # Season-best adjustment: express each season's drop as a fraction of
+    # that season's average so that dropping 0.3s from 21.5 is treated as
+    # a harder achievement than dropping 0.3s from 21.9.
     unique_seasons = sorted(set(int(s) for s in seasons))
-    drops, drop_weights = [], []
+    rel_drops, drop_weights = [], []
     for s in unique_seasons:
         s_times = times[seasons == s]
-        drops.append(float(np.mean(s_times) - np.min(s_times)))
+        s_avg = float(np.mean(s_times))
+        rel_drops.append((s_avg - float(np.min(s_times))) / s_avg)
         drop_weights.append(SEASON_DECAY ** (most_recent - s))
 
-    season_drop = float(np.average(drops, weights=drop_weights))
-    mu = mu_raw - season_drop
+    season_drop = float(np.average(rel_drops, weights=drop_weights))
+    mu = mu_raw * (1 - season_drop)
 
     return RaceModel(name=athlete.name, mu=mu, sigma=sigma, season_drop=season_drop)
 

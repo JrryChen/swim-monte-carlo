@@ -24,7 +24,7 @@ class RaceModel:
     name: str
     mu: float         # championship-adjusted mean time in seconds
     sigma: float      # std dev in seconds
-    season_drop: float = 0.0  # expected improvement from season avg to season best
+    season_drop: float = 0.0  # relative drop fraction: (season_avg - season_best) / season_avg
 
 
 @dataclass
