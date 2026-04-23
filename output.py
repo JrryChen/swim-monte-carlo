@@ -111,10 +111,8 @@ def show_distributions(models: list[RaceModel]) -> None:
 
     for i, (m, pdf) in enumerate(zip(sorted_models, pdfs)):
         color = colors[i % len(colors)]
-        ax.plot(x, pdf, color=color, linewidth=1.8, label=m.name)
+        ax.plot(x, pdf, color=color, linewidth=1.8, label=f"{m.name}  (μ={m.mu:.3f}s)")
         ax.axvline(m.mu, color=color, linewidth=0.9, linestyle="--", alpha=0.7)
-        ax.text(m.mu + 0.01, y_max * 0.02, f"{m.mu:.3f}s",
-                color=color, fontsize=7, va="bottom", rotation=90)
 
     ax.set_xlabel("Race Time (s)")
     ax.set_ylabel("Probability Density")
