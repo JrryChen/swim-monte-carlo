@@ -7,7 +7,7 @@ DEFAULT_TAU = 0.2  # seconds — fallback exponential component when data is too
 
 # Seasonal decay: each prior season's results receive this fraction of the weight
 # of the next season. 0.5 = each older season is half as influential.
-SEASON_DECAY = 0.35
+SEASON_DECAY = 0.25
 SEASON_START_MONTH = 9  # September
 MAX_SEASONS = 4  # Olympic cycle — ignore results older than 4 seasons
 
