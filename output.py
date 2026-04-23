@@ -119,6 +119,10 @@ def show_distributions(models: list[RaceModel]) -> None:
     ax.set_title("2024 Paris Olympics — Men's 50m Freestyle Final\nSwimmer Time Distributions (Ex-Gaussian)")
     ax.legend(fontsize=8, loc="upper right")
     plt.tight_layout()
+    os.makedirs(RESULTS_DIR, exist_ok=True)
+    path = os.path.join(RESULTS_DIR, "distributions.png")
+    fig.savefig(path, dpi=150)
+    print(f"Distributions chart saved to {path}")
     plt.show()
 
 
@@ -135,6 +139,10 @@ def show_chart(results: list[SimResult]) -> None:
     ax.set_title("2024 Paris Olympics — Men's 50m Freestyle Final\nWin Probability (Monte Carlo)")
     ax.invert_yaxis()
     plt.tight_layout()
+    os.makedirs(RESULTS_DIR, exist_ok=True)
+    path = os.path.join(RESULTS_DIR, "win_probabilities.png")
+    fig.savefig(path, dpi=150)
+    print(f"Win probability chart saved to {path}")
     plt.show()
 
 
