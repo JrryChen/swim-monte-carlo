@@ -15,11 +15,14 @@ def make_athlete(name: str, times: list[float], date: str = "2024-01-01") -> Ath
 
 
 def test_build_model_computes_mean_and_std():
+    # Times [21.0, 21.5, 22.0] in one season: raw_mean=21.5, best=21.0, drop=0.5
+    # adjusted mu = 21.5 - 0.5 = 21.0
     athlete = make_athlete("Alice", [21.0, 21.5, 22.0])
     model = build_model(athlete)
 
     assert model.name == "Alice"
-    assert abs(model.mu - 21.5) < 1e-9
+    assert abs(model.mu - 21.0) < 1e-9
+    assert abs(model.season_drop - 0.5) < 1e-9
     assert model.sigma > 0
 
 
@@ -78,6 +81,46 @@ def test_get_season_year_september_starts_new_season():
     assert _get_season_year("2024-08-31") == 2023  # Aug = still old season
     assert _get_season_year("2024-01-15") == 2023  # Jan = still old season
     assert _get_season_year("2023-12-01") == 2023  # Dec = mid-season
+
+
+def test_build_model_ignores_results_beyond_four_seasons():
+    """Results more than 4 seasons old must not influence the model."""
+    athlete = Athlete(id="0", name="Test")
+    athlete.results = [
+        SwimResult("VeryOld", 25.0, "2018-01-01"),  # season 2017 — 6 seasons ago, excluded
+        SwimResult("Recent",  21.0, "2024-01-01"),  # season 2023 — included
+        SwimResult("Recent",  21.0, "2024-06-01"),  # season 2023 — included
+    ]
+    model = build_model(athlete)
+    # If the 25.0 were included, mu would be pulled well above 21.0
+    assert model.mu < 22.0
+
+
+def test_season_drop_lowers_mu_for_variable_swimmer():
+    """A swimmer with a big gap between avg and best gets a lower projected μ."""
+    consistent = Athlete(id="0", name="Consistent")
+    consistent.results = [SwimResult("T", 21.5, "2024-01-01")] * 5  # no variance
+
+    variable = Athlete(id="1", name="Variable")
+    variable.results = [
+        SwimResult("T", 21.7, "2024-01-01"),
+        SwimResult("T", 21.7, "2024-02-01"),
+        SwimResult("T", 21.0, "2024-03-01"),  # big championship drop
+    ]
+
+    m_consistent = build_model(consistent)
+    m_variable = build_model(variable)
+
+    assert m_consistent.season_drop == 0.0
+    assert m_variable.season_drop > 0.3          # significant drop
+    assert m_variable.mu < m_consistent.mu       # variable swimmer projects faster
+
+
+def test_season_drop_zero_for_single_result():
+    """A single result per season has no drop (avg == best)."""
+    athlete = make_athlete("Solo", [21.5])
+    model = build_model(athlete)
+    assert model.season_drop == 0.0
 
 
 def test_build_model_weights_recent_seasons_more():

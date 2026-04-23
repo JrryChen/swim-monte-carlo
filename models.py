@@ -22,8 +22,9 @@ class Athlete:
 @dataclass
 class RaceModel:
     name: str
-    mu: float    # mean time in seconds
-    sigma: float  # std dev in seconds
+    mu: float         # championship-adjusted mean time in seconds
+    sigma: float      # std dev in seconds
+    season_drop: float = 0.0  # expected improvement from season avg to season best
 
 
 @dataclass
