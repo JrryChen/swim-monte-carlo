@@ -12,13 +12,13 @@ RESULTS_DIR = "results"
 def print_models(models: list[RaceModel]) -> None:
     """Print a summary table of each swimmer's fitted distribution."""
     rows = [
-        [m.name, f"{m.pb:.3f}s", f"{m.mu:.3f}s", f"{m.sigma:.3f}s", f"{m.season_drop:.2%}"]
+        [m.name, f"{m.pb:.3f}s", f"{m.mu:.3f}s", f"{m.sigma:.3f}s", f"{m.tau:.3f}s", f"{m.season_drop:.2%}"]
         for m in models
     ]
     print("\n=== Swimmer Performance Models (pre-event LCM 50m free) ===")
     print(tabulate(
         rows,
-        headers=["Swimmer", "PB", "Proj. Mean (μ)", "Std Dev (σ)", "Season Drop"],
+        headers=["Swimmer", "PB", "Proj. Mean (μ)", "Std Dev (σ)", "Tau (τ)", "Season Drop"],
         tablefmt="rounded_outline",
     ))
 
