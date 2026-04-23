@@ -65,13 +65,14 @@ def build_model(athlete: Athlete) -> RaceModel:
     return RaceModel(name=athlete.name, mu=mu, sigma=sigma, season_drop=season_drop, pb=pb)
 
 
-def run(models: list[RaceModel], n: int = N_SIMULATIONS) -> list[SimResult]:
+def run(models: list[RaceModel], n: int = N_SIMULATIONS) -> tuple[list[SimResult], np.ndarray]:
     """
-    Simulate n races and return finishing-position probabilities per swimmer.
+    Simulate n races and return (place-probability results, winning times).
     Lower time = better finish.
     """
     num_swimmers = len(models)
     position_counts: dict[str, list[int]] = {m.name: [0] * num_swimmers for m in models}
+    winning_times: list[float] = []
 
     rng = np.random.default_rng()
 
@@ -79,6 +80,7 @@ def run(models: list[RaceModel], n: int = N_SIMULATIONS) -> list[SimResult]:
         sampled_times = np.array([
             rng.normal(m.mu, m.sigma) for m in models
         ])
+        winning_times.append(float(np.min(sampled_times)))
         # argsort ascending: index 0 = fastest swimmer
         ranks = np.argsort(sampled_times)
         for place, swimmer_idx in enumerate(ranks):
@@ -90,4 +92,4 @@ def run(models: list[RaceModel], n: int = N_SIMULATIONS) -> list[SimResult]:
         place_probs = {place + 1: count / n for place, count in enumerate(counts)}
         results.append(SimResult(name=model.name, place_probs=place_probs))
 
-    return results
+    return results, np.array(winning_times)

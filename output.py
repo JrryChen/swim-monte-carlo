@@ -1,5 +1,6 @@
 import json
 import os
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from tabulate import tabulate
@@ -39,6 +40,52 @@ def print_table(results: list[SimResult]) -> None:
 
     print("\n=== Monte Carlo Simulation Results ===")
     print(tabulate(rows, headers=headers, tablefmt="rounded_outline"))
+
+
+def _american_odds(p: float) -> str:
+    if p <= 0 or p >= 1:
+        return "N/A"
+    if p >= 0.5:
+        return f"-{round(p / (1 - p) * 100)}"
+    return f"+{round((1 - p) / p * 100)}"
+
+
+def print_odds(results: list[SimResult], winning_times: np.ndarray) -> None:
+    """Print sportsbook-style odds: win, top-3, and winning-time O/U lines."""
+    sorted_results = _sorted_results(results)
+
+    # --- Win / Top 3 table ---
+    rows = []
+    for r in sorted_results:
+        win_p = r.place_probs[1]
+        top3_p = sum(r.place_probs.get(i, 0) for i in range(1, 4))
+        rows.append([r.name, _american_odds(win_p), _american_odds(top3_p)])
+
+    print("\n=== Sportsbook Odds ===")
+    print(tabulate(rows, headers=["Swimmer", "To Win", "Top 3"], tablefmt="rounded_outline"))
+
+    # --- Winning time O/U lines ---
+    median = float(np.median(winning_times))
+    # Round to nearest 0.05 for clean lines
+    base = round(round(median / 0.05) * 0.05, 2)
+    lines = [base - 0.10, base - 0.05, base, base + 0.05, base + 0.10]
+
+    ou_rows = []
+    for line in lines:
+        under_p = float(np.mean(winning_times < line))
+        ou_rows.append([
+            f"{line:.2f}s",
+            _american_odds(under_p),
+            _american_odds(1 - under_p),
+        ])
+
+    print("\n=== Winning Time O/U Lines ===")
+    print(tabulate(
+        ou_rows,
+        headers=["Line", "Under", "Over"],
+        tablefmt="rounded_outline",
+    ))
+    print(f"  Projected winning time: {np.mean(winning_times):.3f}s  (median {np.median(winning_times):.3f}s)")
 
 
 def show_chart(results: list[SimResult]) -> None:

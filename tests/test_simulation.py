@@ -42,15 +42,16 @@ def test_build_model_raises_for_no_times():
 def test_run_returns_one_result_per_swimmer():
     athletes = [make_athlete(f"Swimmer{i}", [21.0 + i * 0.1]) for i in range(8)]
     models = [build_model(a) for a in athletes]
-    results = run(models, n=100)
+    results, winning_times = run(models, n=100)
 
     assert len(results) == 8
+    assert len(winning_times) == 100
 
 
 def test_run_probabilities_sum_to_one():
     athletes = [make_athlete(f"Swimmer{i}", [21.0 + i * 0.05, 21.1 + i * 0.05]) for i in range(8)]
     models = [build_model(a) for a in athletes]
-    results = run(models, n=1000)
+    results, _ = run(models, n=1000)
 
     # Each swimmer's probs across all places should sum to 1
     for r in results:
@@ -67,12 +68,13 @@ def test_run_faster_swimmer_wins_more_often():
     fast = make_athlete("Fast", [21.0, 21.0])
     slow = make_athlete("Slow", [23.0, 23.0])
     models = [build_model(fast), build_model(slow)]
-    results = run(models, n=1000)
+    results, winning_times = run(models, n=1000)
 
     fast_result = next(r for r in results if r.name == "Fast")
     slow_result = next(r for r in results if r.name == "Slow")
 
     assert fast_result.place_probs[1] > slow_result.place_probs[1]
+    assert winning_times.mean() < 22.0  # winning time should be near the fast swimmer's mu
 
 
 def test_get_season_year_september_starts_new_season():
