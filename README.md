@@ -120,27 +120,27 @@ X = Normal(μ − τ, σ_n)  +  Exponential(τ)
 
 | Swimmer | P(1) | P(2) | P(3) | P(4) | P(5) | P(6) | P(7) | P(8) |
 |---|---|---|---|---|---|---|---|---|
-| MCEVOY Cameron | 39.6% | 22.0% | 13.3% | 8.6% | 6.0% | 4.5% | 3.4% | 2.7% |
-| DRESSEL Caeleb | 25.1% | 18.4% | 13.7% | 10.6% | 8.8% | 7.8% | 7.3% | 8.3% |
-| PROUD Benjamin | 18.9% | 25.8% | 21.1% | 13.7% | 8.8% | 5.8% | 3.7% | 2.2% |
-| LIENDO Josh | 8.9% | 12.3% | 13.5% | 13.3% | 12.7% | 12.4% | 12.4% | 14.6% |
-| DEPLANO Leonardo | 3.8% | 9.8% | 14.6% | 16.4% | 15.3% | 13.6% | 12.3% | 14.1% |
-| CROOKS Jordan | 3.1% | 8.3% | 13.5% | 16.5% | 16.9% | 15.7% | 13.6% | 12.4% |
-| MANAUDOU Florent | 0.5% | 3.0% | 9.1% | 17.1% | 22.4% | 21.7% | 16.1% | 10.2% |
+| MCEVOY Cameron | 39.6% | 22.0% | 13.3% | 8.6% | 6.0% | 4.4% | 3.4% | 2.7% |
+| DRESSEL Caeleb | 25.1% | 18.4% | 13.7% | 10.6% | 8.8% | 7.8% | 7.3% | 8.2% |
+| PROUD Benjamin | 18.8% | 25.8% | 21.1% | 13.7% | 8.9% | 5.8% | 3.7% | 2.2% |
+| LIENDO Josh | 8.9% | 12.3% | 13.5% | 13.3% | 12.5% | 12.4% | 12.5% | 14.6% |
+| DEPLANO Leonardo | 3.8% | 9.8% | 14.7% | 16.5% | 15.3% | 13.6% | 12.3% | 14.1% |
+| CROOKS Jordan | 3.2% | 8.4% | 13.4% | 16.5% | 16.9% | 15.7% | 13.6% | 12.4% |
+| MANAUDOU Florent | 0.5% | 3.0% | 9.0% | 17.1% | 22.5% | 21.7% | 16.1% | 10.1% |
 | GKOLOMEEV Kristian | 0.0% | 0.3% | 1.3% | 3.8% | 9.1% | 18.6% | 31.1% | 35.7% |
 
 ### Sportsbook odds (American format)
 
 | Swimmer | To Win | Top 3 |
 |---|---|---|
-| MCEVOY Cameron | +153 | -298 |
+| MCEVOY Cameron | +152 | -299 |
 | DRESSEL Caeleb | +298 | -134 |
-| PROUD Benjamin | +428 | -193 |
-| LIENDO Josh | +1021 | +188 |
-| DEPLANO Leonardo | +2533 | +254 |
-| CROOKS Jordan | +3078 | +301 |
-| MANAUDOU Florent | +20953 | +697 |
-| GKOLOMEEV Kristian | +277678 | +5986 |
+| PROUD Benjamin | +431 | -192 |
+| LIENDO Josh | +1018 | +188 |
+| DEPLANO Leonardo | +2524 | +254 |
+| CROOKS Jordan | +3072 | +300 |
+| MANAUDOU Florent | +20442 | +700 |
+| GKOLOMEEV Kristian | +265152 | +6040 |
 
 ### Winning time O/U lines
 
@@ -149,12 +149,13 @@ Projected winning time: **20.989s** (median 21.002s)
 | Line | Under | Over |
 |---|---|---|
 | 20.90s | +250 | -250 |
-| 20.95s | +161 | -161 |
+| 20.95s | +160 | -160 |
 | 21.00s | +102 | -102 |
 | 21.05s | -158 | +158 |
 | 21.10s | -265 | +265 |
 
 ### Charts
 
-![Swimmer Distributions](results/distributions.png)
+![Swimmer Time Distributions](results/distributions.png)
+
 ![Win Probabilities](results/win_probabilities.png)
