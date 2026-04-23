@@ -1,6 +1,6 @@
 import numpy as np
 from models import Athlete, RaceModel, SimResult
-from config import DEFAULT_SIGMA, N_SIMULATIONS, SEASON_DECAY, SEASON_START_MONTH, MAX_SEASONS
+from config import DEFAULT_SIGMA, N_SIMULATIONS, SEASON_DECAY, SEASON_START_MONTH, MAX_SEASONS, BEST_TIME_DECAY
 
 
 def _get_season_year(date: str) -> int:
@@ -29,7 +29,13 @@ def build_model(athlete: Athlete) -> RaceModel:
     times = np.array([r.time_seconds for r in dated])
     seasons = np.array([_get_season_year(r.date) for r in dated])
 
-    weights = np.array([SEASON_DECAY ** (most_recent - s) for s in seasons])
+    season_weights = np.array([SEASON_DECAY ** (most_recent - s) for s in seasons])
+
+    # Proximity weighting: times closer to the best get exponentially more weight,
+    # reflecting that peak performances are the most representative of true capability.
+    best_time = float(np.min(times))
+    proximity_weights = np.exp(-BEST_TIME_DECAY * (times - best_time))
+    weights = season_weights * proximity_weights
 
     mu_raw = float(np.average(times, weights=weights))
 
