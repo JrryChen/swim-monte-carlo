@@ -162,12 +162,12 @@ def test_build_model_tau_defaults_for_sparse_data():
 
 
 def test_run_sampled_times_right_skewed():
-    """Ex-Gaussian samples should be right-skewed: mean > median."""
+    """Ex-Gaussian samples should be right-skewed: positive skewness."""
+    from scipy.stats import skew
     fast = make_athlete("Fast", [21.0, 21.1, 21.2, 21.5, 21.8])
     models = [build_model(fast)]
     _, winning_times = run(models, n=5000)
-    # Right-skewed distribution: mean pulled above median by the long right tail
-    assert np.mean(winning_times) > np.median(winning_times)
+    assert skew(winning_times) > 0
 
 
 def test_build_model_weights_recent_seasons_more():
