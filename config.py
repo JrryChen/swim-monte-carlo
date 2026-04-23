@@ -1,4 +1,4 @@
-EVENT_URL = "https://api.worldaquatics.com/fina/events/c31e315f-369f-4b46-9d83-a156bd1b4b42"
+EVENT_URL = "https://api.worldaquatics.com/fina/events/c31e315f-369f-4b46-9d83-a156bd1b4b42" # 2024 Paris Olympics Men's 50m freestyle final
 ATHLETE_URL = "https://api.worldaquatics.com/fina/athletes/{athlete_id}/results"
 
 N_SIMULATIONS = 1_000_000
