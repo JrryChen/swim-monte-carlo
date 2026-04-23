@@ -6,6 +6,9 @@ import pytest
 import numpy as np
 from models import Athlete, SwimResult
 from simulation import build_model, run, _get_season_year
+from events import EVENTS_2024_PARIS
+
+MEN_50_FREE = EVENTS_2024_PARIS["men_50_free"]
 
 
 def make_athlete(name: str, times: list[float], date: str = "2024-01-01") -> Athlete:
@@ -17,7 +20,7 @@ def make_athlete(name: str, times: list[float], date: str = "2024-01-01") -> Ath
 def test_build_model_computes_mean_and_std():
     # Proximity + season-drop weighting pulls mu toward best; PB cap floors it at 21.0.
     athlete = make_athlete("Alice", [21.0, 21.5, 22.0])
-    model = build_model(athlete)
+    model = build_model(athlete, MEN_50_FREE)
 
     assert model.name == "Alice"
     assert model.mu == 21.0        # capped at PB
@@ -28,7 +31,7 @@ def test_build_model_computes_mean_and_std():
 def test_build_model_uses_default_sigma_for_single_time():
     from config import DEFAULT_SIGMA
     athlete = make_athlete("Bob", [21.0])
-    model = build_model(athlete)
+    model = build_model(athlete, MEN_50_FREE)
 
     assert model.sigma == DEFAULT_SIGMA
 
@@ -36,12 +39,12 @@ def test_build_model_uses_default_sigma_for_single_time():
 def test_build_model_raises_for_no_times():
     athlete = Athlete(id="0", name="Empty")
     with pytest.raises(ValueError):
-        build_model(athlete)
+        build_model(athlete, MEN_50_FREE)
 
 
 def test_run_returns_one_result_per_swimmer():
     athletes = [make_athlete(f"Swimmer{i}", [21.0 + i * 0.1]) for i in range(8)]
-    models = [build_model(a) for a in athletes]
+    models = [build_model(a, MEN_50_FREE) for a in athletes]
     results, winning_times = run(models, n=100)
 
     assert len(results) == 8
@@ -50,7 +53,7 @@ def test_run_returns_one_result_per_swimmer():
 
 def test_run_probabilities_sum_to_one():
     athletes = [make_athlete(f"Swimmer{i}", [21.0 + i * 0.05, 21.1 + i * 0.05]) for i in range(8)]
-    models = [build_model(a) for a in athletes]
+    models = [build_model(a, MEN_50_FREE) for a in athletes]
     results, _ = run(models, n=1000)
 
     # Each swimmer's probs across all places should sum to 1
@@ -67,7 +70,7 @@ def test_run_probabilities_sum_to_one():
 def test_run_faster_swimmer_wins_more_often():
     fast = make_athlete("Fast", [21.0, 21.0])
     slow = make_athlete("Slow", [23.0, 23.0])
-    models = [build_model(fast), build_model(slow)]
+    models = [build_model(fast, MEN_50_FREE), build_model(slow, MEN_50_FREE)]
     results, winning_times = run(models, n=1000)
 
     fast_result = next(r for r in results if r.name == "Fast")
@@ -92,7 +95,7 @@ def test_build_model_ignores_results_beyond_four_seasons():
         SwimResult("Recent",  21.0, "2024-01-01"),  # season 2023 — included
         SwimResult("Recent",  21.0, "2024-06-01"),  # season 2023 — included
     ]
-    model = build_model(athlete)
+    model = build_model(athlete, MEN_50_FREE)
     # If the 25.0 were included, mu would be pulled well above 21.0
     assert model.mu < 22.0
 
@@ -106,7 +109,7 @@ def test_build_model_caps_mu_at_pb():
         SwimResult("T", 22.5, "2024-02-01"),
         SwimResult("T", 21.8, "2024-03-01"),  # season best
     ]
-    model = build_model(athlete)
+    model = build_model(athlete, MEN_50_FREE)
     assert model.mu >= model.pb
     assert model.pb == 21.8
 
@@ -123,8 +126,8 @@ def test_season_drop_lowers_mu_for_variable_swimmer():
         SwimResult("T", 21.0, "2024-03-01"),  # big championship drop
     ]
 
-    m_consistent = build_model(consistent)
-    m_variable = build_model(variable)
+    m_consistent = build_model(consistent, MEN_50_FREE)
+    m_variable = build_model(variable, MEN_50_FREE)
 
     assert m_consistent.season_drop == 0.0
     assert m_variable.season_drop > 0.01         # significant relative drop (>1%)
@@ -134,7 +137,7 @@ def test_season_drop_lowers_mu_for_variable_swimmer():
 def test_season_drop_zero_for_single_result():
     """A single result per season has no drop (avg == best)."""
     athlete = make_athlete("Solo", [21.5])
-    model = build_model(athlete)
+    model = build_model(athlete, MEN_50_FREE)
     assert model.season_drop == 0.0
 
 
@@ -149,7 +152,7 @@ def test_build_model_tau_positive_for_right_skewed_data():
         SwimResult("T", 21.8, "2024-04-01"),  # outlier pulls skew right
         SwimResult("T", 21.9, "2024-05-01"),
     ]
-    model = build_model(athlete)
+    model = build_model(athlete, MEN_50_FREE)
     assert model.tau > DEFAULT_TAU
 
 
@@ -157,7 +160,7 @@ def test_build_model_tau_defaults_for_sparse_data():
     """With fewer than 3 results, tau should fall back to DEFAULT_TAU."""
     from config import DEFAULT_TAU
     athlete = make_athlete("Solo", [21.0, 21.5])
-    model = build_model(athlete)
+    model = build_model(athlete, MEN_50_FREE)
     assert model.tau == DEFAULT_TAU
 
 
@@ -165,7 +168,7 @@ def test_run_sampled_times_right_skewed():
     """Ex-Gaussian samples should be right-skewed: positive skewness."""
     from scipy.stats import skew
     fast = make_athlete("Fast", [21.0, 21.1, 21.2, 21.5, 21.8])
-    models = [build_model(fast)]
+    models = [build_model(fast, MEN_50_FREE)]
     _, winning_times = run(models, n=5000)
     assert skew(winning_times) > 0
 
@@ -181,7 +184,7 @@ def test_build_model_weights_recent_seasons_more():
         SwimResult("Recent", 21.0, "2024-01-01"),
         SwimResult("Recent", 21.0, "2024-06-01"),
     ]
-    model = build_model(athlete)
+    model = build_model(athlete, MEN_50_FREE)
     unweighted_mean = np.mean([23.0, 23.0, 21.0, 21.0])  # = 22.0
 
     # Weighted mean must be pulled below 22.0 toward the recent fast times

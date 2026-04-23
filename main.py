@@ -28,7 +28,7 @@ def main() -> None:
         get_athlete_times(athlete, before_date=event_date, discipline_name=event.discipline_name)
         print(f"  {athlete.name}: {len(athlete.times)} results")
 
-    models = [build_model(a, world_record=event.world_record) for a in athletes]
+    models = [build_model(a, event) for a in athletes]
     print_models(models)
 
     print(f"\nRunning {N_SIMULATIONS:,} simulations...")

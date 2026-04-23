@@ -1,6 +1,7 @@
 import numpy as np
 from models import Athlete, RaceModel, SimResult
 from config import DEFAULT_SIGMA, DEFAULT_TAU, N_SIMULATIONS, SEASON_DECAY, SEASON_START_MONTH, MAX_SEASONS, BEST_TIME_DECAY
+from events import EventConfig
 
 
 def _get_season_year(date: str) -> int:
@@ -12,18 +13,27 @@ def _get_season_year(date: str) -> int:
     return year if month >= SEASON_START_MONTH else year - 1
 
 
-def build_model(athlete: Athlete, world_record: float = 20.91) -> RaceModel:
-    """Fit a seasonally-weighted normal distribution to the athlete's times.
+def build_model(athlete: Athlete, event: EventConfig) -> RaceModel:
+    """Fit a seasonally-weighted ex-Gaussian to the athlete's times.
 
     Results from the most recent season carry weight 1.0; each prior season
     is multiplied by SEASON_DECAY, so older data has diminishing influence.
+
+    DEFAULT_SIGMA, DEFAULT_TAU, and BEST_TIME_DECAY are tuned for 50m sprints.
+    They are scaled by distance/50 (or 50/distance for decay) so that fallback
+    values and proximity weighting are proportionally equivalent across events.
     """
     dated = [r for r in athlete.results if r.date]
     if not dated:
-        raise ValueError(f"No LCM 50m freestyle times found for {athlete.name}.")
+        raise ValueError(f"No LCM times found for {athlete.name}.")
+
+    scale = event.distance / 50
+    effective_sigma = DEFAULT_SIGMA * scale
+    effective_tau = DEFAULT_TAU * scale
+    effective_decay = BEST_TIME_DECAY / scale
 
     most_recent = max(_get_season_year(r.date) for r in dated)
-    cutoff = most_recent - MAX_SEASONS  # seasons strictly older than this are dropped
+    cutoff = most_recent - MAX_SEASONS
     dated = [r for r in dated if _get_season_year(r.date) > cutoff]
 
     times = np.array([r.time_seconds for r in dated])
@@ -31,22 +41,17 @@ def build_model(athlete: Athlete, world_record: float = 20.91) -> RaceModel:
 
     season_weights = np.array([SEASON_DECAY ** (most_recent - s) for s in seasons])
 
-    # Proximity weighting: times closer to the world record get exponentially more
-    # weight, so elite performances pull the mean down more than off-days.
-    proximity_weights = np.exp(-BEST_TIME_DECAY * (times - world_record))
+    proximity_weights = np.exp(-effective_decay * (times - event.world_record))
     weights = season_weights * proximity_weights
 
     mu_raw = float(np.average(times, weights=weights))
 
     if len(times) == 1:
-        sigma = DEFAULT_SIGMA
+        sigma = effective_sigma
     else:
         variance = float(np.average((times - mu_raw) ** 2, weights=weights))
         sigma = float(np.sqrt(variance))
 
-    # Season-best adjustment: express each season's drop as a fraction of
-    # that season's average so that dropping 0.3s from 21.5 is treated as
-    # a harder achievement than dropping 0.3s from 21.9.
     unique_seasons = sorted(set(int(s) for s in seasons))
     rel_drops, drop_weights = [], []
     for s in unique_seasons:
@@ -58,19 +63,14 @@ def build_model(athlete: Athlete, world_record: float = 20.91) -> RaceModel:
     season_drop = float(np.average(rel_drops, weights=drop_weights))
     mu = mu_raw * (1 - season_drop)
 
-    # Hard cap: never project faster than the swimmer's actual best in the window.
     pb = float(np.min(times))
     mu = max(mu, pb)
 
-    # Estimate tau (exponential component) from weighted third central moment.
-    # For ex-Gaussian: third central moment = 2*tau^3, so tau = (m3/2)^(1/3).
-    # Fall back to DEFAULT_TAU if data is too sparse or skew is non-positive.
     if len(times) >= 3:
         m3 = float(np.average((times - mu_raw) ** 3, weights=weights))
-        tau = float((m3 / 2) ** (1 / 3)) if m3 > 0 else DEFAULT_TAU
+        tau = float((m3 / 2) ** (1 / 3)) if m3 > 0 else effective_tau
     else:
-        tau = DEFAULT_TAU
-    # tau can't exceed sigma (would leave no room for the normal component)
+        tau = effective_tau
     tau = min(tau, sigma * 0.9)
 
     return RaceModel(name=athlete.name, mu=mu, sigma=sigma, tau=tau, season_drop=season_drop, pb=pb)
