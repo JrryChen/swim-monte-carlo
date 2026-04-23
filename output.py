@@ -89,7 +89,7 @@ def print_odds(results: list[SimResult], winning_times: np.ndarray) -> None:
     print(f"  Projected winning time: {np.mean(winning_times):.3f}s  (median {np.median(winning_times):.3f}s)")
 
 
-def show_distributions(models: list[RaceModel]) -> None:
+def show_distributions(models: list[RaceModel], event_name: str = "Men's 50m Freestyle") -> None:
     """Plot each swimmer's ex-Gaussian time distribution with a mean line."""
     # Sort by projected mean so the legend reads fastest → slowest
     sorted_models = sorted(models, key=lambda m: m.mu)
@@ -116,7 +116,7 @@ def show_distributions(models: list[RaceModel]) -> None:
 
     ax.set_xlabel("Race Time (s)")
     ax.set_ylabel("Probability Density")
-    ax.set_title("2024 Paris Olympics — Men's 50m Freestyle Final\nSwimmer Time Distributions (Ex-Gaussian)")
+    ax.set_title(f"2024 Paris Olympics — {event_name} Final\nSwimmer Time Distributions (Ex-Gaussian)")
     ax.legend(fontsize=8, loc="upper right")
     plt.tight_layout()
     os.makedirs(RESULTS_DIR, exist_ok=True)
@@ -126,7 +126,7 @@ def show_distributions(models: list[RaceModel]) -> None:
     plt.show()
 
 
-def show_chart(results: list[SimResult]) -> None:
+def show_chart(results: list[SimResult], event_name: str = "Men's 50m Freestyle") -> None:
     """Display a horizontal bar chart of win probabilities."""
     sorted_results = _sorted_results(results)
     names = [r.name for r in sorted_results]
@@ -136,7 +136,7 @@ def show_chart(results: list[SimResult]) -> None:
     bars = ax.barh(names, [p * 100 for p in win_probs], color="steelblue")
     ax.bar_label(bars, fmt="%.1f%%", padding=4)
     ax.set_xlabel("Win Probability (%)")
-    ax.set_title("2024 Paris Olympics — Men's 50m Freestyle Final\nWin Probability (Monte Carlo)")
+    ax.set_title(f"2024 Paris Olympics — {event_name} Final\nWin Probability (Monte Carlo)")
     ax.invert_yaxis()
     plt.tight_layout()
     os.makedirs(RESULTS_DIR, exist_ok=True)

@@ -1,14 +1,16 @@
 import requests
 from models import Athlete, SwimResult
-from config import EVENT_URL, ATHLETE_URL, TARGET_DISCIPLINE, EXCLUDED_COMPETITIONS
+from events import EventConfig
+from config import ATHLETE_URL, EVENT_BASE_URL, EXCLUDED_COMPETITIONS
 
 
-def get_finalists() -> tuple[list[Athlete], str]:
+def get_finalists(event: EventConfig) -> tuple[list[Athlete], str]:
     """
-    Fetch the Finals heat from the event.
+    Fetch the Finals heat for the given event.
     Returns (athletes, event_date) where event_date is 'YYYY-MM-DD'.
     """
-    response = requests.get(EVENT_URL, timeout=10)
+    url = EVENT_BASE_URL.format(discipline_id=event.discipline_id)
+    response = requests.get(url, timeout=10)
     response.raise_for_status()
     data = response.json()
 
@@ -30,9 +32,9 @@ def get_finalists() -> tuple[list[Athlete], str]:
     return athletes, event_date
 
 
-def get_athlete_times(athlete: Athlete, before_date: str) -> Athlete:
+def get_athlete_times(athlete: Athlete, before_date: str, discipline_name: str) -> Athlete:
     """
-    Populate athlete.results with historical LCM 50m freestyle times
+    Populate athlete.results with historical LCM times for the given discipline
     recorded strictly before before_date ('YYYY-MM-DD').
     """
     url = ATHLETE_URL.format(athlete_id=athlete.id)
@@ -41,7 +43,7 @@ def get_athlete_times(athlete: Athlete, before_date: str) -> Athlete:
     data = response.json()
 
     for entry in data["Results"]:
-        if entry["DisciplineName"] != TARGET_DISCIPLINE:
+        if entry["DisciplineName"] != discipline_name:
             continue
         if any(excl in entry["CompetitionName"] for excl in EXCLUDED_COMPETITIONS):
             continue

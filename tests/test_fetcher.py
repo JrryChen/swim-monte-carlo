@@ -2,13 +2,15 @@ import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-import json
 import responses
 import pytest
 from fetcher import get_finalists, get_athlete_times
 from models import Athlete
-from config import EVENT_URL, ATHLETE_URL
+from events import EVENTS_2024_PARIS, EventConfig
+from config import ATHLETE_URL, EVENT_BASE_URL
 
+MEN_50_FREE = EVENTS_2024_PARIS["men_50_free"]
+EVENT_URL = EVENT_BASE_URL.format(discipline_id=MEN_50_FREE.discipline_id)
 
 MOCK_EVENT = {
     "Heats": [
@@ -50,6 +52,12 @@ MOCK_ATHLETE = {
             "Date": "2023-12-10",
         },
         {
+            "DisciplineName": "Men's 50m Freestyle",
+            "CompetitionName": "FINA Swimming World Cup 2023",
+            "Time": "20.80",
+            "Date": "2023-10-15",  # World Cup — must be excluded
+        },
+        {
             "DisciplineName": "Men's 100m Freestyle",
             "CompetitionName": "2024 World Championships (50m)",
             "Time": "47.80",
@@ -60,13 +68,14 @@ MOCK_ATHLETE = {
 
 
 EVENT_DATE = "2024-08-02"
+DISCIPLINE_NAME = "Men's 50m Freestyle"
 
 
 @responses.activate
 def test_get_finalists_returns_correct_athletes():
     responses.add(responses.GET, EVENT_URL, json=MOCK_EVENT)
 
-    athletes, event_date = get_finalists()
+    athletes, event_date = get_finalists(MEN_50_FREE)
 
     assert len(athletes) == 2
     assert athletes[0].id == "1000604"
@@ -82,7 +91,7 @@ def test_get_finalists_raises_if_no_final_heat():
     responses.add(responses.GET, EVENT_URL, json=event_no_final)
 
     with pytest.raises(ValueError, match="No 'Final' heat found"):
-        get_finalists()
+        get_finalists(MEN_50_FREE)
 
 
 @responses.activate
@@ -91,7 +100,7 @@ def test_get_athlete_times_filters_correctly():
     responses.add(responses.GET, url, json=MOCK_ATHLETE)
 
     athlete = Athlete(id="1000604", name="MCEVOY Cameron")
-    get_athlete_times(athlete, before_date=EVENT_DATE)
+    get_athlete_times(athlete, before_date=EVENT_DATE, discipline_name=DISCIPLINE_NAME)
 
     # Only the pre-event LCM 50m free result should survive
     assert len(athlete.results) == 1
@@ -105,10 +114,22 @@ def test_get_athlete_times_skips_short_course():
     responses.add(responses.GET, url, json=MOCK_ATHLETE)
 
     athlete = Athlete(id="1000604", name="MCEVOY Cameron")
-    get_athlete_times(athlete, before_date=EVENT_DATE)
+    get_athlete_times(athlete, before_date=EVENT_DATE, discipline_name=DISCIPLINE_NAME)
 
     competition_names = [r.competition for r in athlete.results]
     assert not any("25m" in c for c in competition_names)
+
+
+@responses.activate
+def test_get_athlete_times_skips_world_cup():
+    url = ATHLETE_URL.format(athlete_id="1000604")
+    responses.add(responses.GET, url, json=MOCK_ATHLETE)
+
+    athlete = Athlete(id="1000604", name="MCEVOY Cameron")
+    get_athlete_times(athlete, before_date=EVENT_DATE, discipline_name=DISCIPLINE_NAME)
+
+    competition_names = [r.competition for r in athlete.results]
+    assert not any("World Cup" in c for c in competition_names)
 
 
 @responses.activate
@@ -117,7 +138,20 @@ def test_get_athlete_times_excludes_post_event_results():
     responses.add(responses.GET, url, json=MOCK_ATHLETE)
 
     athlete = Athlete(id="1000604", name="MCEVOY Cameron")
-    get_athlete_times(athlete, before_date=EVENT_DATE)
+    get_athlete_times(athlete, before_date=EVENT_DATE, discipline_name=DISCIPLINE_NAME)
 
     dates = [r.date for r in athlete.results]
     assert all(d < EVENT_DATE for d in dates)
+
+
+def test_events_catalog_has_expected_events():
+    assert "men_50_free" in EVENTS_2024_PARIS
+    assert "women_100_free" in EVENTS_2024_PARIS
+    assert len(EVENTS_2024_PARIS) == 28
+
+
+def test_event_config_fields():
+    event = EVENTS_2024_PARIS["men_50_free"]
+    assert event.discipline_id == "c31e315f-369f-4b46-9d83-a156bd1b4b42"
+    assert event.world_record == 20.91
+    assert event.discipline_name == "Men's 50m Freestyle"
