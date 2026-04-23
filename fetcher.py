@@ -43,9 +43,8 @@ def get_athlete_times(athlete: Athlete, before_date: str) -> Athlete:
     for entry in data["Results"]:
         if entry["DisciplineName"] != TARGET_DISCIPLINE:
             continue
-        for excluded_competition in EXCLUDED_COMPETITIONS:
-            if excluded_competition in entry["CompetitionName"]:
-                continue
+        if any(excl in entry["CompetitionName"] for excl in EXCLUDED_COMPETITIONS):
+            continue
 
         date = entry.get("Date", "")
         if date >= before_date:
