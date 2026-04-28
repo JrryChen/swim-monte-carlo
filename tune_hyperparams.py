@@ -463,10 +463,18 @@ def main() -> None:
 
     optuna.logging.set_verbosity(optuna.logging.WARNING)
 
-    db_path = VALIDATION_DIR / "optuna.db"
+    import subprocess
+    try:
+        branch = subprocess.check_output(
+            ["git", "rev-parse", "--abbrev-ref", "HEAD"], text=True
+        ).strip().replace("/", "-")
+    except Exception:
+        branch = "main"
+    db_path = VALIDATION_DIR / f"optuna-{branch}.db"
+    study_name = f"swim-hyperparams-{branch}"
     study = optuna.create_study(
         direction="minimize",
-        study_name="swim-hyperparams-v1",
+        study_name=study_name,
         storage=f"sqlite:///{db_path}",
         load_if_exists=True,
     )
