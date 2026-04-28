@@ -1,7 +1,7 @@
 ATHLETE_URL = "https://api.worldaquatics.com/fina/athletes/{athlete_id}/results"
 EVENT_BASE_URL = "https://api.worldaquatics.com/fina/events/{discipline_id}"
 
-N_SIMULATIONS = 1_000_000
+N_SIMULATIONS = 10_000
 DEFAULT_SIGMA = 0.3  # seconds per 50m — fallback when athlete has only 1 recorded time; scaled by distance/50
 DEFAULT_TAU = 0.2    # seconds per 50m — fallback exponential component; scaled by distance/50
 
@@ -16,6 +16,7 @@ MAX_SEASONS = 4  # Olympic cycle — ignore results older than 4 seasons
 # Higher values = faster drop-off away from the world record.
 BEST_TIME_DECAY = 1.5
 
-EXCLUDED_COMPETITIONS = ["World Cup", "25m", "Short Course", "NCAA Dual Meet", "ISL", "Campionato Nazionale a Squadre - Coppa Caduti di Brema 2022", "Campionato Italiano Assoluto"]
+EXCLUDED_COMPETITIONS = ["World Cup", "25m", "Short Course", "NCAA Dual Meet", "ISL", "Campionato Nazionale a Squadre - Coppa Caduti di Brema 2022", "Campionato Italiano Assoluto","Speedo Fast Water Meet 2021", "Christmas Competition", "HPC-trainingswedstrijd",
+"Martinez Chocolate Cup 2022", "29th International Meeting of Saint-Dizier"]
 
 DEFAULT_EVENT = "men_50_free"

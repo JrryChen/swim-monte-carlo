@@ -1,0 +1,1433 @@
+{
+  "event_date": "2024-08-01",
+  "athletes": [
+    {
+      "id": "1057344",
+      "name": "DOUGLASS Kate",
+      "results": [
+        {
+          "competition": "2024 U.S. Olympic Trials",
+          "time_seconds": 139.46,
+          "date": "2024-06-20"
+        },
+        {
+          "competition": "2024 TYR Pro Series TX",
+          "time_seconds": 139.89,
+          "date": "2024-04-13"
+        },
+        {
+          "competition": "World Aquatics Championships - Doha 2024",
+          "time_seconds": 140.91,
+          "date": "2024-02-16"
+        },
+        {
+          "competition": "2024 TYR Pro Series TN",
+          "time_seconds": 139.3,
+          "date": "2024-01-13"
+        },
+        {
+          "competition": "Toyota USA Open 2023",
+          "time_seconds": 141.87,
+          "date": "2023-12-02"
+        },
+        {
+          "competition": "World Aquatics Championships - Fukuoka 2023",
+          "time_seconds": 141.23,
+          "date": "2023-07-28"
+        },
+        {
+          "competition": "2023 Phillips 66",
+          "time_seconds": 141.22,
+          "date": "2023-06-28"
+        },
+        {
+          "competition": "Speedo Atlanta Classic 2023",
+          "time_seconds": 142.75,
+          "date": "2023-05-13"
+        },
+        {
+          "competition": "19th FINA World Championships Budapest 2022",
+          "time_seconds": 143.2,
+          "date": "2022-06-23"
+        },
+        {
+          "competition": "Phillips 66 International Team Trials 2022",
+          "time_seconds": 141.43,
+          "date": "2022-04-27"
+        },
+        {
+          "competition": "Philipps 66 USA National Championships (50m)",
+          "time_seconds": 149.7,
+          "date": "2019-08-01"
+        },
+        {
+          "competition": "Charlotte PSS 2016",
+          "time_seconds": 153.19,
+          "date": "2016-05-14"
+        },
+        {
+          "competition": "Arena Pro Series Minneapolis 2015",
+          "time_seconds": 151.37,
+          "date": "2015-11-13"
+        },
+        {
+          "competition": "2015 Speedo Junior Nationals",
+          "time_seconds": 153.41,
+          "date": "2015-08-02"
+        }
+      ]
+    },
+    {
+      "id": "1000622",
+      "name": "SMITH Tatjana",
+      "results": [
+        {
+          "competition": "2024 South African National Aquatic Championships (50m)",
+          "time_seconds": 139.01,
+          "date": "2024-04-10"
+        },
+        {
+          "competition": "RSA Championships 2024",
+          "time_seconds": 139.01,
+          "date": "2024-04-10"
+        },
+        {
+          "competition": "World Aquatics Championships - Fukuoka 2023",
+          "time_seconds": 140.8,
+          "date": "2023-07-28"
+        },
+        {
+          "competition": "South African National Championships (50m)",
+          "time_seconds": 142.44,
+          "date": "2023-04-14"
+        },
+        {
+          "competition": "Lausanne Swim Cup",
+          "time_seconds": 144.45,
+          "date": "2023-02-26"
+        },
+        {
+          "competition": "22nd Commonwealth Games 2022",
+          "time_seconds": 141.92000000000002,
+          "date": "2022-07-31"
+        },
+        {
+          "competition": "South African National Championships (50m)",
+          "time_seconds": 144.01,
+          "date": "2022-04-08"
+        },
+        {
+          "competition": "Olympic Games Tokyo 2020",
+          "time_seconds": 138.95,
+          "date": "2021-07-30"
+        },
+        {
+          "competition": "Olympic Games Tokyo 2020",
+          "time_seconds": 139.16,
+          "date": "2021-07-28"
+        },
+        {
+          "competition": "Grand Prix Durban No4 2021",
+          "time_seconds": 142.7,
+          "date": "2021-05-29"
+        },
+        {
+          "competition": "South African Invitational Aquatic Championships 2021",
+          "time_seconds": 140.17000000000002,
+          "date": "2021-04-09"
+        },
+        {
+          "competition": "South African Grand Prix 2021",
+          "time_seconds": 143.05,
+          "date": "2021-02-20"
+        },
+        {
+          "competition": "South African Grand Prix - KZ 2020",
+          "time_seconds": 144.46,
+          "date": "2020-02-23"
+        },
+        {
+          "competition": "Swimcup Amsterdam",
+          "time_seconds": 142.3,
+          "date": "2019-12-13"
+        },
+        {
+          "competition": "18th FINA World Championships 2019",
+          "time_seconds": 142.52,
+          "date": "2019-07-26"
+        },
+        {
+          "competition": "18th FINA World Championships 2019",
+          "time_seconds": 141.79,
+          "date": "2019-07-25"
+        },
+        {
+          "competition": "30th Summer Universiade 2019",
+          "time_seconds": 142.92000000000002,
+          "date": "2019-07-08"
+        },
+        {
+          "competition": "South African National Championships (50m)",
+          "time_seconds": 144.44,
+          "date": "2019-04-09"
+        },
+        {
+          "competition": "South African Grand Prix Invitational 2019",
+          "time_seconds": 145.24,
+          "date": "2019-02-23"
+        },
+        {
+          "competition": "21st Commonwealth Games 2018",
+          "time_seconds": 143.57,
+          "date": "2018-04-07"
+        },
+        {
+          "competition": "21st Commonwealth Games 2018",
+          "time_seconds": 142.02,
+          "date": "2018-04-07"
+        },
+        {
+          "competition": "KZNA Premier Champs & Commonwealth",
+          "time_seconds": 145.82999999999998,
+          "date": "2017-12-18"
+        },
+        {
+          "competition": "29th Summer Universiade 2017",
+          "time_seconds": 144.61,
+          "date": "2017-08-24"
+        },
+        {
+          "competition": "South African National Championships (50m)",
+          "time_seconds": 145.23,
+          "date": "2017-04-07"
+        },
+        {
+          "competition": "South African Grand Prix 2017",
+          "time_seconds": 144.93,
+          "date": "2017-02-25"
+        },
+        {
+          "competition": "Grand Prix Invitational S 2017",
+          "time_seconds": 144.93,
+          "date": "2017-02-25"
+        },
+        {
+          "competition": "Grand Prix Invitation Swimming 2017",
+          "time_seconds": 147.22,
+          "date": "2017-02-05"
+        },
+        {
+          "competition": "Mare Nostrum - Trofeu Internacional Ciutat de Barcelona 2016",
+          "time_seconds": 148.65,
+          "date": "2016-06-11"
+        },
+        {
+          "competition": "Mare Nostrum -  Meeting International de Canet-en-Roussillon 2016",
+          "time_seconds": 147.79,
+          "date": "2016-06-09"
+        },
+        {
+          "competition": "South African National Championships (50m)",
+          "time_seconds": 146.95,
+          "date": "2016-04-14"
+        },
+        {
+          "competition": "South African Grand Prix 2016",
+          "time_seconds": 146.5,
+          "date": "2016-02-06"
+        },
+        {
+          "competition": "Amsterdam Swim Cup 2015",
+          "time_seconds": 150.0,
+          "date": "2015-12-13"
+        },
+        {
+          "competition": "11th African Games 2015",
+          "time_seconds": 148.84,
+          "date": "2015-09-07"
+        },
+        {
+          "competition": "South African National Championships (50m)",
+          "time_seconds": 149.23,
+          "date": "2015-04-17"
+        },
+        {
+          "competition": "Grand Prix Invitation Swimming - Grand Prix Series",
+          "time_seconds": 152.29,
+          "date": "2015-02-21"
+        },
+        {
+          "competition": "Mare Nostrum - Trofeu Internacional Ciutat de Barcelona 2014",
+          "time_seconds": 150.55,
+          "date": "2014-06-14"
+        },
+        {
+          "competition": "Mare Nostrum -  Meeting International de Canet-en-Roussillon 2014",
+          "time_seconds": 149.78,
+          "date": "2014-06-11"
+        },
+        {
+          "competition": "South African National Championships (50m)",
+          "time_seconds": 149.18,
+          "date": "2014-04-07"
+        },
+        {
+          "competition": "2014 BHP Billiton Aquatic Super Series",
+          "time_seconds": 150.41,
+          "date": "2014-01-31"
+        },
+        {
+          "competition": "10th Africa Junior Swimming Championships 2013",
+          "time_seconds": 152.95,
+          "date": "2013-11-28"
+        },
+        {
+          "competition": "SA Level 3 National Age Group",
+          "time_seconds": 153.59,
+          "date": "2013-03-15"
+        }
+      ]
+    },
+    {
+      "id": "1048449",
+      "name": "SCHOUTEN Tes",
+      "results": [
+        {
+          "competition": "Sette colli 2024",
+          "time_seconds": 141.48,
+          "date": "2024-06-23"
+        },
+        {
+          "competition": "NED Championships 2024",
+          "time_seconds": 142.37,
+          "date": "2024-06-13"
+        },
+        {
+          "competition": "Mare Nostrum MON 2024",
+          "time_seconds": 143.46,
+          "date": "2024-06-02"
+        },
+        {
+          "competition": "Mare Nostrum BCN 2024",
+          "time_seconds": 142.67000000000002,
+          "date": "2024-05-30"
+        },
+        {
+          "competition": "AP Race London 2024",
+          "time_seconds": 142.07999999999998,
+          "date": "2024-05-25"
+        },
+        {
+          "competition": "Eindhoven 2024",
+          "time_seconds": 141.43,
+          "date": "2024-04-12"
+        },
+        {
+          "competition": "Malmsten Stockholm 2024",
+          "time_seconds": 143.38,
+          "date": "2024-04-07"
+        },
+        {
+          "competition": "World Aquatics Championships - Doha 2024",
+          "time_seconds": 139.81,
+          "date": "2024-02-16"
+        },
+        {
+          "competition": "World Aquatics Championships - Doha 2024",
+          "time_seconds": 141.5,
+          "date": "2024-02-15"
+        },
+        {
+          "competition": "Rotterdam 2023",
+          "time_seconds": 144.35,
+          "date": "2023-12-01"
+        },
+        {
+          "competition": "World Aquatics Championships - Fukuoka 2023",
+          "time_seconds": 141.63,
+          "date": "2023-07-28"
+        },
+        {
+          "competition": "World Aquatics Championships - Fukuoka 2023",
+          "time_seconds": 141.71,
+          "date": "2023-07-27"
+        },
+        {
+          "competition": "Sette colli 2023",
+          "time_seconds": 141.84,
+          "date": "2023-06-25"
+        },
+        {
+          "competition": "NED Nationals 2023",
+          "time_seconds": 141.71,
+          "date": "2023-06-08"
+        },
+        {
+          "competition": "AP Race London 2023",
+          "time_seconds": 144.25,
+          "date": "2023-05-27"
+        },
+        {
+          "competition": "Eindhoven 2023",
+          "time_seconds": 142.21,
+          "date": "2023-04-07"
+        },
+        {
+          "competition": "Giant Open Final",
+          "time_seconds": 143.28,
+          "date": "2023-03-18"
+        },
+        {
+          "competition": "Giant Open 2nd Event (50m)",
+          "time_seconds": 145.47,
+          "date": "2023-03-16"
+        },
+        {
+          "competition": "Rotterdam Qualification Meet 2022",
+          "time_seconds": 143.93,
+          "date": "2022-12-02"
+        },
+        {
+          "competition": "Rotterdam Qualification Meet 2022",
+          "time_seconds": 143.67000000000002,
+          "date": "2022-12-02"
+        },
+        {
+          "competition": "52nd International Swimming Festival",
+          "time_seconds": 146.28,
+          "date": "2022-10-15"
+        },
+        {
+          "competition": "European Championships 2022",
+          "time_seconds": 146.68,
+          "date": "2022-08-14"
+        },
+        {
+          "competition": "Swiss Summer Championships (50m)",
+          "time_seconds": 153.94,
+          "date": "2022-07-14"
+        },
+        {
+          "competition": "19th FINA World Championships Budapest 2022",
+          "time_seconds": 146.25,
+          "date": "2022-06-22"
+        },
+        {
+          "competition": "Mare Nostrum - Meeting International de Canet-en-Roussillon 2022",
+          "time_seconds": 149.11,
+          "date": "2022-05-29"
+        },
+        {
+          "competition": "Mare Nostrum - Trofeu Internacional Ciutat de Barcelona 2022",
+          "time_seconds": 147.53,
+          "date": "2022-05-26"
+        },
+        {
+          "competition": "Mare Nostrum - 39th Meeting International de Natation de Monte Carlo 2022",
+          "time_seconds": 148.44,
+          "date": "2022-05-22"
+        },
+        {
+          "competition": "Eindhoven Qualification Meet 2022",
+          "time_seconds": 148.84,
+          "date": "2022-04-08"
+        },
+        {
+          "competition": "Q!-Cup",
+          "time_seconds": 150.86,
+          "date": "2022-04-03"
+        },
+        {
+          "competition": "Amsterdam Swim Meet (50m)",
+          "time_seconds": 146.13,
+          "date": "2022-02-24"
+        },
+        {
+          "competition": "Swimmeet Amsterdam",
+          "time_seconds": 149.24,
+          "date": "2021-07-03"
+        },
+        {
+          "competition": "Next Generation Meet",
+          "time_seconds": 150.09,
+          "date": "2021-06-27"
+        },
+        {
+          "competition": "Mare Nostrum - Trofeu Internacional Ciutat de Barcelona 2021",
+          "time_seconds": 149.76,
+          "date": "2021-06-06"
+        },
+        {
+          "competition": "European Championships 2021",
+          "time_seconds": 148.17000000000002,
+          "date": "2021-05-20"
+        },
+        {
+          "competition": "Eindhoven Qualification Meet 2021",
+          "time_seconds": 147.14,
+          "date": "2021-04-11"
+        },
+        {
+          "competition": "Meeting International FFN - Golden Tour 2",
+          "time_seconds": 149.19,
+          "date": "2021-03-20"
+        },
+        {
+          "competition": "2021 HPC NL (50m)",
+          "time_seconds": 149.22,
+          "date": "2021-03-12"
+        },
+        {
+          "competition": "Flanders Swimming Cup 2021",
+          "time_seconds": 153.03,
+          "date": "2021-01-24"
+        },
+        {
+          "competition": "54th Challenge International de Geneve",
+          "time_seconds": 153.68,
+          "date": "2021-01-16"
+        },
+        {
+          "competition": "Rotterdam Qualification Meet 2020",
+          "time_seconds": 146.95,
+          "date": "2020-12-04"
+        },
+        {
+          "competition": "Rotterdam Qualification Meet 2020",
+          "time_seconds": 147.18,
+          "date": "2020-12-04"
+        },
+        {
+          "competition": "Hengelo Long Course Challenge",
+          "time_seconds": 154.99,
+          "date": "2020-08-13"
+        },
+        {
+          "competition": "Swim Cup Den Haag",
+          "time_seconds": 152.2,
+          "date": "2019-04-04"
+        },
+        {
+          "competition": "Meeting International FFN - Golden Tour",
+          "time_seconds": 153.59,
+          "date": "2019-03-23"
+        },
+        {
+          "competition": "2018 Dutch Championships Open (50m)",
+          "time_seconds": 151.86,
+          "date": "2018-06-22"
+        },
+        {
+          "competition": "Swim Cup The Hague",
+          "time_seconds": 148.32999999999998,
+          "date": "2018-04-06"
+        },
+        {
+          "competition": "ONK kb",
+          "time_seconds": 147.09,
+          "date": "2017-12-21"
+        }
+      ]
+    },
+    {
+      "id": "1000056",
+      "name": "SUZUKI Satomi",
+      "results": [
+        {
+          "competition": "JPN Trial Olympic 2024",
+          "time_seconds": 143.09,
+          "date": "2024-03-22"
+        },
+        {
+          "competition": "Japan Open 2023",
+          "time_seconds": 146.11,
+          "date": "2023-12-03"
+        },
+        {
+          "competition": "2023 JPN Championships",
+          "time_seconds": 148.76,
+          "date": "2023-04-07"
+        },
+        {
+          "competition": "Japan Open (50m) 2022",
+          "time_seconds": 149.15,
+          "date": "2022-12-04"
+        },
+        {
+          "competition": "Japan National Championships 2022 (50m)",
+          "time_seconds": 146.04,
+          "date": "2022-05-01"
+        },
+        {
+          "competition": "Japan National Championships (50m)",
+          "time_seconds": 147.22,
+          "date": "2021-04-08"
+        },
+        {
+          "competition": "Japan National Championships 2020 (50m)",
+          "time_seconds": 148.31,
+          "date": "2021-02-07"
+        },
+        {
+          "competition": "Japan National Championships (50m)",
+          "time_seconds": 148.88,
+          "date": "2020-12-06"
+        },
+        {
+          "competition": "Japan Corporate Swimming Championships 2020",
+          "time_seconds": 150.39,
+          "date": "2020-11-08"
+        },
+        {
+          "competition": "Japan Amateur Swimming",
+          "time_seconds": 155.4,
+          "date": "2019-11-10"
+        },
+        {
+          "competition": "Japan Open (50m) 2019",
+          "time_seconds": 145.8,
+          "date": "2019-06-02"
+        },
+        {
+          "competition": "Japan National Championships (50m)",
+          "time_seconds": 147.91,
+          "date": "2019-04-07"
+        },
+        {
+          "competition": "13th Pan Pacific Championships 2018",
+          "time_seconds": 142.22,
+          "date": "2018-08-12"
+        },
+        {
+          "competition": "Japan Open (50m) 2018",
+          "time_seconds": 143.49,
+          "date": "2018-05-27"
+        },
+        {
+          "competition": "Japan Swim 2018",
+          "time_seconds": 143.19,
+          "date": "2018-04-08"
+        },
+        {
+          "competition": "17th FINA World Championships 2017",
+          "time_seconds": 145.6,
+          "date": "2017-07-27"
+        },
+        {
+          "competition": "Mare Nostrum -  Meeting International de Canet-en-Roussillon 2017",
+          "time_seconds": 149.91,
+          "date": "2017-06-18"
+        },
+        {
+          "competition": "Japan Open (50m) 2017",
+          "time_seconds": 146.41,
+          "date": "2017-05-21"
+        },
+        {
+          "competition": "Japan Swim 2017",
+          "time_seconds": 145.27,
+          "date": "2017-04-16"
+        },
+        {
+          "competition": "Konami Open 2017",
+          "time_seconds": 148.88,
+          "date": "2017-02-18"
+        },
+        {
+          "competition": "Japan Swim 2016",
+          "time_seconds": 145.72,
+          "date": "2016-04-08"
+        },
+        {
+          "competition": "2016 Konami Open",
+          "time_seconds": 146.42000000000002,
+          "date": "2016-02-19"
+        },
+        {
+          "competition": "Japan Swim 2015",
+          "time_seconds": 151.14,
+          "date": "2015-04-11"
+        },
+        {
+          "competition": "12th Pan Pacific Championships 2014",
+          "time_seconds": 150.87,
+          "date": "2014-08-24"
+        },
+        {
+          "competition": "Japan Swim 2014",
+          "time_seconds": 146.3,
+          "date": "2014-04-10"
+        },
+        {
+          "competition": "15th FINA World Championships 2013",
+          "time_seconds": 145.77,
+          "date": "2013-08-01"
+        },
+        {
+          "competition": "Japan Open (50m) 2013",
+          "time_seconds": 152.51,
+          "date": "2013-05-24"
+        },
+        {
+          "competition": "Japan National Championships (50m)",
+          "time_seconds": 144.8,
+          "date": "2013-04-11"
+        },
+        {
+          "competition": "88th Inter College Swimming Championships",
+          "time_seconds": 144.18,
+          "date": "2012-09-07"
+        },
+        {
+          "competition": "Olympic Games London 2012",
+          "time_seconds": 140.72,
+          "date": "2012-08-02"
+        },
+        {
+          "competition": "Japan Open (50m) 2012",
+          "time_seconds": 144.37,
+          "date": "2012-05-25"
+        },
+        {
+          "competition": "Japan National Championships (50m)",
+          "time_seconds": 142.99,
+          "date": "2012-04-02"
+        },
+        {
+          "competition": "Japan Inter-College Swimming Competition",
+          "time_seconds": 146.56,
+          "date": "2011-09-02"
+        },
+        {
+          "competition": "26th Summer Universiade 2011",
+          "time_seconds": 146.67000000000002,
+          "date": "2011-08-16"
+        },
+        {
+          "competition": "14th FINA World Championships 2011",
+          "time_seconds": 147.98,
+          "date": "2011-07-28"
+        },
+        {
+          "competition": "Mare Nostrum - 29th Meeting International de Natation de Monte Carlo 2011",
+          "time_seconds": 146.67000000000002,
+          "date": "2011-06-11"
+        },
+        {
+          "competition": "Mare Nostrum - Trofeu Internacional Ciutat de Barcelona 2011",
+          "time_seconds": 145.64,
+          "date": "2011-06-04"
+        },
+        {
+          "competition": "Japan Selection Trial for 14th FINA World Championships 2011",
+          "time_seconds": 144.36,
+          "date": "2011-04-09"
+        },
+        {
+          "competition": "2011 Japan Invite",
+          "time_seconds": 140.95,
+          "date": "2011-02-26"
+        },
+        {
+          "competition": "16th Asian Games 2010",
+          "time_seconds": 145.68,
+          "date": "2010-11-17"
+        },
+        {
+          "competition": "11th Pan Pacific Championships 2010",
+          "time_seconds": 143.82999999999998,
+          "date": "2010-08-21"
+        }
+      ]
+    },
+    {
+      "id": "1135661",
+      "name": "TETEREVKOVA Kotryna",
+      "results": [
+        {
+          "competition": "Mare Nostrum MON 2024",
+          "time_seconds": 145.46,
+          "date": "2024-06-02"
+        },
+        {
+          "competition": "Mare Nostrum BCN 2024",
+          "time_seconds": 146.85,
+          "date": "2024-05-30"
+        },
+        {
+          "competition": "2024 TYR Pro Series TX",
+          "time_seconds": 144.56,
+          "date": "2024-04-13"
+        },
+        {
+          "competition": "World Aquatics Championships - Doha 2024",
+          "time_seconds": 144.69,
+          "date": "2024-02-15"
+        },
+        {
+          "competition": "Toyota USA Open 2023",
+          "time_seconds": 144.22,
+          "date": "2023-12-02"
+        },
+        {
+          "competition": "31st Universiade  2023",
+          "time_seconds": 142.86,
+          "date": "2023-08-05"
+        },
+        {
+          "competition": "World Aquatics Championships - Fukuoka 2023",
+          "time_seconds": 144.22,
+          "date": "2023-07-28"
+        },
+        {
+          "competition": "Sette colli 2023",
+          "time_seconds": 146.98,
+          "date": "2023-06-25"
+        },
+        {
+          "competition": "Acropolis Open 2023",
+          "time_seconds": 145.42000000000002,
+          "date": "2023-05-07"
+        },
+        {
+          "competition": "LTU Championships 2023",
+          "time_seconds": 145.12,
+          "date": "2023-04-14"
+        },
+        {
+          "competition": "Baltic States 2023",
+          "time_seconds": 145.0,
+          "date": "2023-03-04"
+        },
+        {
+          "competition": "Baltic States 2023",
+          "time_seconds": 149.75,
+          "date": "2023-03-04"
+        },
+        {
+          "competition": "10th International Sprint Festival \"Riga Sprint 2022\"",
+          "time_seconds": 141.25,
+          "date": "2022-11-04"
+        },
+        {
+          "competition": "European Championships 2022",
+          "time_seconds": 144.16,
+          "date": "2022-08-15"
+        },
+        {
+          "competition": "19th FINA World Championships Budapest 2022",
+          "time_seconds": 143.9,
+          "date": "2022-06-23"
+        },
+        {
+          "competition": "Lithuanian National Championships (50m)",
+          "time_seconds": 145.21,
+          "date": "2022-04-21"
+        },
+        {
+          "competition": "Lithuanian National Championships (50m)",
+          "time_seconds": 142.88,
+          "date": "2022-02-19"
+        },
+        {
+          "competition": "Olympic Games Tokyo 2020",
+          "time_seconds": 146.82,
+          "date": "2021-07-28"
+        },
+        {
+          "competition": "58th International Trophy Sette Colli",
+          "time_seconds": 146.39,
+          "date": "2021-06-27"
+        },
+        {
+          "competition": "Lithuanian National Championships (50m)",
+          "time_seconds": 148.05,
+          "date": "2021-05-29"
+        },
+        {
+          "competition": "European Championships 2021",
+          "time_seconds": 145.98,
+          "date": "2021-05-20"
+        },
+        {
+          "competition": "Meeting International FFN - Golden Tour 2",
+          "time_seconds": 148.45,
+          "date": "2021-03-20"
+        },
+        {
+          "competition": "Baltic States Championships 2021",
+          "time_seconds": 151.48,
+          "date": "2021-03-07"
+        },
+        {
+          "competition": "Lithuanian Winter National Championships (50m)",
+          "time_seconds": 149.34,
+          "date": "2021-02-20"
+        },
+        {
+          "competition": "Lithuanian Winter National Championships (50m)",
+          "time_seconds": 148.45,
+          "date": "2020-02-22"
+        },
+        {
+          "competition": "Flanders Swimming Cup 2020",
+          "time_seconds": 148.31,
+          "date": "2020-01-19"
+        },
+        {
+          "competition": "7th FINA World Junior Swimming Championships 2019",
+          "time_seconds": 149.66,
+          "date": "2019-08-25"
+        },
+        {
+          "competition": "18th FINA World Championships 2019",
+          "time_seconds": 149.93,
+          "date": "2019-07-25"
+        },
+        {
+          "competition": "European Junior Swimming Championships 2019",
+          "time_seconds": 153.89,
+          "date": "2019-07-04"
+        },
+        {
+          "competition": "Lithuanian National Championships (50m)",
+          "time_seconds": 148.99,
+          "date": "2019-04-27"
+        },
+        {
+          "competition": "Malmsten Swim Open Stockholm 2019",
+          "time_seconds": 148.06,
+          "date": "2019-04-14"
+        },
+        {
+          "competition": "Lithuanian Winter National Championships (50m)",
+          "time_seconds": 149.77,
+          "date": "2019-03-02"
+        },
+        {
+          "competition": "Youth Olympic Games Buenos Aires 2018",
+          "time_seconds": 148.18,
+          "date": "2018-10-12"
+        },
+        {
+          "competition": "European Championships 2018",
+          "time_seconds": 151.31,
+          "date": "2018-08-06"
+        },
+        {
+          "competition": "European Junior Swimming Championships 2018",
+          "time_seconds": 147.09,
+          "date": "2018-07-06"
+        },
+        {
+          "competition": "Lithuanian National Championships (50m)",
+          "time_seconds": 151.6,
+          "date": "2018-04-14"
+        },
+        {
+          "competition": "Baltic States Championships 2018",
+          "time_seconds": 152.12,
+          "date": "2018-03-24"
+        },
+        {
+          "competition": "European Junior Swimming Championships 2017",
+          "time_seconds": 157.88,
+          "date": "2017-06-29"
+        }
+      ]
+    },
+    {
+      "id": "1019978",
+      "name": "YE Shiwen",
+      "results": [
+        {
+          "competition": "2024 China National Swimming Championships",
+          "time_seconds": 142.55,
+          "date": "2024-04-24"
+        },
+        {
+          "competition": "19th Asian Games 2023",
+          "time_seconds": 143.84,
+          "date": "2023-09-28"
+        },
+        {
+          "competition": "World Aquatics Championships - Fukuoka 2023",
+          "time_seconds": 144.76,
+          "date": "2023-07-27"
+        },
+        {
+          "competition": "Chinese Spring National Championships (50m)",
+          "time_seconds": 142.44,
+          "date": "2023-05-05"
+        },
+        {
+          "competition": "Chinese Spring National Championships",
+          "time_seconds": 144.01,
+          "date": "2023-03-23"
+        },
+        {
+          "competition": "The 14th National Games of the People's Republic of China",
+          "time_seconds": 144.2,
+          "date": "2021-09-24"
+        },
+        {
+          "competition": "Chinese National Summer Championships (50m)",
+          "time_seconds": 147.92000000000002,
+          "date": "2021-06-05"
+        },
+        {
+          "competition": "Chinese National Championships (50m)",
+          "time_seconds": 147.54,
+          "date": "2021-05-06"
+        },
+        {
+          "competition": "2020 China National Swimming Championships",
+          "time_seconds": 147.44,
+          "date": "2020-09-26"
+        },
+        {
+          "competition": "FINA Champions Swim Series 2020",
+          "time_seconds": 145.61,
+          "date": "2020-01-18"
+        },
+        {
+          "competition": "FINA Champions Swim Series 2020",
+          "time_seconds": 146.03,
+          "date": "2020-01-14"
+        },
+        {
+          "competition": "18th FINA World Championships 2019",
+          "time_seconds": 143.15,
+          "date": "2019-07-26"
+        },
+        {
+          "competition": "FINA Champions Swim Series 2019",
+          "time_seconds": 142.53,
+          "date": "2019-04-28"
+        },
+        {
+          "competition": "National Swimming Championships 2019 (50m)",
+          "time_seconds": 143.46,
+          "date": "2019-03-29"
+        },
+        {
+          "competition": "Chinese National Championships (50m)",
+          "time_seconds": 146.97,
+          "date": "2017-10-14"
+        },
+        {
+          "competition": "Arena Pro Swim Indianapolis 2017",
+          "time_seconds": 148.65,
+          "date": "2017-03-02"
+        },
+        {
+          "competition": "Chinese National Championships (50m)",
+          "time_seconds": 153.36,
+          "date": "2012-09-22"
+        }
+      ]
+    },
+    {
+      "id": "1025085",
+      "name": "CORBETT Kaylene",
+      "results": [
+        {
+          "competition": "RSA Championships 2024",
+          "time_seconds": 143.71,
+          "date": "2024-04-10"
+        },
+        {
+          "competition": "2024 South African National Aquatic Championships (50m)",
+          "time_seconds": 143.71,
+          "date": "2024-04-10"
+        },
+        {
+          "competition": "31st Universiade  2023",
+          "time_seconds": 142.99,
+          "date": "2023-08-05"
+        },
+        {
+          "competition": "South African National Championships (50m)",
+          "time_seconds": 145.4,
+          "date": "2023-04-14"
+        },
+        {
+          "competition": "South African Grand Prix 2023",
+          "time_seconds": 145.81,
+          "date": "2023-03-04"
+        },
+        {
+          "competition": "Rotterdam Qualification Meet 2022",
+          "time_seconds": 144.01,
+          "date": "2022-12-02"
+        },
+        {
+          "competition": "22nd Commonwealth Games 2022",
+          "time_seconds": 143.67000000000002,
+          "date": "2022-07-31"
+        },
+        {
+          "competition": "South African National Championships (50m)",
+          "time_seconds": 144.66,
+          "date": "2022-04-08"
+        },
+        {
+          "competition": "Olympic Games Tokyo 2020",
+          "time_seconds": 142.06,
+          "date": "2021-07-30"
+        },
+        {
+          "competition": "Grand Prix Durban No4 2021",
+          "time_seconds": 145.5,
+          "date": "2021-05-29"
+        },
+        {
+          "competition": "South African Invitational Aquatic Championships 2021",
+          "time_seconds": 145.18,
+          "date": "2021-04-10"
+        },
+        {
+          "competition": "Grand Prix Durban 2021",
+          "time_seconds": 146.69,
+          "date": "2021-02-28"
+        },
+        {
+          "competition": "South African Grand Prix 2021",
+          "time_seconds": 147.54,
+          "date": "2021-02-20"
+        },
+        {
+          "competition": "South African Grand Prix - KZ 2020",
+          "time_seconds": 146.45,
+          "date": "2020-02-23"
+        },
+        {
+          "competition": "Swimcup Amsterdam",
+          "time_seconds": 150.59,
+          "date": "2019-12-13"
+        },
+        {
+          "competition": "12th African Games 2019",
+          "time_seconds": 149.23,
+          "date": "2019-08-23"
+        },
+        {
+          "competition": "18th FINA World Championships 2019",
+          "time_seconds": 146.62,
+          "date": "2019-07-26"
+        },
+        {
+          "competition": "30th Summer Universiade 2019",
+          "time_seconds": 144.93,
+          "date": "2019-07-08"
+        },
+        {
+          "competition": "South African National Championships (50m)",
+          "time_seconds": 145.62,
+          "date": "2019-04-09"
+        },
+        {
+          "competition": "South African Grand Prix Invitational 2019",
+          "time_seconds": 145.98,
+          "date": "2019-02-23"
+        },
+        {
+          "competition": "South African National Championships (50m)",
+          "time_seconds": 149.9,
+          "date": "2018-04-25"
+        },
+        {
+          "competition": "21st Commonwealth Games 2018",
+          "time_seconds": 149.4,
+          "date": "2018-04-07"
+        },
+        {
+          "competition": "Grand Prix Invitational Swimming 2018",
+          "time_seconds": 148.54,
+          "date": "2018-02-17"
+        },
+        {
+          "competition": "KZNA Premier Champs & Commonwealth",
+          "time_seconds": 149.18,
+          "date": "2017-12-18"
+        },
+        {
+          "competition": "17th FINA World Championships 2017",
+          "time_seconds": 151.36,
+          "date": "2017-07-27"
+        },
+        {
+          "competition": "South African National Championships (50m)",
+          "time_seconds": 150.76,
+          "date": "2017-04-07"
+        },
+        {
+          "competition": "Grand Prix Invitational S 2017",
+          "time_seconds": 150.98,
+          "date": "2017-02-25"
+        },
+        {
+          "competition": "12th African Swimming Championships 2016",
+          "time_seconds": 153.09,
+          "date": "2016-10-17"
+        },
+        {
+          "competition": "South African National Championships (50m)",
+          "time_seconds": 150.18,
+          "date": "2016-04-14"
+        },
+        {
+          "competition": "5th Commonwealth Youth Games 2015",
+          "time_seconds": 153.91,
+          "date": "2015-09-10"
+        },
+        {
+          "competition": "South African National Championships (50m)",
+          "time_seconds": 151.31,
+          "date": "2015-04-17"
+        }
+      ]
+    },
+    {
+      "id": "1003868",
+      "name": "KING Lilly",
+      "results": [
+        {
+          "competition": "2024 U.S. Olympic Trials",
+          "time_seconds": 141.93,
+          "date": "2024-06-20"
+        },
+        {
+          "competition": "2024 TYR Pro Series TX",
+          "time_seconds": 145.76,
+          "date": "2024-04-13"
+        },
+        {
+          "competition": "2024 TYR Pro Swim Series Westmont",
+          "time_seconds": 145.97,
+          "date": "2024-03-08"
+        },
+        {
+          "competition": "2024 TYR Pro Series TN",
+          "time_seconds": 144.34,
+          "date": "2024-01-13"
+        },
+        {
+          "competition": "Toyota USA Open 2023",
+          "time_seconds": 143.98,
+          "date": "2023-12-02"
+        },
+        {
+          "competition": "World Aquatics Championships - Fukuoka 2023",
+          "time_seconds": 142.25,
+          "date": "2023-07-28"
+        },
+        {
+          "competition": "2023 Phillips 66",
+          "time_seconds": 140.95,
+          "date": "2023-06-28"
+        },
+        {
+          "competition": "2023 TYR Pro Series CA",
+          "time_seconds": 145.34,
+          "date": "2023-05-20"
+        },
+        {
+          "competition": "2023 TYR Pro Series IL",
+          "time_seconds": 143.68,
+          "date": "2023-04-14"
+        },
+        {
+          "competition": "2023 TYR Pro Series FL",
+          "time_seconds": 143.32999999999998,
+          "date": "2023-03-04"
+        },
+        {
+          "competition": "19th FINA World Championships Budapest 2022",
+          "time_seconds": 142.41,
+          "date": "2022-06-23"
+        },
+        {
+          "competition": "Phillips 66 International Team Trials 2022",
+          "time_seconds": 141.19,
+          "date": "2022-04-27"
+        },
+        {
+          "competition": "TYR Pro Swim Series San Antonio 2022",
+          "time_seconds": 143.69,
+          "date": "2022-04-01"
+        },
+        {
+          "competition": "TYR Pro Swim Series Westmont 2022",
+          "time_seconds": 144.65,
+          "date": "2022-03-05"
+        },
+        {
+          "competition": "Olympic Games Tokyo 2020",
+          "time_seconds": 139.92000000000002,
+          "date": "2021-07-30"
+        },
+        {
+          "competition": "US Olympic Team Trials - Wave II",
+          "time_seconds": 141.75,
+          "date": "2021-06-18"
+        },
+        {
+          "competition": "TYR Pro Swim Series Indianapolis 2021",
+          "time_seconds": 141.82,
+          "date": "2021-05-15"
+        },
+        {
+          "competition": "TYR Pro Swim Series Mission Viejo 2021",
+          "time_seconds": 142.38,
+          "date": "2021-04-09"
+        },
+        {
+          "competition": "Central Zone Section 3 Spring Speedo Sectionals 2021",
+          "time_seconds": 142.13,
+          "date": "2021-03-25"
+        },
+        {
+          "competition": "TYR Pro Swim Series San Antonio 2021",
+          "time_seconds": 145.82999999999998,
+          "date": "2021-01-16"
+        },
+        {
+          "competition": "TYR Pro Swim Series Des Moines 2020",
+          "time_seconds": 142.95,
+          "date": "2020-03-07"
+        },
+        {
+          "competition": "USA Winter National Championships (50m)",
+          "time_seconds": 142.63,
+          "date": "2019-12-07"
+        },
+        {
+          "competition": "FINA Champions Swim Series 2019",
+          "time_seconds": 141.39,
+          "date": "2019-05-31"
+        },
+        {
+          "competition": "TYR Pro Swim Series Bloomington 2019",
+          "time_seconds": 144.6,
+          "date": "2019-05-19"
+        },
+        {
+          "competition": "13th Pan Pacific Championships 2018",
+          "time_seconds": 142.12,
+          "date": "2018-08-12"
+        },
+        {
+          "competition": "US National Championships (50m)",
+          "time_seconds": 145.31,
+          "date": "2018-07-26"
+        },
+        {
+          "competition": "Columbus PSS 2018",
+          "time_seconds": 144.82999999999998,
+          "date": "2018-07-06"
+        },
+        {
+          "competition": "Santa Clara PSS 2018",
+          "time_seconds": 144.97,
+          "date": "2018-06-08"
+        },
+        {
+          "competition": "Indianapolis PSS 2018",
+          "time_seconds": 144.95,
+          "date": "2018-05-17"
+        },
+        {
+          "competition": "17th FINA World Championships 2017",
+          "time_seconds": 142.11,
+          "date": "2017-07-28"
+        },
+        {
+          "competition": "US National Championships (50m)",
+          "time_seconds": 141.82999999999998,
+          "date": "2017-06-28"
+        },
+        {
+          "competition": "IN IU Bucceto Open 2017",
+          "time_seconds": 147.21,
+          "date": "2017-06-03"
+        },
+        {
+          "competition": "Arena Pro Swim Atlanta 2017",
+          "time_seconds": 145.9,
+          "date": "2017-05-05"
+        },
+        {
+          "competition": "Olympic Games Rio 2016",
+          "time_seconds": 144.59,
+          "date": "2016-08-10"
+        },
+        {
+          "competition": "US Olympic Team Trials - Swimming",
+          "time_seconds": 144.03,
+          "date": "2016-06-30"
+        },
+        {
+          "competition": "Arena PSS - Indianapolis 2016",
+          "time_seconds": 144.88,
+          "date": "2016-06-04"
+        },
+        {
+          "competition": "Charlotte PSS 2016",
+          "time_seconds": 145.13,
+          "date": "2016-05-14"
+        },
+        {
+          "competition": "US National Winter Championships (50m)",
+          "time_seconds": 144.47,
+          "date": "2015-12-05"
+        },
+        {
+          "competition": "US National Championships (50m)",
+          "time_seconds": 150.65,
+          "date": "2015-08-10"
+        },
+        {
+          "competition": "IN BSC Indiana Senior State 2015 - (50m)",
+          "time_seconds": 150.65,
+          "date": "2015-07-18"
+        },
+        {
+          "competition": "Arena Pro Swim Series Charlotte 2015",
+          "time_seconds": 152.88,
+          "date": "2015-05-16"
+        },
+        {
+          "competition": "2015 IN Speedo Sectionals at Indianapolis",
+          "time_seconds": 150.12,
+          "date": "2015-03-26"
+        },
+        {
+          "competition": "Junior Pan Pacific Swimming Championships 2014",
+          "time_seconds": 149.82999999999998,
+          "date": "2014-08-27"
+        },
+        {
+          "competition": "US National Championships (50m)",
+          "time_seconds": 150.25,
+          "date": "2014-08-06"
+        },
+        {
+          "competition": "IN Senior State 2014 (50m)",
+          "time_seconds": 151.84,
+          "date": "2014-07-17"
+        },
+        {
+          "competition": "Charlotte Grand Prix 2014",
+          "time_seconds": 153.82999999999998,
+          "date": "2014-05-15"
+        },
+        {
+          "competition": "2014 IN Central Zone Speedo Sectionals",
+          "time_seconds": 153.84,
+          "date": "2014-03-27"
+        }
+      ]
+    }
+  ]
+}

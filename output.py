@@ -16,7 +16,7 @@ def print_models(models: list[RaceModel]) -> None:
         [m.name, f"{m.pb:.2f}s", f"{m.mu:.3f}s", f"{m.sigma:.3f}s", f"{m.tau:.3f}s", f"{m.season_drop:.2%}"]
         for m in models
     ]
-    print("\n=== Swimmer Performance Models (pre-event LCM 50m free) ===")
+    print("\n=== Swimmer Performance Models ===")
     print(tabulate(
         rows,
         headers=["Swimmer", "PB", "Proj. Mean (μ)", "Std Dev (σ)", "Tau (τ)", "Season Drop"],
