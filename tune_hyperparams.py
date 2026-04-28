@@ -370,6 +370,7 @@ def _objective(
         "season_decay":    trial.suggest_float("season_decay",    0.05, 0.90),
         "max_seasons":     trial.suggest_int(  "max_seasons",     2,    6),
         "best_time_decay": trial.suggest_float("best_time_decay", 0.3,  6.0),
+        "decay_distance_exp": trial.suggest_float("decay_distance_exp", 0.0, 1.5),
         "default_sigma":   trial.suggest_float("default_sigma",   0.05, 1.5,  log=True),
         "default_tau":     trial.suggest_float("default_tau",     0.02, 0.60, log=True),
     }
@@ -513,6 +514,7 @@ def _get_current_config(param_name: str):
         "season_decay":    "SEASON_DECAY",
         "max_seasons":     "MAX_SEASONS",
         "best_time_decay": "BEST_TIME_DECAY",
+        "decay_distance_exp": "DECAY_DISTANCE_EXP",
         "default_sigma":   "DEFAULT_SIGMA",
         "default_tau":     "DEFAULT_TAU",
     }
@@ -526,6 +528,7 @@ def _print_config_patch(best_params: dict) -> None:
         "season_decay":    "SEASON_DECAY",
         "max_seasons":     "MAX_SEASONS",
         "best_time_decay": "BEST_TIME_DECAY",
+        "decay_distance_exp": "DECAY_DISTANCE_EXP",
         "default_sigma":   "DEFAULT_SIGMA",
         "default_tau":     "DEFAULT_TAU",
     }

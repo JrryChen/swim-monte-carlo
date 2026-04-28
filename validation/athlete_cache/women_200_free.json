@@ -816,16 +816,6 @@
           "date": "2023-11-30"
         },
         {
-          "competition": "Plzenske Sprinty 2023",
-          "time_seconds": 121.28,
-          "date": "2023-10-15"
-        },
-        {
-          "competition": "Plzenske Sprinty 2023",
-          "time_seconds": 112.66,
-          "date": "2023-10-15"
-        },
-        {
           "competition": "World Aquatics Championships - Fukuoka 2023",
           "time_seconds": 116.5,
           "date": "2023-07-25"
@@ -846,11 +836,6 @@
           "date": "2023-05-26"
         },
         {
-          "competition": "Czech Swimming Arena Cup Plzenske Sprinty 2022",
-          "time_seconds": 113.71000000000001,
-          "date": "2022-10-15"
-        },
-        {
           "competition": "Mare Nostrum - Trofeu Internacional Ciutat de Barcelona 2022",
           "time_seconds": 119.5,
           "date": "2022-05-26"
@@ -859,11 +844,6 @@
           "competition": "Meeting International FFN - Golden Tour 2",
           "time_seconds": 119.31,
           "date": "2022-03-06"
-        },
-        {
-          "competition": "Czech Swimming Arena Cup Plzenske Sprinty 2021",
-          "time_seconds": 114.42,
-          "date": "2021-10-16"
         },
         {
           "competition": "Olympic Games Tokyo 2020",
@@ -916,11 +896,6 @@
           "date": "2019-11-16"
         },
         {
-          "competition": "Plzenske Sprinty 2019",
-          "time_seconds": 114.52000000000001,
-          "date": "2019-10-19"
-        },
-        {
           "competition": "18th FINA World Championships 2019",
           "time_seconds": 117.16,
           "date": "2019-07-23"
@@ -951,11 +926,6 @@
           "date": "2019-03-15"
         },
         {
-          "competition": "Plzenske Sprinty 2018 ",
-          "time_seconds": 114.02000000000001,
-          "date": "2018-11-17"
-        },
-        {
           "competition": "Youth Olympic Games Buenos Aires 2018",
           "time_seconds": 118.25,
           "date": "2018-10-10"
@@ -974,11 +944,6 @@
           "competition": "X-Bionic Sphere Slovakia Swimming Cup",
           "time_seconds": 120.8,
           "date": "2017-11-03"
-        },
-        {
-          "competition": "Plzenske Sprinty 2017",
-          "time_seconds": 116.64,
-          "date": "2017-10-20"
         },
         {
           "competition": "6th FINA World Junior Swimming Championships 2017",
@@ -1004,11 +969,6 @@
           "competition": "Multinations Junior Meet 2017",
           "time_seconds": 121.63,
           "date": "2017-04-09"
-        },
-        {
-          "competition": "Plzenske Sprinty 2016",
-          "time_seconds": 116.02000000000001,
-          "date": "2016-10-15"
         },
         {
           "competition": "Olympic Games Rio 2016",

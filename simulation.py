@@ -1,6 +1,6 @@
 import numpy as np
 from models import Athlete, RaceModel, SimResult
-from config import DEFAULT_SIGMA, DEFAULT_TAU, N_SIMULATIONS, SEASON_DECAY, SEASON_START_MONTH, MAX_SEASONS, BEST_TIME_DECAY
+from config import DEFAULT_SIGMA, DEFAULT_TAU, N_SIMULATIONS, SEASON_DECAY, SEASON_START_MONTH, MAX_SEASONS, BEST_TIME_DECAY, DECAY_DISTANCE_EXP
 from events import EventConfig
 
 
@@ -20,6 +20,7 @@ def build_model(
     season_decay: float = SEASON_DECAY,
     max_seasons: int = MAX_SEASONS,
     best_time_decay: float = BEST_TIME_DECAY,
+    decay_distance_exp: float = DECAY_DISTANCE_EXP,
     default_sigma: float = DEFAULT_SIGMA,
     default_tau: float = DEFAULT_TAU,
 ) -> RaceModel:
@@ -43,7 +44,7 @@ def build_model(
     scale = 1
     effective_sigma = default_sigma * scale
     effective_tau = default_tau * scale
-    effective_decay = best_time_decay / scale
+    effective_decay = best_time_decay / (event.distance / 50) ** decay_distance_exp
 
     most_recent = max(_get_season_year(r.date) for r in dated)
     cutoff = most_recent - max_seasons

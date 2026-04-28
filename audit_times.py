@@ -44,7 +44,7 @@ def _get_season_year(date: str, season_start_month: int = 9) -> int:
 
 def inspect_event(event_slug: str, swimmer_filter: str | None, fast_only: bool) -> None:
     from events import EVENTS_2024_PARIS
-    from config import SEASON_DECAY, MAX_SEASONS, BEST_TIME_DECAY
+    from config import SEASON_DECAY, MAX_SEASONS, BEST_TIME_DECAY, DECAY_DISTANCE_EXP
     from simulation import build_model
     from tune_hyperparams import get_or_cache_athletes
 
@@ -72,7 +72,7 @@ def inspect_event(event_slug: str, swimmer_filter: str | None, fast_only: bool) 
     print(f"  {event.name}  —  Finals date: {event_date}")
     print(f"  WR: {fmt_time(event.world_record)}  |  "
           f"SEASON_DECAY={SEASON_DECAY}  MAX_SEASONS={MAX_SEASONS}  "
-          f"BEST_TIME_DECAY={BEST_TIME_DECAY}")
+          f"BEST_TIME_DECAY={BEST_TIME_DECAY}  DECAY_DISTANCE_EXP={DECAY_DISTANCE_EXP}")
     print(f"{'═'*80}")
 
     for athlete in athletes:
@@ -82,8 +82,7 @@ def inspect_event(event_slug: str, swimmer_filter: str | None, fast_only: bool) 
             continue
 
         # Replicate build_model weighting logic
-        scale = 1
-        effective_decay = BEST_TIME_DECAY / scale
+        effective_decay = BEST_TIME_DECAY / (event.distance / 50) ** DECAY_DISTANCE_EXP
 
         most_recent = max(_get_season_year(r.date) for r in dated)
         cutoff = most_recent - MAX_SEASONS
