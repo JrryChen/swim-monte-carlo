@@ -75,10 +75,9 @@ def build_model(
         drop_weights.append(season_decay ** (most_recent - s))
 
     season_drop = float(np.average(rel_drops, weights=drop_weights))
-    mu = mu_raw * (1 - season_drop)
+    mu = mu_raw
 
     pb = float(np.min(times))
-    mu = max(mu, pb)
 
     if len(times) >= 3:
         m3 = float(np.average((times - mu_raw) ** 3, weights=weights))

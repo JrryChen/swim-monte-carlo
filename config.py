@@ -21,6 +21,6 @@ BEST_TIME_DECAY = 1.5
 DECAY_DISTANCE_EXP = 0.0
 
 EXCLUDED_COMPETITIONS = ["World Cup", "25m", "Short Course", "NCAA Dual Meet", "ISL", "Campionato Nazionale a Squadre - Coppa Caduti di Brema 2022", "Campionato Italiano Assoluto","Speedo Fast Water Meet 2021", "Christmas Competition", "HPC-trainingswedstrijd",
-"Martinez Chocolate Cup 2022", "29th International Meeting of Saint-Dizier", "Plzenske Sprinty"]
+"Martinez Chocolate Cup 2022", "29th International Meeting of Saint-Dizier", "Plzenske Sprinty", "Swim England National Winter Championships"]
 
 DEFAULT_EVENT = "men_50_free"
