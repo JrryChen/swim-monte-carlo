@@ -216,7 +216,7 @@ The simulator was validated against all 28 individual Paris 2024 Olympic finals 
 | Crowd pick-em (1,037 respondents) | 0.1885 |
 | Improvement | +0.026 |
 
-Hyperparameters were optimised over 1,000 Optuna trials. The search converged within the first 200 trials, suggesting the model is near its ceiling for this architecture and dataset size.
+Hyperparameters were optimised over 1,200 Optuna trials. The search converged within the first 200 trials, suggesting the model is near its ceiling for this architecture and dataset size.
 ---
 
 ## Sample Output — Men's 50m Freestyle
