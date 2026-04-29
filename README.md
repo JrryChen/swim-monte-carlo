@@ -150,7 +150,7 @@ If a competition looks suspicious, add a substring of its name to `EXCLUDED_COMP
 
 | Parameter | Tuned Value | What it controls |
 |---|---|---|
-| `N_SIMULATIONS` | `10_000` | Number of races simulated. Higher = more stable probabilities, slower. |
+| `N_SIMULATIONS` | `100_000` | Number of races simulated. Higher = more stable probabilities, slower. |
 | `DEFAULT_SIGMA` | `0.4004` | Fallback Gaussian spread (seconds per 50m) used when a swimmer has only one recorded time. Higher = more assumed uncertainty. In swimming terms: how much race-to-race variation to assign when you barely know the swimmer. |
 | `DEFAULT_TAU` | `0.5210` | Fallback exponential tail (seconds per 50m) used when fewer than 3 results are available. Higher = fatter right tail, more blown races assumed. In swimming terms: how often to expect a badly off day from a data-scarce swimmer. |
 | `SEASON_DECAY` | `0.4730` | Fraction of weight retained per older season. `0.5` = each season back is half as influential; lower values push the model toward recent form. In swimming terms: how much last year’s times should matter compared to this year’s. |
