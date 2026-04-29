@@ -175,7 +175,7 @@ Each result is assigned a season weight of `SEASON_DECAY ^ seasons_ago`. The mos
 
 ### 3. Proximity weighting
 
-When estimating spread (σ), faster times receive more weight via `exp(-effective_decay × (time − WR))`, where `effective_decay = BEST_TIME_DECAY / (distance / 50) ^ DECAY_DISTANCE_EXP`. The distance scaling ensures proximity weighting is proportionally equivalent across sprint and distance events.
+Combined weights `season_weight × proximity_weight` are applied when estimating spread (σ), tail skew (τ), and an intermediate mean `mu_raw` used as the variance/moment anchor. The proximity term is `exp(-effective_decay × (time − WR))`, where `effective_decay = BEST_TIME_DECAY / (distance / 50) ^ DECAY_DISTANCE_EXP`. Faster times receive more weight, so σ and τ reflect the swimmer's high-end variability rather than their average variability. The distance scaling ensures proximity weighting is proportionally equivalent across sprint and distance events. Note: the final projected mean μ is computed separately from season-only weights (see step 4), so proximity does not bias the race-time center.
 
 ### 4. Season-drop (taper) adjustment
 
@@ -200,7 +200,7 @@ X = Normal(μ − τ, σ_n) + Exponential(τ)
 
 - The **normal component** anchors peak performance near the projected mean.
 - The **exponential component** (τ) generates the right-skewed tail for off-days.
-- τ is estimated per swimmer from the weighted third central moment. Falls back to `DEFAULT_TAU` when fewer than 3 results are available.
+- τ is estimated per swimmer from the weighted third central moment. Falls back to `DEFAULT_TAU` when fewer than 3 results are available. τ is capped at `0.9 × σ` to keep the normal component's variance positive in the sampler.
 
 **Further reading:**
 - [Wikipedia: Exponentially modified Gaussian distribution](https://en.wikipedia.org/wiki/Exponentially_modified_Gaussian_distribution)
@@ -218,7 +218,7 @@ The simulator was validated against all 28 individual Paris 2024 Olympic finals 
 | Crowd pick-em (1,037 respondents) | 0.1885 |
 | Improvement | +0.026 |
 
-Hyperparameters were optimised over 1,000 Optuna trials.
+Hyperparameters were optimised over 1,000 Optuna trials. Note: tuning and evaluation are performed on the same 28-event set, so results reflect Paris-specific fit rather than out-of-sample generalisation. Scores should be interpreted as an upper bound on real-world predictive performance.
 ---
 
 ## Targeting a Different Olympics
@@ -270,4 +270,10 @@ python run.py --event men_50_free
 | MANAUDOU Florent | 3.8% | 10.5% | 15.9% | 17.0% | 16.1% | 14.7% | 12.8% | 9.2% |
 | CROOKS Jordan | 1.3% | 6.7% | 14.8% | 19.2% | 18.6% | 15.0% | 12.4% | 12.1% |
 | GKOLOMEEV Kristian | 0.1% | 0.8% | 3.6% | 8.8% | 15.6% | 22.1% | 25.6% | 23.3% |
-| DEPLANO Leonardo | 0.1% 
+| DEPLANO Leonardo | 0.1%
+
+### Charts
+
+![Swimmer Time Distributions](sample_results/distributions.png)
+
+![Win Probabilities](sample_results/win_probabilities.png)

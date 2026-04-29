@@ -90,6 +90,9 @@ def build_model(
         tau = float((m3 / 2) ** (1 / 3)) if m3 > 0 else effective_tau
     else:
         tau = effective_tau
+    # Cap tau at 0.9 * sigma so the normal component sigma_n = sqrt(sigma² - tau²)
+    # stays well above zero. This limits represented skew when sigma is tight,
+    # but prevents degenerate near-zero normal variance in the ex-Gaussian sampler.
     tau = min(tau, sigma * 0.9)
 
     return RaceModel(name=athlete.name, mu=mu, sigma=sigma, tau=tau, season_drop=season_drop, pb=pb)
