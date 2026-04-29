@@ -221,7 +221,10 @@ Hyperparameters were optimised over 1,000 Optuna trials. The search converged wi
 
 ## Sample Output — Men's 50m Freestyle
 
-*Run with *
+Run with
+```bash
+python run.py --event men_50_free
+```
 
 ### Finishing-position probabilities
 
