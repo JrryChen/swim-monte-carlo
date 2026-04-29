@@ -1,13 +1,8 @@
 """
 2024 Paris Olympics individual swimming event catalogue.
 
-discipline_id    → the UUID used in EVENT_URL
-discipline_name  → must match DisciplineName returned by the athlete results API
-world_record     → LCM WR in seconds at the time of the event (August 2024)
-
-NOTE: BEST_TIME_DECAY in config.py was tuned for sprint events (~20–60s).
-For distance events the proximity weight drops off far faster relative to
-the WR gap — you may want to lower BEST_TIME_DECAY for those events.
+world_record  → LCM WR in seconds at the time of the event (August 2024)
+distance      → pool distance in metres
 """
 
 from dataclasses import dataclass

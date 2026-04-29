@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent / "src"))
 """
 Fetch actual Paris 2024 Olympic top-4 results from the WorldAquatics API
 and write them to validation/actual_results.csv.

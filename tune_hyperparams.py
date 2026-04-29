@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent / "src"))
 """
 Hyperparameter tuner for the swim Monte Carlo simulator.
 
@@ -535,7 +538,7 @@ def _print_config_patch(best_params: dict) -> None:
     mapping = {
         "season_decay":    "SEASON_DECAY",
         "max_seasons":     "MAX_SEASONS",
-        "best_time_decay": "BEST_TIME_DECAY",
+        "best_time_decay"        "best_time_decay": "BEST_TIME_DECAY",
         "decay_distance_exp": "DECAY_DISTANCE_EXP",
         "default_sigma":   "DEFAULT_SIGMA",
         "default_tau":     "DEFAULT_TAU",

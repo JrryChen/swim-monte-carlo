@@ -1,3 +1,6 @@
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent / "src"))
 """Headless run — skips the matplotlib GUI for CI/terminal verification."""
 import argparse
 import matplotlib

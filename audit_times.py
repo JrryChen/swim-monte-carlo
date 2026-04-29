@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent / "src"))
 """
 Inspect raw athlete times for a given event to identify short-course or
 otherwise suspicious results contaminating the model.
@@ -20,8 +23,6 @@ cache file (validation/athlete_cache/{event}.json) and re-run --cache-only.
 """
 
 import argparse
-from pathlib import Path
-
 import numpy as np
 from tabulate import tabulate
 
