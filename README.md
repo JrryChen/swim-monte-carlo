@@ -18,10 +18,14 @@ run_headless.py         # Headless simulation (saves charts, no GUI)
 src/
   config.py             # All tunable hyperparameters
   events.py             # Event catalogue with world records
-  fetcher.py            # Swimming results data client
+  fetcher.py            # Swimming results data client (local only, not committed)
   models.py             # Data classes (Athlete, RaceModel, SimResult)
   simulation.py         # Model fitting and Monte Carlo simulation
   output.py             # Printing, charting, CSV/JSON export
+# Local-only (not committed to git)
+fetch_actual_results.py # Fetches actual Paris 2024 results from results data source
+src/fetcher.py          # Data client with API endpoints
+
 validation/
   actual_results.csv    # Paris 2024 top-4 finishers (ground truth)
   athlete_cache/        # Cached athlete histories (JSON, one file per event)
