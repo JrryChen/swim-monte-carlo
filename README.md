@@ -110,13 +110,13 @@ Optuna stores trials in `validation/optuna-{branch}.db` — each git branch gets
 
 | Parameter | Tuned Value |
 |---|---|
-| `SEASON_DECAY` | 0.5452 |
+| `SEASON_DECAY` | 0.4730 |
 | `MAX_SEASONS` | 3 |
-| `BEST_TIME_DECAY` | 1.2343 |
-| `DECAY_DISTANCE_EXP` | 0.7961 |
-| `SIGMA_DISTANCE_EXP` | 1.0 |
-| `DEFAULT_SIGMA` | 0.0713 |
-| `DEFAULT_TAU` | 0.5985 |
+| `BEST_TIME_DECAY` | 3.4295 |
+| `DECAY_DISTANCE_EXP` | 1.0585 |
+| `SIGMA_DISTANCE_EXP` | 0.3104 |
+| `DEFAULT_SIGMA` | 0.4004 |
+| `DEFAULT_TAU` | 0.5210 |
 
 | Model | Brier Score |
 |---|---|
