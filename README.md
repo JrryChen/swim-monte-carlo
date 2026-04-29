@@ -217,3 +217,27 @@ The simulator was validated against all 28 individual Paris 2024 Olympic finals 
 | Improvement | +0.026 |
 
 Hyperparameters were optimised over 1,000 Optuna trials. The search converged within the first 200 trials, suggesting the model is near its ceiling for this architecture and dataset size.
+---
+
+## Sample Output — Men's 50m Freestyle
+
+*Run with *
+
+### Finishing-position probabilities
+
+| Swimmer | P(1) | P(2) | P(3) | P(4) | P(5) | P(6) | P(7) | P(8) |
+|---|---|---|---|---|---|---|---|---|
+| MCEVOY Cameron | 54.8% | 19.3% | 8.5% | 5.2% | 3.3% | 2.9% | 2.8% | 3.2% |
+| PROUD Benjamin | 19.5% | 29.1% | 19.8% | 12.4% | 8.0% | 5.4% | 3.8% | 2.0% |
+| DRESSEL Caeleb | 10.5% | 13.2% | 13.0% | 11.0% | 11.0% | 10.9% | 12.8% | 17.6% |
+| LIENDO Josh | 8.4% | 14.4% | 14.7% | 13.4% | 12.9% | 11.7% | 11.4% | 13.1% |
+| MANAUDOU Florent | 2.6% | 8.0% | 13.9% | 17.8% | 19.0% | 17.4% | 13.6% | 7.7% |
+| CROOKS Jordan | 2.3% | 8.7% | 15.2% | 17.2% | 15.5% | 14.2% | 12.4% | 14.7% |
+| DEPLANO Leonardo | 1.6% | 5.0% | 9.2% | 12.4% | 14.6% | 15.5% | 18.8% | 23.0% |
+| GKOLOMEEV Kristian | 0.3% | 2.3% | 5.8% | 10.7% | 15.7% | 22.0% | 24.5% | 18.7% |
+
+### Charts
+
+![Swimmer Time Distributions](sample_results/distributions.png)
+
+![Win Probabilities](sample_results/win_probabilities.png)
