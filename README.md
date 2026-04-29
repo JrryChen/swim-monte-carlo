@@ -236,6 +236,31 @@ Hyperparameters were optimised over 1,000 Optuna trials. The search converged wi
 | DEPLANO Leonardo | 1.6% | 5.0% | 9.2% | 12.4% | 14.6% | 15.5% | 18.8% | 23.0% |
 | GKOLOMEEV Kristian | 0.3% | 2.3% | 5.8% | 10.7% | 15.7% | 22.0% | 24.5% | 18.7% |
 
+### Sportsbook Odds
+
+| Swimmer | To Win | Top 3 |
+|---|---|---|
+| MCEVOY Cameron | -121 | -475 |
+| PROUD Benjamin | +412 | -217 |
+| DRESSEL Caeleb | +850 | +172 |
+| LIENDO Josh | +1092 | +167 |
+| MANAUDOU Florent | +3822 | +308 |
+| CROOKS Jordan | +4286 | +283 |
+| DEPLANO Leonardo | +6229 | +535 |
+| GKOLOMEEV Kristian | +29312 | +1086 |
+
+### Winning Time O/U Lines
+
+Projected winning time: **21.102s** (median 21.102s)
+
+| Line | Under | Over |
+|---|---|---|
+| 21.00s | +259 | -259 |
+| 21.05s | +160 | -160 |
+| 21.10s | +102 | -102 |
+| 21.15s | -154 | +154 |
+| 21.20s | -247 | +247 |
+
 ### Charts
 
 ![Swimmer Time Distributions](sample_results/distributions.png)
