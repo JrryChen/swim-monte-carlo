@@ -2,7 +2,7 @@
 
 A Monte Carlo simulation that models finishing-position probabilities for competitive swimming finals using historical LCM (long course metre) results.
 
-All 28 individual swimming events from the **2024 Paris Olympics** are supported. Hyperparameters are tuned via Bayesian optimization (Optuna) against actual Paris 2024 results, and benchmarked against a crowdsourced pick-em baseline of 1,037 respondents.
+All 28 individual swimming events from the **2024 Paris Olympics** are supported. Hyperparameters are tuned via Bayesian optimization (Optuna) against actual Paris 2024 results, and benchmarked against a crowdsourced pick-em baseline of 937 respondents.
 
 ---
 
