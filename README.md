@@ -297,4 +297,8 @@ Projected winning time: **21.156s** (median 21.175s)
 | 21.25s | -205 | +205 |
 | 21.30s | -355 | +355 |
 
-5
+### Charts
+
+![Swimmer Time Distributions](sample_results/distributions.png)
+
+![Win Probabilities](sample_results/win_probabilities.png)
