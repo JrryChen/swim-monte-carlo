@@ -151,13 +151,13 @@ If a competition looks suspicious, add a substring of its name to `EXCLUDED_COMP
 | Parameter | Tuned Value | What it controls |
 |---|---|---|
 | `N_SIMULATIONS` | `10_000` | Number of races simulated. Higher = more stable probabilities, slower. |
-| `DEFAULT_SIGMA` | `0.0713` | Fallback standard deviation (seconds per 50m) when a swimmer has only one recorded time. |
-| `DEFAULT_TAU` | `0.5985` | Fallback exponential component (seconds per 50m) when fewer than 3 results are available. |
-| `SEASON_DECAY` | `0.5452` | Weight retained per older season. `0.5` = each older season is half as influential. |
-| `MAX_SEASONS` | `3` | Seasons of history used. |
-| `BEST_TIME_DECAY` | `1.2343` | Steepness of proximity weighting toward the world record. `weight = exp(-effective_decay × (time − WR))`. |
-| `DECAY_DISTANCE_EXP` | `0.7961` | Scales proximity decay by event distance: `effective_decay = BEST_TIME_DECAY / (distance / 50) ^ exp`. At `0.0` all events use the same decay; at `1.0` a 200m event gets half the decay of a 50m. |
-| `SIGMA_DISTANCE_EXP` | `1.0` | Scales fallback σ and τ by event distance: `effective = default × (distance / 50) ^ exp`. At `0.0` all events use the same fallback; at `1.0` scaling is linear with distance; at `0.5` it scales with the square root. |
+| `DEFAULT_SIGMA` | `0.4004` | Fallback Gaussian spread (seconds per 50m) used when a swimmer has only one recorded time. Higher = more assumed uncertainty. In swimming terms: how much race-to-race variation to assign when you barely know the swimmer. |
+| `DEFAULT_TAU` | `0.5210` | Fallback exponential tail (seconds per 50m) used when fewer than 3 results are available. Higher = fatter right tail, more blown races assumed. In swimming terms: how often to expect a badly off day from a data-scarce swimmer. |
+| `SEASON_DECAY` | `0.4730` | Fraction of weight retained per older season. `0.5` = each season back is half as influential; lower values push the model toward recent form. In swimming terms: how much last year’s times should matter compared to this year’s. |
+| `MAX_SEASONS` | `3` | How many seasons of history to include. Results older than this are dropped entirely. |
+| `BEST_TIME_DECAY` | `3.4295` | Steepness of the proximity weighting curve toward the world record. `weight = exp(-effective_decay × (time − WR))`. Higher = the model trusts a swimmer’s peak over their average more aggressively. In swimming terms: how much a single fast swim should dominate the model versus the swimmer’s typical results. |
+| `DECAY_DISTANCE_EXP` | `1.0585` | Softens `BEST_TIME_DECAY` for longer events: `effective_decay = BEST_TIME_DECAY / (distance / 50) ^ exp`. At `0.0` all events use the same decay; at `1.0` a 200m gets half the decay of a 50m. In swimming terms: distance swimmers are more consistent — the gap between a good and bad 1500m is narrower than in the 50m, so peak-chasing matters less. |
+| `SIGMA_DISTANCE_EXP` | `0.3104` | Scales fallback σ and τ by event distance: `effective = default × (distance / 50) ^ exp`. At `0.0` all distances use the same fallback; at `1.0` scaling is linear with distance. In swimming terms: longer races have more room for variation in absolute seconds, so sparse-data uncertainty should grow with distance. |
 | `EXCLUDED_COMPETITIONS` | (list) | Competitions excluded by name substring — used to filter short-course and non-standard meets. |
 | `DEFAULT_EVENT` | `"men_50_free"` | Event run when no `--event` flag is passed. |
 
@@ -270,35 +270,4 @@ python run.py --event men_50_free
 | MANAUDOU Florent | 3.8% | 10.5% | 15.9% | 17.0% | 16.1% | 14.7% | 12.8% | 9.2% |
 | CROOKS Jordan | 1.3% | 6.7% | 14.8% | 19.2% | 18.6% | 15.0% | 12.4% | 12.1% |
 | GKOLOMEEV Kristian | 0.1% | 0.8% | 3.6% | 8.8% | 15.6% | 22.1% | 25.6% | 23.3% |
-| DEPLANO Leonardo | 0.1% | 0.8% | 3.5% | 8.3% | 14.9% | 21.1% | 24.7% | 26.6% |
-
-### Sportsbook Odds
-
-| Swimmer | To Win | Top 3 |
-|---|---|---|
-| MCEVOY Cameron | -147 | -542 |
-| PROUD Benjamin | +297 | -341 |
-| DRESSEL Caeleb | +1740 | +172 |
-| LIENDO Josh | +2039 | +153 |
-| MANAUDOU Florent | +2539 | +231 |
-| CROOKS Jordan | +7894 | +340 |
-| GKOLOMEEV Kristian | +88396 | +2090 |
-| DEPLANO Leonardo | +102993 | +2163 |
-
-### Winning Time O/U Lines
-
-Projected winning time: **21.156s** (median 21.175s)
-
-| Line | Under | Over |
-|---|---|---|
-| 21.10s | +190 | -190 |
-| 21.15s | +125 | -125 |
-| 21.20s | -126 | +126 |
-| 21.25s | -206 | +206 |
-| 21.30s | -355 | +355 |
-
-### Charts
-
-![Swimmer Time Distributions](sample_results/distributions.png)
-
-![Win Probabilities](sample_results/win_probabilities.png)
+| DEPLANO Leonardo | 0.1% 
