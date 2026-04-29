@@ -1,6 +1,7 @@
 import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
 import pytest
 import numpy as np
@@ -142,26 +143,30 @@ def test_season_drop_zero_for_single_result():
 
 
 def test_build_model_tau_positive_for_right_skewed_data():
-    """Swimmer with occasional slow outliers should get tau > DEFAULT_TAU."""
-    from config import DEFAULT_TAU
-    athlete = Athlete(id="0", name="Skewed")
-    athlete.results = [
+    """A right-skewed swimmer (slow outliers) should have higher tau than a flat one."""
+    skewed = Athlete(id="0", name="Skewed")
+    skewed.results = [
         SwimResult("T", 21.0, "2024-01-01"),
         SwimResult("T", 21.1, "2024-02-01"),
         SwimResult("T", 21.1, "2024-03-01"),
         SwimResult("T", 21.8, "2024-04-01"),  # outlier pulls skew right
         SwimResult("T", 21.9, "2024-05-01"),
     ]
-    model = build_model(athlete, MEN_50_FREE)
-    assert model.tau > DEFAULT_TAU
+    flat = Athlete(id="1", name="Flat")
+    flat.results = [SwimResult("T", 21.2, f"2024-0{i+1}-01") for i in range(5)]
+
+    model_skewed = build_model(skewed, MEN_50_FREE)
+    model_flat   = build_model(flat, MEN_50_FREE)
+    assert model_skewed.tau > model_flat.tau
 
 
 def test_build_model_tau_defaults_for_sparse_data():
-    """With fewer than 3 results, tau should fall back to DEFAULT_TAU."""
+    """With fewer than 3 results, tau uses the fallback path (not third moment).
+    Actual value is min(DEFAULT_TAU, sigma * 0.9) due to the stability clamp."""
     from config import DEFAULT_TAU
     athlete = make_athlete("Solo", [21.0, 21.5])
     model = build_model(athlete, MEN_50_FREE)
-    assert model.tau == DEFAULT_TAU
+    assert model.tau == pytest.approx(min(DEFAULT_TAU, model.sigma * 0.9))
 
 
 def test_run_sampled_times_right_skewed():

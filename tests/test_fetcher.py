@@ -1,13 +1,14 @@
 import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
 import responses
 import pytest
 from fetcher import get_finalists, get_athlete_times
 from models import Athlete
 from events import EVENTS_2024_PARIS, EventConfig
-from config import ATHLETE_URL, EVENT_BASE_URL
+from fetcher import ATHLETE_URL, EVENT_BASE_URL
 
 MEN_50_FREE = EVENTS_2024_PARIS["men_50_free"]
 EVENT_URL = EVENT_BASE_URL.format(discipline_id=MEN_50_FREE.discipline_id)
