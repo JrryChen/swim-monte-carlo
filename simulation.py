@@ -75,7 +75,13 @@ def build_model(
         drop_weights.append(season_decay ** (most_recent - s))
 
     season_drop = float(np.average(rel_drops, weights=drop_weights))
-    mu = mu_raw
+
+    # Project peak performance: start from season-weighted average (no proximity
+    # bias) then apply season_drop, which captures how much each swimmer improves
+    # from their typical times to their taper peak.
+    season_only_weights = season_weights / season_weights.sum()
+    mu_season = float(np.average(times, weights=season_only_weights))
+    mu = mu_season * (1 - season_drop)
 
     pb = float(np.min(times))
 
