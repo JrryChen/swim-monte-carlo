@@ -263,17 +263,38 @@ python run.py --event men_50_free
 
 | Swimmer | P(1) | P(2) | P(3) | P(4) | P(5) | P(6) | P(7) | P(8) |
 |---|---|---|---|---|---|---|---|---|
-| MCEVOY Cameron | 59.4% | 17.0% | 8.0% | 4.9% | 3.4% | 2.7% | 2.2% | 2.4% |
-| PROUD Benjamin | 25.2% | 36.0% | 16.2% | 9.0% | 5.5% | 3.6% | 2.7% | 2.0% |
-| DRESSEL Caeleb | 5.4% | 14.0% | 17.4% | 15.4% | 12.8% | 10.9% | 10.4% | 13.7% |
-| LIENDO Josh | 4.7% | 14.2% | 20.6% | 17.4% | 13.1% | 10.0% | 9.3% | 10.7% |
-| MANAUDOU Florent | 3.8% | 10.5% | 15.9% | 17.0% | 16.1% | 14.7% | 12.8% | 9.2% |
-| CROOKS Jordan | 1.3% | 6.7% | 14.8% | 19.2% | 18.6% | 15.0% | 12.4% | 12.1% |
-| GKOLOMEEV Kristian | 0.1% | 0.8% | 3.6% | 8.8% | 15.6% | 22.1% | 25.6% | 23.3% |
-| DEPLANO Leonardo | 0.1%
+| MCEVOY Cameron | 59.5% | 17.2% | 8.0% | 4.9% | 3.4% | 2.5% | 2.3% | 2.3% |
+| PROUD Benjamin | 25.2% | 35.7% | 16.0% | 9.1% | 5.4% | 3.7% | 2.7% | 2.1% |
+| DRESSEL Caeleb | 5.5% | 13.8% | 17.9% | 15.5% | 12.6% | 10.6% | 10.3% | 13.7% |
+| LIENDO Josh | 4.7% | 14.4% | 20.3% | 17.4% | 13.2% | 10.2% | 9.1% | 10.7% |
+| MANAUDOU Florent | 3.6% | 10.7% | 15.8% | 16.7% | 16.4% | 14.7% | 12.6% | 9.4% |
+| CROOKS Jordan | 1.3% | 6.5% | 14.9% | 19.1% | 18.5% | 15.2% | 12.5% | 12.0% |
+| GKOLOMEEV Kristian | 0.1% | 0.9% | 3.7% | 8.9% | 15.5% | 22.3% | 25.4% | 23.2% |
+| DEPLANO Leonardo | 0.1% | 0.8% | 3.4% | 8.4% | 14.9% | 20.8% | 25.0% | 26.6% |
 
-### Charts
+### Sportsbook Odds
 
-![Swimmer Time Distributions](sample_results/distributions.png)
+| Swimmer | To Win | Top 3 |
+|---|---|---|
+| MCEVOY Cameron | -147 | -551 |
+| PROUD Benjamin | +296 | -335 |
+| DRESSEL Caeleb | +1711 | +168 |
+| LIENDO Josh | +2036 | +154 |
+| MANAUDOU Florent | +2667 | +232 |
+| CROOKS Jordan | +7719 | +342 |
+| DEPLANO Leonardo | +100910 | +2235 |
+| GKOLOMEEV Kristian | +104067 | +2040 |
 
-![Win Probabilities](sample_results/win_probabilities.png)
+### Winning Time O/U Lines
+
+Projected winning time: **21.156s** (median 21.175s)
+
+| Line | Under | Over |
+|---|---|---|
+| 21.10s | +191 | -191 |
+| 21.15s | +125 | -125 |
+| 21.20s | -125 | +125 |
+| 21.25s | -205 | +205 |
+| 21.30s | -355 | +355 |
+
+5
