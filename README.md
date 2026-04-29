@@ -121,7 +121,7 @@ Optuna stores trials in `validation/optuna-{branch}.db` — each git branch gets
 | Model | Brier Score |
 |---|---|
 | Simulator (tuned) | **0.1626** |
-| Crowd baseline (1,037 respondents) | 0.1885 |
+| Crowd baseline (937 respondents) | 0.1885 |
 
 The simulator beats the crowd pick-em by a margin of **0.026 Brier**.
 
@@ -215,7 +215,7 @@ The simulator was validated against all 28 individual Paris 2024 Olympic finals 
 | Model | Brier Score |
 |---|---|
 | Simulator (tuned) | **0.1626** |
-| Crowd pick-em (1,037 respondents) | 0.1885 |
+| Crowd pick-em (937 respondents) | 0.1885 |
 | Improvement | +0.026 |
 
 Hyperparameters were optimised over 1,000 Optuna trials. Note: tuning and evaluation are performed on the same 28-event set, so results reflect Paris-specific fit rather than out-of-sample generalisation. Scores should be interpreted as an upper bound on real-world predictive performance.
