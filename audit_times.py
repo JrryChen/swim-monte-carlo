@@ -44,17 +44,17 @@ def _get_season_year(date: str, season_start_month: int = 9) -> int:
 
 
 def inspect_event(event_slug: str, swimmer_filter: str | None, fast_only: bool) -> None:
-    from events import EVENTS_2024_PARIS
+    from events import EVENTS
     from config import SEASON_DECAY, MAX_SEASONS, BEST_TIME_DECAY, DECAY_DISTANCE_EXP
     from simulation import build_model
     from tune_hyperparams import get_or_cache_athletes
 
-    if event_slug not in EVENTS_2024_PARIS:
+    if event_slug not in EVENTS:
         print(f"Unknown event: {event_slug}")
-        print(f"Available: {', '.join(EVENTS_2024_PARIS)}")
+        print(f"Available: {', '.join(EVENTS)}")
         return
 
-    event = EVENTS_2024_PARIS[event_slug]
+    event = EVENTS[event_slug]
     cache_path = ROOT / "validation" / "athlete_cache" / f"{event_slug}.json"
 
     if not cache_path.exists():

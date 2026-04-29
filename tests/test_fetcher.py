@@ -7,10 +7,10 @@ import responses
 import pytest
 from fetcher import get_finalists, get_athlete_times
 from models import Athlete
-from events import EVENTS_2024_PARIS, EventConfig
+from events import EVENTS, EventConfig
 from fetcher import ATHLETE_URL, EVENT_BASE_URL
 
-MEN_50_FREE = EVENTS_2024_PARIS["men_50_free"]
+MEN_50_FREE = EVENTS["men_50_free"]
 EVENT_URL = EVENT_BASE_URL.format(discipline_id=MEN_50_FREE.discipline_id)
 
 MOCK_EVENT = {
@@ -146,13 +146,13 @@ def test_get_athlete_times_excludes_post_event_results():
 
 
 def test_events_catalog_has_expected_events():
-    assert "men_50_free" in EVENTS_2024_PARIS
-    assert "women_100_free" in EVENTS_2024_PARIS
-    assert len(EVENTS_2024_PARIS) == 28
+    assert "men_50_free" in EVENTS
+    assert "women_100_free" in EVENTS
+    assert len(EVENTS) == 28
 
 
 def test_event_config_fields():
-    event = EVENTS_2024_PARIS["men_50_free"]
+    event = EVENTS["men_50_free"]
     assert event.discipline_id == "c31e315f-369f-4b46-9d83-a156bd1b4b42"
     assert event.world_record == 20.91
     assert event.discipline_name == "Men's 50m Freestyle"

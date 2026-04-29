@@ -1,6 +1,6 @@
 import numpy as np
 from models import Athlete, RaceModel, SimResult
-from config import DEFAULT_SIGMA, DEFAULT_TAU, N_SIMULATIONS, SEASON_DECAY, SEASON_START_MONTH, MAX_SEASONS, BEST_TIME_DECAY, DECAY_DISTANCE_EXP
+from config import DEFAULT_SIGMA, DEFAULT_TAU, N_SIMULATIONS, SEASON_DECAY, SEASON_START_MONTH, MAX_SEASONS, BEST_TIME_DECAY, DECAY_DISTANCE_EXP, SIGMA_DISTANCE_EXP
 from events import EventConfig
 
 
@@ -21,6 +21,7 @@ def build_model(
     max_seasons: int = MAX_SEASONS,
     best_time_decay: float = BEST_TIME_DECAY,
     decay_distance_exp: float = DECAY_DISTANCE_EXP,
+    sigma_distance_exp: float = SIGMA_DISTANCE_EXP,
     default_sigma: float = DEFAULT_SIGMA,
     default_tau: float = DEFAULT_TAU,
 ) -> RaceModel:
@@ -40,8 +41,7 @@ def build_model(
     if not dated:
         raise ValueError(f"No LCM times found for {athlete.name}.")
 
-    # scale = event.distance / 50
-    scale = 1
+    scale = (event.distance / 50) ** sigma_distance_exp
     effective_sigma = default_sigma * scale
     effective_tau = default_tau * scale
     effective_decay = best_time_decay / (event.distance / 50) ** decay_distance_exp

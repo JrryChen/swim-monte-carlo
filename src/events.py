@@ -49,3 +49,6 @@ EVENTS_2024_PARIS: dict[str, EventConfig] = {
     "women_200_im":     EventConfig("Women's 200m Medley",      "4d813e2e-ff0a-414e-ad13-9598a38dee03", "Women's 200m Medley",      126.12,  200),
     "women_400_im":     EventConfig("Women's 400m Medley",      "e138040c-91ef-45bb-a10c-16ccf8c335cb", "Women's 400m Medley",      264.38,  400),
 }
+
+# Active event catalogue — swap this to target a different Olympics
+EVENTS = EVENTS_2024_PARIS

@@ -17,7 +17,7 @@ fetch_actual_results.py # Fetch actual Paris 2024 results
 run_headless.py         # Headless simulation (saves charts, no GUI)
 src/
   config.py             # All tunable hyperparameters
-  events.py             # Event catalogue with world records
+  events.py             # Event catalogues with world records; set EVENTS = target Olympics
   fetcher.py            # Swimming results data client (local only, not committed)
   models.py             # Data classes (Athlete, RaceModel, SimResult)
   simulation.py         # Model fitting and Monte Carlo simulation
@@ -114,6 +114,7 @@ Optuna stores trials in `validation/optuna-{branch}.db` — each git branch gets
 | `MAX_SEASONS` | 3 |
 | `BEST_TIME_DECAY` | 1.2343 |
 | `DECAY_DISTANCE_EXP` | 0.7961 |
+| `SIGMA_DISTANCE_EXP` | 1.0 |
 | `DEFAULT_SIGMA` | 0.0713 |
 | `DEFAULT_TAU` | 0.5985 |
 
@@ -156,6 +157,7 @@ If a competition looks suspicious, add a substring of its name to `EXCLUDED_COMP
 | `MAX_SEASONS` | `3` | Seasons of history used. |
 | `BEST_TIME_DECAY` | `1.2343` | Steepness of proximity weighting toward the world record. `weight = exp(-effective_decay × (time − WR))`. |
 | `DECAY_DISTANCE_EXP` | `0.7961` | Scales proximity decay by event distance: `effective_decay = BEST_TIME_DECAY / (distance / 50) ^ exp`. At `0.0` all events use the same decay; at `1.0` a 200m event gets half the decay of a 50m. |
+| `SIGMA_DISTANCE_EXP` | `1.0` | Scales fallback σ and τ by event distance: `effective = default × (distance / 50) ^ exp`. At `0.0` all events use the same fallback; at `1.0` scaling is linear with distance; at `0.5` it scales with the square root. |
 | `EXCLUDED_COMPETITIONS` | (list) | Competitions excluded by name substring — used to filter short-course and non-standard meets. |
 | `DEFAULT_EVENT` | `"men_50_free"` | Event run when no `--event` flag is passed. |
 
@@ -219,6 +221,24 @@ The simulator was validated against all 28 individual Paris 2024 Olympic finals 
 Hyperparameters were optimised over 1,200 Optuna trials. The search converged within the first 200 trials, suggesting the model is near its ceiling for this architecture and dataset size.
 ---
 
+## Targeting a Different Olympics
+
+To run the simulator for a different Games, add a new event catalogue to  and update the  alias:
+
+```python
+# src/events.py
+EVENTS_2028_LA = {
+    "men_100_free": EventConfig(...),
+    ...
+}
+
+EVENTS = EVENTS_2028_LA  # ← swap this line
+```
+
+All scripts (, , , ) pick up the new catalogue automatically.
+
+---
+
 ## Sample Output — Men's 50m Freestyle
 
 Run with
@@ -226,43 +246,56 @@ Run with
 python run.py --event men_50_free
 ```
 
+### Swimmer models
+
+| Swimmer | PB | Proj. Mean (μ) | Std Dev (σ) | Tau (τ) | Season Drop |
+|---|---|---|---|---|---|
+| MCEVOY Cameron | 21.06s | 21.256s | 0.289s | 0.196s | 2.11% |
+| PROUD Benjamin | 21.25s | 21.393s | 0.205s | 0.151s | 1.14% |
+| MANAUDOU Florent | 21.54s | 21.616s | 0.200s | 0.101s | 1.36% |
+| LIENDO Josh | 21.48s | 21.602s | 0.245s | 0.218s | 1.95% |
+| GKOLOMEEV Kristian | 21.72s | 21.770s | 0.173s | 0.146s | 1.15% |
+| DRESSEL Caeleb | 21.29s | 21.624s | 0.275s | 0.237s | 1.85% |
+| DEPLANO Leonardo | 21.60s | 21.789s | 0.197s | 0.177s | 1.77% |
+| CROOKS Jordan | 21.51s | 21.659s | 0.207s | 0.185s | 1.35% |
+
 ### Finishing-position probabilities
 
 | Swimmer | P(1) | P(2) | P(3) | P(4) | P(5) | P(6) | P(7) | P(8) |
 |---|---|---|---|---|---|---|---|---|
-| MCEVOY Cameron | 54.8% | 19.3% | 8.5% | 5.2% | 3.3% | 2.9% | 2.8% | 3.2% |
-| PROUD Benjamin | 19.5% | 29.1% | 19.8% | 12.4% | 8.0% | 5.4% | 3.8% | 2.0% |
-| DRESSEL Caeleb | 10.5% | 13.2% | 13.0% | 11.0% | 11.0% | 10.9% | 12.8% | 17.6% |
-| LIENDO Josh | 8.4% | 14.4% | 14.7% | 13.4% | 12.9% | 11.7% | 11.4% | 13.1% |
-| MANAUDOU Florent | 2.6% | 8.0% | 13.9% | 17.8% | 19.0% | 17.4% | 13.6% | 7.7% |
-| CROOKS Jordan | 2.3% | 8.7% | 15.2% | 17.2% | 15.5% | 14.2% | 12.4% | 14.7% |
-| DEPLANO Leonardo | 1.6% | 5.0% | 9.2% | 12.4% | 14.6% | 15.5% | 18.8% | 23.0% |
-| GKOLOMEEV Kristian | 0.3% | 2.3% | 5.8% | 10.7% | 15.7% | 22.0% | 24.5% | 18.7% |
+| MCEVOY Cameron | 59.4% | 17.0% | 8.0% | 4.9% | 3.4% | 2.7% | 2.2% | 2.4% |
+| PROUD Benjamin | 25.2% | 36.0% | 16.2% | 9.0% | 5.5% | 3.6% | 2.7% | 2.0% |
+| DRESSEL Caeleb | 5.4% | 14.0% | 17.4% | 15.4% | 12.8% | 10.9% | 10.4% | 13.7% |
+| LIENDO Josh | 4.7% | 14.2% | 20.6% | 17.4% | 13.1% | 10.0% | 9.3% | 10.7% |
+| MANAUDOU Florent | 3.8% | 10.5% | 15.9% | 17.0% | 16.1% | 14.7% | 12.8% | 9.2% |
+| CROOKS Jordan | 1.3% | 6.7% | 14.8% | 19.2% | 18.6% | 15.0% | 12.4% | 12.1% |
+| GKOLOMEEV Kristian | 0.1% | 0.8% | 3.6% | 8.8% | 15.6% | 22.1% | 25.6% | 23.3% |
+| DEPLANO Leonardo | 0.1% | 0.8% | 3.5% | 8.3% | 14.9% | 21.1% | 24.7% | 26.6% |
 
 ### Sportsbook Odds
 
 | Swimmer | To Win | Top 3 |
 |---|---|---|
-| MCEVOY Cameron | -121 | -475 |
-| PROUD Benjamin | +412 | -217 |
-| DRESSEL Caeleb | +850 | +172 |
-| LIENDO Josh | +1092 | +167 |
-| MANAUDOU Florent | +3822 | +308 |
-| CROOKS Jordan | +4286 | +283 |
-| DEPLANO Leonardo | +6229 | +535 |
-| GKOLOMEEV Kristian | +29312 | +1086 |
+| MCEVOY Cameron | -147 | -542 |
+| PROUD Benjamin | +297 | -341 |
+| DRESSEL Caeleb | +1740 | +172 |
+| LIENDO Josh | +2039 | +153 |
+| MANAUDOU Florent | +2539 | +231 |
+| CROOKS Jordan | +7894 | +340 |
+| GKOLOMEEV Kristian | +88396 | +2090 |
+| DEPLANO Leonardo | +102993 | +2163 |
 
 ### Winning Time O/U Lines
 
-Projected winning time: **21.102s** (median 21.102s)
+Projected winning time: **21.156s** (median 21.175s)
 
 | Line | Under | Over |
 |---|---|---|
-| 21.00s | +259 | -259 |
-| 21.05s | +160 | -160 |
-| 21.10s | +102 | -102 |
-| 21.15s | -154 | +154 |
-| 21.20s | -247 | +247 |
+| 21.10s | +190 | -190 |
+| 21.15s | +125 | -125 |
+| 21.20s | -126 | +126 |
+| 21.25s | -206 | +206 |
+| 21.30s | -355 | +355 |
 
 ### Charts
 

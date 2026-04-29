@@ -30,7 +30,7 @@ from tune_hyperparams import (
     names_match,
     SLUG_TO_XLSX,
 )
-from events import EVENTS_2024_PARIS
+from events import EVENTS
 from simulation import build_model, run_fast
 import config
 
@@ -41,11 +41,11 @@ def score_event_detail(slug: str, n_sims: int = 5_000) -> None:
     if slug not in actual_results:
         print(f"No actual results for '{slug}' in actual_results.csv")
         return
-    if slug not in EVENTS_2024_PARIS:
+    if slug not in EVENTS:
         print(f"Unknown event slug: {slug}")
         return
 
-    event = EVENTS_2024_PARIS[slug]
+    event = EVENTS[slug]
     cache_path = ROOT / "validation" / "athlete_cache" / f"{slug}.json"
     if not cache_path.exists():
         print(f"No cached data for {slug}. Run:  python tune_hyperparams.py --cache-only")
@@ -71,7 +71,8 @@ def score_event_detail(slug: str, n_sims: int = 5_000) -> None:
         print(f"  {res.name:<30} {p_top4:>10.1%} {cp:>12.1%} {actual:>8}")
 
     sim_b, crowd_b = brier_score(results, actual_top4, crowd_probs or None)
-    print(f"\n  Sim Brier: {sim_b:.4f}   Crowd Brier: {crowd_b:.4f if crowd_b else 'N/A'}")
+    crowd_str = f"{crowd_b:.4f}" if crowd_b else "N/A"
+    print(f"\n  Sim Brier: {sim_b:.4f}   Crowd Brier: {crowd_str}")
 
 
 def main() -> None:
@@ -103,7 +104,7 @@ def main() -> None:
 
     rows = []
     for slug, top4 in actual_results.items():
-        if slug not in EVENTS_2024_PARIS:
+        if slug not in EVENTS:
             continue
         cache_path = ROOT / "validation" / "athlete_cache" / f"{slug}.json"
         if not cache_path.exists():
@@ -111,7 +112,7 @@ def main() -> None:
                 print(f"  SKIP  {slug}  (not cached — run --cache-only first)")
             continue
 
-        event = EVENTS_2024_PARIS[slug]
+        event = EVENTS[slug]
         athletes, _ = get_or_cache_athletes(slug, event)
         try:
             models = [build_model(a, event) for a in athletes]

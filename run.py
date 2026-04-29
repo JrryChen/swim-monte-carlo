@@ -7,7 +7,7 @@ import argparse
 from fetcher import get_finalists, get_athlete_times
 from simulation import build_model, run
 from output import print_models, print_table, print_odds, show_distributions, show_chart, save_csv, save_json
-from events import EVENTS_2024_PARIS
+from events import EVENTS
 from config import N_SIMULATIONS, DEFAULT_EVENT
 
 
@@ -16,11 +16,11 @@ def main() -> None:
     parser.add_argument(
         "--event",
         default=DEFAULT_EVENT,
-        choices=EVENTS_2024_PARIS.keys(),
-        help=f"Event slug (default: {DEFAULT_EVENT}). Available: {', '.join(EVENTS_2024_PARIS)}",
+        choices=EVENTS.keys(),
+        help=f"Event slug (default: {DEFAULT_EVENT}). Available: {', '.join(EVENTS)}",
     )
     args = parser.parse_args()
-    event = EVENTS_2024_PARIS[args.event]
+    event = EVENTS[args.event]
 
     print(f"Event: {event.name}")
     print("Fetching finalists...")

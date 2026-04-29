@@ -127,7 +127,7 @@ def load_actual_results() -> dict[str, list[str]]:
     Returns {event_slug: [1st_name, 2nd_name, 3rd_name, 4th_name]}.
     Lines starting with '#' are ignored.
     """
-    from events import EVENTS_2024_PARIS
+    from events import EVENTS
     path = VALIDATION_DIR / "actual_results.csv"
     if not path.exists():
         raise FileNotFoundError(
@@ -147,7 +147,7 @@ def load_actual_results() -> dict[str, list[str]]:
             parts = [p.strip() for p in line.split(",")]
             row = dict(zip(headers, parts))
             slug = row.get("event_slug", "")
-            if slug in EVENTS_2024_PARIS:
+            if slug in EVENTS:
                 results[slug] = [row.get(f"place_{i}", "") for i in range(1, 5)]
     return results
 
@@ -331,7 +331,7 @@ def score_all_events(
     hyperparams — optional dict of kwargs for build_model (season_decay, etc.)
     Returns (mean_sim_brier, mean_crowd_brier).
     """
-    from events import EVENTS_2024_PARIS
+    from events import EVENTS
     from simulation import build_model, run_fast
 
     hp = hyperparams or {}
@@ -341,7 +341,7 @@ def score_all_events(
     for slug, athletes in validation_athletes.items():
         if slug not in actual_results:
             continue
-        event = EVENTS_2024_PARIS[slug]
+        event = EVENTS[slug]
         try:
             models = [build_model(a, event, **hp) for a in athletes]
         except Exception:
@@ -374,6 +374,7 @@ def _objective(
         "max_seasons":     trial.suggest_int(  "max_seasons",     2,    6),
         "best_time_decay": trial.suggest_float("best_time_decay", 0.3,  6.0),
         "decay_distance_exp": trial.suggest_float("decay_distance_exp", 0.0, 1.5),
+        "sigma_distance_exp": trial.suggest_float("sigma_distance_exp", 0.0, 1.5),
         "default_sigma":   trial.suggest_float("default_sigma",   0.05, 1.5,  log=True),
         "default_tau":     trial.suggest_float("default_tau",     0.02, 0.60, log=True),
     }
@@ -388,13 +389,13 @@ def _objective(
 def _build_validation_athletes(
     actual_results: dict[str, list[str]], force_refresh: bool = False
 ) -> dict[str, list]:
-    from events import EVENTS_2024_PARIS
+    from events import EVENTS
 
     validation_athletes: dict[str, list] = {}
     for slug in actual_results:
-        if slug not in EVENTS_2024_PARIS:
+        if slug not in EVENTS:
             continue
-        event = EVENTS_2024_PARIS[slug]
+        event = EVENTS[slug]
         try:
             athletes, _ = get_or_cache_athletes(slug, event, force=force_refresh)
             validation_athletes[slug] = athletes
@@ -526,6 +527,7 @@ def _get_current_config(param_name: str):
         "max_seasons":     "MAX_SEASONS",
         "best_time_decay": "BEST_TIME_DECAY",
         "decay_distance_exp": "DECAY_DISTANCE_EXP",
+        "sigma_distance_exp": "SIGMA_DISTANCE_EXP",
         "default_sigma":   "DEFAULT_SIGMA",
         "default_tau":     "DEFAULT_TAU",
     }
@@ -540,6 +542,7 @@ def _print_config_patch(best_params: dict) -> None:
         "max_seasons":     "MAX_SEASONS",
         "best_time_decay"        "best_time_decay": "BEST_TIME_DECAY",
         "decay_distance_exp": "DECAY_DISTANCE_EXP",
+        "sigma_distance_exp": "SIGMA_DISTANCE_EXP",
         "default_sigma":   "DEFAULT_SIGMA",
         "default_tau":     "DEFAULT_TAU",
     }

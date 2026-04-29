@@ -7,9 +7,9 @@ import pytest
 import numpy as np
 from models import Athlete, SwimResult
 from simulation import build_model, run, _get_season_year
-from events import EVENTS_2024_PARIS
+from events import EVENTS
 
-MEN_50_FREE = EVENTS_2024_PARIS["men_50_free"]
+MEN_50_FREE = EVENTS["men_50_free"]
 
 
 def make_athlete(name: str, times: list[float], date: str = "2024-01-01") -> Athlete:
