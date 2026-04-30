@@ -61,6 +61,16 @@ python run_headless.py --event men_200_breast
 
 Available event slugs follow the pattern `{men|women}_{distance}_{stroke}`, e.g. `men_50_free`, `women_200_back`, `men_400_im`. Run `python run.py --help` to list all 28 options.
 
+#### Running without the data fetcher
+
+`src/fetcher.py` is not included in this repository as it contains proprietary API credentials. If you have cloned the repo and do not have access to the fetcher, you can still run the simulator using the pre-built athlete cache committed under `validation/athlete_cache/`:
+
+```bash
+python run.py --from-cache --event men_50_free
+```
+
+This loads athlete data directly from the cached JSON files instead of calling the API. All 28 Paris 2024 events are cached and available. The `--from-cache` flag is also useful for reproducibility — it guarantees the simulation runs against the exact same historical data used for tuning and validation.
+
 Results are written to `results/`:
 
 | File | Contents |

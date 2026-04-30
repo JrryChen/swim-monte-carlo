@@ -98,7 +98,7 @@ def show_distributions(models: list[RaceModel], event_name: str = "Men's 50m Fre
     x_max = max(m.mu for m in sorted_models) + 1.2
     x = np.linspace(x_min, x_max, 500)
 
-    fig, ax = plt.subplots(figsize=(12, 6))
+    fig, ax = plt.subplots(figsize=(12, 8))
     colors = plt.cm.tab10.colors
 
     pdfs = []
@@ -132,7 +132,7 @@ def show_chart(results: list[SimResult], event_name: str = "Men's 50m Freestyle"
     names = [r.name for r in sorted_results]
     win_probs = [r.place_probs[1] for r in sorted_results]
 
-    fig, ax = plt.subplots(figsize=(10, 6))
+    fig, ax = plt.subplots(figsize=(12, 8))
     bars = ax.barh(names, [p * 100 for p in win_probs], color="steelblue")
     ax.bar_label(bars, fmt="%.1f%%", padding=4)
     ax.set_xlabel("Win Probability (%)")

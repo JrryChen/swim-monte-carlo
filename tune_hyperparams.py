@@ -356,9 +356,130 @@ def score_all_events(
         if c_b is not None:
             crowd_briers.append(c_b)
 
+
     mean_sim = float(np.mean(sim_briers)) if sim_briers else float("nan")
     mean_crowd = float(np.mean(crowd_briers)) if crowd_briers else None
     return mean_sim, mean_crowd
+
+
+def run_loo_score(
+    validation_athletes: dict[str, list],
+    actual_results: dict[str, list[str]],
+    n_sims: int = 2_000,
+    hyperparams: dict | None = None,
+) -> tuple[float, list[tuple[str, float]]]:
+    """Score the model event-by-event using current hyperparams.
+
+    Each event is treated as held-out: the score reported for it is computed
+    independently, not as part of the training objective. With global hyperparams
+    this is equivalent to per-event Brier scoring — the value is in seeing which
+    events the model handles well and which it doesn't, and getting an unbiased
+    estimate of mean performance (since hyperparams were fixed before this call).
+
+    Returns (mean_brier, [(slug, brier), ...]) sorted worst → best.
+    """
+    from events import EVENTS
+    from simulation import build_model, run_fast
+
+    hp = hyperparams or {}
+    rng = np.random.default_rng(42)
+    rows: list[tuple[str, float]] = []
+
+    for slug, athletes in validation_athletes.items():
+        if slug not in actual_results:
+            continue
+        event = EVENTS[slug]
+        try:
+            models = [build_model(a, event, **hp) for a in athletes]
+        except Exception:
+            continue
+        results = run_fast(models, n=n_sims, rng=rng)
+        s_b, _ = brier_score(results, actual_results[slug])
+        if not np.isnan(s_b):
+            rows.append((slug, s_b))
+
+    rows.sort(key=lambda x: -x[1])
+    mean = float(np.mean([s for _, s in rows])) if rows else float("nan")
+    return mean, rows
+
+
+def _loo_tune_objective(
+    trial,
+    validation_athletes: dict[str, list],
+    actual_results: dict[str, list[str]],
+    held_out: str,
+    n_sims: int,
+) -> float:
+    """Optuna objective for one LOO fold: optimise on all events except held_out."""
+    params = {
+        "season_decay":       trial.suggest_float("season_decay",       0.05, 0.90),
+        "max_seasons":        trial.suggest_int(  "max_seasons",        2,    6),
+        "best_time_decay":    trial.suggest_float("best_time_decay",    0.3,  6.0),
+        "decay_distance_exp": trial.suggest_float("decay_distance_exp", 0.0,  1.5),
+        "sigma_distance_exp": trial.suggest_float("sigma_distance_exp", 0.0,  1.5),
+        "default_sigma":      trial.suggest_float("default_sigma",      0.05, 1.5,  log=True),
+        "default_tau":        trial.suggest_float("default_tau",        0.02, 0.60, log=True),
+    }
+    subset = {k: v for k, v in validation_athletes.items() if k != held_out}
+    sim_brier, _ = score_all_events(subset, actual_results, hyperparams=params, n_sims=n_sims)
+    return sim_brier
+
+
+def run_loo_tuning(
+    validation_athletes: dict[str, list],
+    actual_results: dict[str, list[str]],
+    n_trials: int = 100,
+    n_sims: int = 2_000,
+) -> tuple[float, list[tuple[str, float, dict]]]:
+    """Leave-one-event-out hyperparameter tuning.
+
+    For each of the N events:
+      1. Run n_trials Optuna trials optimising Brier on the other N-1 events.
+      2. Score the best params on the held-out event.
+
+    Returns (mean_loo_brier, [(slug, held_out_brier, best_params), ...]).
+    This gives a honest out-of-sample estimate of model performance.
+    """
+    import optuna
+    from functools import partial
+    optuna.logging.set_verbosity(optuna.logging.WARNING)
+
+    rows: list[tuple[str, float, dict]] = []
+    slugs = list(validation_athletes.keys())
+    n = len(slugs)
+
+    for i, held_out in enumerate(slugs):
+        print(f"  LOO fold {i+1}/{n}  held out: {held_out}")
+        study = optuna.create_study(direction="minimize")
+        obj = partial(
+            _loo_tune_objective,
+            validation_athletes=validation_athletes,
+            actual_results=actual_results,
+            held_out=held_out,
+            n_sims=n_sims,
+        )
+        study.optimize(obj, n_trials=n_trials, show_progress_bar=False)
+
+        # Score held-out event with best params found on the other 27
+        from events import EVENTS
+        from simulation import build_model, run_fast
+        best_hp = study.best_params
+        event = EVENTS[held_out]
+        athletes = validation_athletes[held_out]
+        try:
+            models = [build_model(a, event, **best_hp) for a in athletes]
+            results = run_fast(models, n=n_sims)
+            s_b, _ = brier_score(results, actual_results[held_out])
+        except Exception as e:
+            print(f"    error scoring {held_out}: {e}")
+            s_b = float("nan")
+
+        rows.append((held_out, s_b, best_hp))
+        print(f"    held-out Brier: {s_b:.4f}")
+
+    valid = [s for _, s, _ in rows if not np.isnan(s)]
+    mean_loo = float(np.mean(valid)) if valid else float("nan")
+    return mean_loo, rows
 
 
 # ─── Optuna objective ──────────────────────────────────────────────────────────
@@ -417,6 +538,9 @@ def main() -> None:
     parser.add_argument("--n-sims",  type=int, default=2_000, help="Simulations per event per trial (default: 2000)")
     parser.add_argument("--apply-best", action="store_true", help="Print recommended config.py edits for best params found")
     parser.add_argument("--jobs", type=int, default=1, help="Parallel Optuna jobs (default: 1)")
+    parser.add_argument("--loo-score",  action="store_true", help="Score current config event-by-event (LOO-style breakdown)")
+    parser.add_argument("--loo-tune",   action="store_true", help="Full LOO tuning: tune on N-1 events, score on held-out (slow)")
+    parser.add_argument("--loo-trials", type=int, default=100, help="Optuna trials per LOO fold (default: 100)")
     args = parser.parse_args()
 
     # ── Load ground truth ──────────────────────────────────────────────────────
@@ -433,6 +557,43 @@ def main() -> None:
 
     if args.cache_only:
         print("Cache complete. Run again without --cache-only to tune.")
+        return
+
+    # ── LOO score (fast) ───────────────────────────────────────────────────────
+    if args.loo_score:
+        import config
+        hp = {
+            "season_decay": config.SEASON_DECAY, "max_seasons": config.MAX_SEASONS,
+            "best_time_decay": config.BEST_TIME_DECAY, "decay_distance_exp": config.DECAY_DISTANCE_EXP,
+            "sigma_distance_exp": config.SIGMA_DISTANCE_EXP, "default_sigma": config.DEFAULT_SIGMA,
+            "default_tau": config.DEFAULT_TAU,
+        }
+        print("LOO scoring current config (each event treated as held-out)...")
+        mean_loo, rows = run_loo_score(validation_athletes, actual_results, n_sims=args.n_sims, hyperparams=hp)
+        print(f"  {'Event':<30} {'Brier':>8}")
+        print(f"  {'─'*28} {'─'*8}")
+        for slug, s_b in rows:
+            print(f"  {slug:<30} {s_b:>8.4f}")
+        print("\n  Mean LOO Brier:", f"{mean_loo:.4f}")
+        return
+
+    # ── LOO tune (slow) ────────────────────────────────────────────────────────
+    if args.loo_tune:
+        print(f"LOO tuning: {len(validation_athletes)} folds x {args.loo_trials} trials each")
+        est = len(validation_athletes) * args.loo_trials * args.n_sims // 500_000 + 1
+        print(f"  Estimated time: ~{est} min")
+        mean_loo, rows = run_loo_tuning(
+            validation_athletes, actual_results,
+            n_trials=args.loo_trials, n_sims=args.n_sims,
+        )
+        print("\n" + "="*55)
+        print(f"  LOO TUNING RESULTS")
+        print(f"{'='*55}")
+        print(f"  {'Event':<30} {'Held-out Brier':>14}")
+        print(f"  {'─'*28} {'─'*14}")
+        for slug, s_b, _ in sorted(rows, key=lambda x: -x[1]):
+            print(f"  {slug:<30} {s_b:>14.4f}")
+        print("\n  Mean LOO Brier (out-of-sample):", f"{mean_loo:.4f}")
         return
 
     # ── Load crowd baseline ────────────────────────────────────────────────────
@@ -540,7 +701,7 @@ def _print_config_patch(best_params: dict) -> None:
     mapping = {
         "season_decay":    "SEASON_DECAY",
         "max_seasons":     "MAX_SEASONS",
-        "best_time_decay"        "best_time_decay": "BEST_TIME_DECAY",
+        "best_time_decay": "BEST_TIME_DECAY",
         "decay_distance_exp": "DECAY_DISTANCE_EXP",
         "sigma_distance_exp": "SIGMA_DISTANCE_EXP",
         "default_sigma":   "DEFAULT_SIGMA",
