@@ -139,7 +139,7 @@ Repeated holdout CV stores one Optuna study per fold in that same database, so i
 | Simulator (tuned) | **0.1634** |
 | Crowd baseline (937 respondents) | 0.1885 |
 
-The simulator beats the crowd pick-em by a margin of **0.0252 Brier**.
+The simulator beats the crowd pick-em by a margin of **0.0251 Brier**.
 
 ---
 
