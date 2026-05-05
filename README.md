@@ -63,7 +63,7 @@ Available event slugs follow the pattern `{men|women}_{distance}_{stroke}`, e.g.
 
 #### Running without the data fetcher
 
-`src/fetcher.py` is not included in this repository as it contains proprietary API credentials. If you have cloned the repo and do not have access to the fetcher, you can still run the simulator using the pre-built athlete cache committed under `validation/athlete_cache/`:
+`src/fetcher.py` is not included in this repository. If you have cloned the repo and do not have access to the fetcher, you can still run the simulator using the pre-built athlete cache committed under `validation/athlete_cache/`:
 
 ```bash
 python run.py --from-cache --event men_50_free
