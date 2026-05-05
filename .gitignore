@@ -8,3 +8,4 @@ results/
 fetch_actual_results.py
 src/fetcher.py
 CLAUDE.md
+AGENTS.md

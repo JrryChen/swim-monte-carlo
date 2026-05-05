@@ -90,7 +90,9 @@ pytest tests/
 
 ## Hyperparameter Tuning
 
-Hyperparameters in `src/config.py` are tuned via Bayesian optimization using [Optuna](https://optuna.org/), minimising Brier score against actual Paris 2024 top-4 results across all 28 events.
+Hyperparameters in `src/config.py` are tuned via Bayesian optimization using [Optuna](https://optuna.org/), minimising Brier score against actual Paris 2024 top-4 results.
+
+The original tuning workflow optimised and evaluated on the same 28 Olympic events. That is useful for fitting a final config, but it can overfit Paris-specific outcomes and make the reported Brier score look better than true out-of-sample performance. The preferred validation workflow now uses repeated holdout cross-validation: tune on 25 events, score on 3 held-out events, and repeat across multiple folds.
 
 ### Workflow
 
@@ -101,39 +103,43 @@ python tune_hyperparams.py --cache-only
 # Score the current config.py values against actual results
 python tune_hyperparams.py --score-current
 
-# Run 200 Optuna trials (resumable — Ctrl+C and rerun to continue)
-python tune_hyperparams.py --trials 200
-
-# Run more trials on top of existing ones
-python tune_hyperparams.py --trials 1000
-
-# Print suggested config.py edits for the best parameters found
-python tune_hyperparams.py --apply-best
-
 # Quick validation without tuning
 python validate.py
+
+# Preferred out-of-sample validation: tune on 25 events, score 3 held-out events.
+# Omitting --cv-trials chooses a compute-equivalent budget to 1000 all-event trials
+# (20 folds x 56 trials x 25 train events ~= 1000 trials x 28 events).
+python tune_hyperparams.py --cv-tune --cv-folds 20 --cv-test-size 3
+
+# Stricter but slower out-of-sample validation: tune on 27 events, score one held-out event
+python tune_hyperparams.py --loo-tune --loo-trials 100
+
+# Final fit after validation: tune on all 28 events, then print config.py edits
+python tune_hyperparams.py --trials 1000 --apply-best
 ```
 
 Optuna stores trials in `validation/optuna-{branch}.db` — each git branch gets its own database so trial history doesn't bleed across model variants.
+Repeated holdout CV stores one Optuna study per fold in that same database, so interrupted CV runs can resume without losing completed fold trials.
 
 ### Tuned Parameters (Paris 2024)
 
 | Parameter | Tuned Value |
 |---|---|
-| `SEASON_DECAY` | 0.4730 |
+| `SEASON_DECAY` | 0.5458 |
 | `MAX_SEASONS` | 3 |
-| `BEST_TIME_DECAY` | 3.4295 |
-| `DECAY_DISTANCE_EXP` | 1.0585 |
-| `SIGMA_DISTANCE_EXP` | 0.3104 |
-| `DEFAULT_SIGMA` | 0.4004 |
-| `DEFAULT_TAU` | 0.5210 |
+| `BEST_TIME_DECAY` | 1.5751 |
+| `DECAY_DISTANCE_EXP` | 1.0613 |
+| `SIGMA_DISTANCE_EXP` | 0.6010 |
+| `DEFAULT_SIGMA` | 0.3486 |
+| `DEFAULT_TAU` | 0.2596 |
 
 | Model | Brier Score |
 |---|---|
-| Simulator (tuned) | **0.1626** |
+| Repeated 25/3 CV test | **0.1709** |
+| Simulator (tuned) | **0.1634** |
 | Crowd baseline (937 respondents) | 0.1885 |
 
-The simulator beats the crowd pick-em by a margin of **0.026 Brier**.
+The simulator beats the crowd pick-em by a margin of **0.0252 Brier**.
 
 ---
 
@@ -161,13 +167,13 @@ If a competition looks suspicious, add a substring of its name to `EXCLUDED_COMP
 | Parameter | Tuned Value | What it controls |
 |---|---|---|
 | `N_SIMULATIONS` | `100_000` | Number of races simulated. Higher = more stable probabilities, slower. |
-| `DEFAULT_SIGMA` | `0.4004` | Fallback Gaussian spread (seconds per 50m) used when a swimmer has only one recorded time. Higher = more assumed uncertainty. In swimming terms: how much race-to-race variation to assign when you barely know the swimmer. |
-| `DEFAULT_TAU` | `0.5210` | Fallback exponential tail (seconds per 50m) used when fewer than 3 results are available. Higher = fatter right tail, more blown races assumed. In swimming terms: how often to expect a badly off day from a data-scarce swimmer. |
-| `SEASON_DECAY` | `0.4730` | Fraction of weight retained per older season. `0.5` = each season back is half as influential; lower values push the model toward recent form. In swimming terms: how much last year’s times should matter compared to this year’s. |
+| `DEFAULT_SIGMA` | `0.3486` | Fallback Gaussian spread (seconds per 50m) used when a swimmer has only one recorded time. Higher = more assumed uncertainty. In swimming terms: how much race-to-race variation to assign when you barely know the swimmer. |
+| `DEFAULT_TAU` | `0.2596` | Fallback exponential tail (seconds per 50m) used when fewer than 3 results are available. Higher = fatter right tail, more blown races assumed. In swimming terms: how often to expect a badly off day from a data-scarce swimmer. |
+| `SEASON_DECAY` | `0.5458` | Fraction of weight retained per older season. `0.5` = each season back is half as influential; lower values push the model toward recent form. In swimming terms: how much last year’s times should matter compared to this year’s. |
 | `MAX_SEASONS` | `3` | How many seasons of history to include. Results older than this are dropped entirely. |
-| `BEST_TIME_DECAY` | `3.4295` | Steepness of the proximity weighting curve toward the world record. `weight = exp(-effective_decay × (time − WR))`. Higher = the model trusts a swimmer’s peak over their average more aggressively. In swimming terms: how much a single fast swim should dominate the model versus the swimmer’s typical results. |
-| `DECAY_DISTANCE_EXP` | `1.0585` | Softens `BEST_TIME_DECAY` for longer events: `effective_decay = BEST_TIME_DECAY / (distance / 50) ^ exp`. At `0.0` all events use the same decay; at `1.0` a 200m gets half the decay of a 50m. In swimming terms: distance swimmers are more consistent — the gap between a good and bad 1500m is narrower than in the 50m, so peak-chasing matters less. |
-| `SIGMA_DISTANCE_EXP` | `0.3104` | Scales fallback σ and τ by event distance: `effective = default × (distance / 50) ^ exp`. At `0.0` all distances use the same fallback; at `1.0` scaling is linear with distance. In swimming terms: longer races have more room for variation in absolute seconds, so sparse-data uncertainty should grow with distance. |
+| `BEST_TIME_DECAY` | `1.5751` | Steepness of the proximity weighting curve toward the world record. `weight = exp(-effective_decay × (time − WR))`. Higher = the model trusts a swimmer’s peak over their average more aggressively. In swimming terms: how much a single fast swim should dominate the model versus the swimmer’s typical results. |
+| `DECAY_DISTANCE_EXP` | `1.0613` | Softens `BEST_TIME_DECAY` for longer events: `effective_decay = BEST_TIME_DECAY / (distance / 50) ^ exp`. At `0.0` all events use the same decay; at `1.0` a 200m gets half the decay of a 50m. In swimming terms: distance swimmers are more consistent — the gap between a good and bad 1500m is narrower than in the 50m, so peak-chasing matters less. |
+| `SIGMA_DISTANCE_EXP` | `0.6010` | Scales fallback σ and τ by event distance: `effective = default × (distance / 50) ^ exp`. At `0.0` all distances use the same fallback; at `1.0` scaling is linear with distance. In swimming terms: longer races have more room for variation in absolute seconds, so sparse-data uncertainty should grow with distance. |
 | `EXCLUDED_COMPETITIONS` | (list) | Competitions excluded by name substring — used to filter short-course and non-standard meets. |
 | `DEFAULT_EVENT` | `"men_50_free"` | Event run when no `--event` flag is passed. |
 
@@ -220,15 +226,17 @@ X = Normal(μ − τ, σ_n) + Exponential(τ)
 
 ## Validation — Paris 2024
 
-The simulator was validated against all 28 individual Paris 2024 Olympic finals using Brier score (mean squared error between predicted top-4 probability and actual 0/1 outcome). Lower is better.
+The simulator is scored against all 28 individual Paris 2024 Olympic finals using Brier score (mean squared error between predicted top-4 probability and actual 0/1 outcome). Lower is better.
 
 | Model | Brier Score |
 |---|---|
-| Simulator (tuned) | **0.1626** |
+| Repeated 25/3 CV test | **0.1709** |
+| Simulator (tuned) | **0.1634** |
 | Crowd pick-em (937 respondents) | 0.1885 |
-| Improvement | +0.026 |
+| Improvement | +0.0252 |
 
-Hyperparameters were optimised over 1,000 Optuna trials. Note: tuning and evaluation are performed on the same 28-event set, so results reflect Paris-specific fit rather than out-of-sample generalisation. Scores should be interpreted as an upper bound on real-world predictive performance.
+The table above uses the final all-events fit, so it should be interpreted as an optimistic in-sample score. Repeated 25/3 holdout CV was added to estimate out-of-sample performance: each fold tunes hyperparameters on 25 events, scores 3 unseen events, and reports both fold-level Brier scores and a median fold-winner config recommendation.
+
 ---
 
 ## Targeting a Different Olympics

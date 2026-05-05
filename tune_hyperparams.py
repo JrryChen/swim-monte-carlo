@@ -260,8 +260,6 @@ def get_or_cache_athletes(event_slug: str, event, force: bool = False) -> tuple[
     Cache lives at validation/athlete_cache/{event_slug}.json.
     Pass force=True to re-fetch even if cache exists.
     """
-    from fetcher import get_finalists, get_athlete_times
-
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
     cache_file = CACHE_DIR / f"{event_slug}.json"
 
@@ -269,6 +267,8 @@ def get_or_cache_athletes(event_slug: str, event, force: bool = False) -> tuple[
         data = json.loads(cache_file.read_text())
         athletes = [_athlete_from_dict(d) for d in data["athletes"]]
         return athletes, data["event_date"]
+
+    from fetcher import get_finalists, get_athlete_times
 
     athletes, event_date = get_finalists(event)
     for athlete in athletes:
@@ -482,6 +482,78 @@ def run_loo_tuning(
     return mean_loo, rows
 
 
+# ─── Repeated holdout CV ───────────────────────────────────────────────────────
+
+def run_cv_tuning(
+    validation_athletes: dict[str, list],
+    actual_results: dict[str, list[str]],
+    n_trials: int = 100,
+    n_sims: int = 2_000,
+    test_size: int = 3,
+    n_folds: int = 20,
+    seed: int = 42,
+    storage_url: str | None = None,
+    study_name_prefix: str | None = None,
+) -> tuple[float, list[tuple[int, list[str], float, list[tuple[str, float]], dict]]]:
+    """Repeated holdout CV: tune on N-test_size events, score held-out events."""
+    import optuna
+    optuna.logging.set_verbosity(optuna.logging.WARNING)
+
+    slugs = list(validation_athletes.keys())
+    if test_size < 1:
+        raise ValueError("test_size must be at least 1")
+    if test_size >= len(slugs):
+        raise ValueError("test_size must be smaller than the number of events")
+
+    rng = np.random.default_rng(seed)
+    folds: list[tuple[int, list[str], float, list[tuple[str, float]], dict]] = []
+
+    for fold_idx in range(1, n_folds + 1):
+        test_slugs = list(rng.choice(slugs, size=test_size, replace=False))
+        train = {k: v for k, v in validation_athletes.items() if k not in test_slugs}
+
+        print(
+            f"  CV fold {fold_idx}/{n_folds}  "
+            f"train: {len(train)} events  test: {', '.join(test_slugs)}"
+        )
+        study_name = (
+            f"{study_name_prefix}-fold-{fold_idx:02d}"
+            if study_name_prefix
+            else None
+        )
+        study = optuna.create_study(
+            direction="minimize",
+            study_name=study_name,
+            storage=storage_url,
+            load_if_exists=bool(storage_url),
+        )
+        obj = partial(
+            _objective,
+            validation_athletes=train,
+            actual_results=actual_results,
+            n_sims=n_sims,
+        )
+        n_done = len(study.trials)
+        n_remaining = max(0, n_trials - n_done)
+        if n_remaining:
+            print(f"    running {n_remaining} new trials ({n_done} already in DB)")
+            study.optimize(obj, n_trials=n_remaining, show_progress_bar=False)
+        else:
+            print(f"    using {n_done} existing trials from DB")
+
+        test = {k: validation_athletes[k] for k in test_slugs}
+        best_hp = study.best_params
+        fold_brier, event_rows = run_loo_score(
+            test, actual_results, n_sims=n_sims, hyperparams=best_hp
+        )
+        folds.append((fold_idx, test_slugs, fold_brier, event_rows, best_hp))
+        print(f"    held-out mean Brier: {fold_brier:.4f}")
+
+    valid = [score for _, _, score, _, _ in folds if not np.isnan(score)]
+    mean_cv = float(np.mean(valid)) if valid else float("nan")
+    return mean_cv, folds
+
+
 # ─── Optuna objective ──────────────────────────────────────────────────────────
 
 def _objective(
@@ -541,6 +613,11 @@ def main() -> None:
     parser.add_argument("--loo-score",  action="store_true", help="Score current config event-by-event (LOO-style breakdown)")
     parser.add_argument("--loo-tune",   action="store_true", help="Full LOO tuning: tune on N-1 events, score on held-out (slow)")
     parser.add_argument("--loo-trials", type=int, default=100, help="Optuna trials per LOO fold (default: 100)")
+    parser.add_argument("--cv-tune",    action="store_true", help="Repeated holdout CV: tune on train events, score held-out events")
+    parser.add_argument("--cv-trials",  type=int, default=None, help="Optuna trials per CV fold (default: compute-equivalent to 1000 all-event trials)")
+    parser.add_argument("--cv-folds",   type=int, default=20, help="Number of repeated CV folds (default: 20)")
+    parser.add_argument("--cv-test-size", type=int, default=3, help="Held-out events per CV fold (default: 3)")
+    parser.add_argument("--cv-seed",    type=int, default=42, help="Random seed for CV splits (default: 42)")
     args = parser.parse_args()
 
     # ── Load ground truth ──────────────────────────────────────────────────────
@@ -596,6 +673,68 @@ def main() -> None:
         print("\n  Mean LOO Brier (out-of-sample):", f"{mean_loo:.4f}")
         return
 
+    # ── Repeated holdout CV tune (slow) ───────────────────────────────────────
+    if args.cv_tune:
+        branch = _current_branch_name()
+        db_path = VALIDATION_DIR / f"optuna-{branch}.db"
+        train_events = len(validation_athletes) - args.cv_test_size
+        cv_trials = args.cv_trials
+        if cv_trials is None:
+            cv_trials = max(1, round(1000 * len(validation_athletes) / (args.cv_folds * train_events)))
+        study_name_prefix = (
+            f"swim-cv-{branch}-seed{args.cv_seed}"
+            f"-test{args.cv_test_size}-folds{args.cv_folds}"
+        )
+        print(
+            f"Repeated holdout CV tuning: {args.cv_folds} folds x "
+            f"{cv_trials} trials each"
+        )
+        print(f"  Optuna storage: {db_path}")
+        print(
+            f"  Split per fold: {train_events} train / "
+            f"{args.cv_test_size} test events"
+        )
+        trial_event_runs = args.cv_folds * cv_trials * train_events
+        print(
+            f"  Workload: {trial_event_runs:,} train event-runs "
+            f"plus {args.cv_folds * args.cv_test_size:,} held-out event scores"
+        )
+        mean_cv, folds = run_cv_tuning(
+            validation_athletes,
+            actual_results,
+            n_trials=cv_trials,
+            n_sims=args.n_sims,
+            test_size=args.cv_test_size,
+            n_folds=args.cv_folds,
+            seed=args.cv_seed,
+            storage_url=f"sqlite:///{db_path}",
+            study_name_prefix=study_name_prefix,
+        )
+        print("\n" + "="*55)
+        print("  REPEATED HOLDOUT CV RESULTS")
+        print(f"{'='*55}")
+        print(f"  {'Fold':>4}  {'Held-out events':<36} {'Brier':>8}")
+        print(f"  {'-'*4}  {'-'*36} {'-'*8}")
+        for fold_idx, test_slugs, fold_brier, _, _ in folds:
+            print(f"  {fold_idx:>4}  {', '.join(test_slugs):<36} {fold_brier:>8.4f}")
+
+        event_scores: dict[str, list[float]] = {}
+        for _, _, _, event_rows, _ in folds:
+            for slug, score in event_rows:
+                event_scores.setdefault(slug, []).append(score)
+
+        print("\n  Event means across held-out appearances:")
+        print(f"  {'Event':<30} {'Mean':>8} {'N':>4}")
+        print(f"  {'-'*28} {'-'*8} {'-'*4}")
+        for slug, scores in sorted(event_scores.items(), key=lambda item: -float(np.mean(item[1]))):
+            print(f"  {slug:<30} {float(np.mean(scores)):>8.4f} {len(scores):>4}")
+        print("\n  Mean CV Brier (out-of-sample):", f"{mean_cv:.4f}")
+
+        recommended = _cv_recommended_params(folds)
+        _print_cv_param_summary(folds, recommended)
+        _print_config_patch(recommended)
+        return
+
     # ── Load crowd baseline ────────────────────────────────────────────────────
     print("Parsing crowd pick-em baseline...")
     crowd_probs = load_crowd_top4_probs(event_slugs=list(validation_athletes.keys()))
@@ -628,13 +767,7 @@ def main() -> None:
 
     optuna.logging.set_verbosity(optuna.logging.WARNING)
 
-    import subprocess
-    try:
-        branch = subprocess.check_output(
-            ["git", "rev-parse", "--abbrev-ref", "HEAD"], text=True
-        ).strip().replace("/", "-")
-    except Exception:
-        branch = "main"
+    branch = _current_branch_name()
     db_path = VALIDATION_DIR / f"optuna-{branch}.db"
     study_name = f"swim-hyperparams-{branch}"
     study = optuna.create_study(
@@ -694,6 +827,68 @@ def _get_current_config(param_name: str):
     }
     attr = mapping.get(param_name)
     return getattr(config, attr, None) if attr else None
+
+
+def _current_branch_name() -> str:
+    import subprocess
+    try:
+        return subprocess.check_output(
+            ["git", "rev-parse", "--abbrev-ref", "HEAD"], text=True
+        ).strip().replace("/", "-")
+    except Exception:
+        return "main"
+
+
+def _cv_recommended_params(
+    folds: list[tuple[int, list[str], float, list[tuple[str, float]], dict]]
+) -> dict:
+    """Use the median fold-winning params as the CV recommendation."""
+    if not folds:
+        return {}
+
+    keys = folds[0][4].keys()
+    recommended = {}
+    for key in keys:
+        values = np.array([fold_best[key] for _, _, _, _, fold_best in folds], dtype=float)
+        if key == "max_seasons":
+            recommended[key] = int(round(float(np.median(values))))
+        else:
+            recommended[key] = float(np.median(values))
+    return recommended
+
+
+def _print_cv_param_summary(
+    folds: list[tuple[int, list[str], float, list[tuple[str, float]], dict]],
+    recommended: dict,
+) -> None:
+    """Print fold-winning parameter spread and the median recommendation."""
+    if not folds:
+        return
+
+    print("\n" + "=" * 60)
+    print("  CV PARAMETER RECOMMENDATION  (median of fold winners)")
+    print("=" * 60)
+    print(f"  {'Parameter':<22} {'Recommended':>12} {'Min':>12} {'Max':>12}")
+    print(f"  {'-'*22} {'-'*12} {'-'*12} {'-'*12}")
+
+    for key, rec in recommended.items():
+        values = np.array([fold_best[key] for _, _, _, _, fold_best in folds], dtype=float)
+        current_val = _get_current_config(key)
+        changed = (
+            current_val is not None
+            and abs(float(current_val) - float(rec)) > 1e-4
+        )
+        flag = "  <- changed" if changed else ""
+        if key == "max_seasons":
+            print(
+                f"  {key:<22} {int(rec):>12d} "
+                f"{int(np.min(values)):>12d} {int(np.max(values)):>12d}{flag}"
+            )
+        else:
+            print(
+                f"  {key:<22} {rec:>12.4f} "
+                f"{float(np.min(values)):>12.4f} {float(np.max(values)):>12.4f}{flag}"
+            )
 
 
 def _print_config_patch(best_params: dict) -> None:
