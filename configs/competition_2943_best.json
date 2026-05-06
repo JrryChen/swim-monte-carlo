@@ -1,17 +1,17 @@
 {
   "hyperparams": {
-    "season_decay": 0.470479,
+    "season_decay": 0.439996,
     "max_seasons": 3,
-    "best_time_decay": 2.867204,
-    "decay_distance_exp": 1.435454,
-    "sigma_distance_exp": 1.49708,
-    "default_sigma": 0.05758,
-    "default_tau": 0.395534
+    "best_time_decay": 5.674082,
+    "decay_distance_exp": 1.244218,
+    "sigma_distance_exp": 0.350408,
+    "default_sigma": 0.744214,
+    "default_tau": 0.485952
   },
   "metadata": {
     "source": "optuna",
     "competition_id": 2943,
     "dataset_tag": "competition_2943",
-    "brier": 0.1623134910714286
+    "brier": 0.16264376562500002
   }
 }
