@@ -40,10 +40,12 @@ SCORING
 """
 
 import argparse
+import csv
 import json
 import re
 import sys
 import unicodedata
+from dataclasses import dataclass
 from functools import partial
 from pathlib import Path
 
@@ -87,6 +89,15 @@ SLUG_TO_XLSX = {
 }
 
 
+@dataclass(frozen=True)
+class ValidationEvent:
+    name: str
+    discipline_id: str
+    discipline_name: str
+    world_record: float = 0.0
+    distance: int = 50
+
+
 # ─── Name normalisation ────────────────────────────────────────────────────────
 
 def _normalize(name: str) -> str:
@@ -121,35 +132,78 @@ def names_match(api_name: str, csv_name: str) -> bool:
 
 # ─── Data loading ──────────────────────────────────────────────────────────────
 
-def load_actual_results() -> dict[str, list[str]]:
+def load_actual_results(path: Path | None = None) -> dict[str, list[str]]:
     """Load Paris 2024 actual top-4 from validation/actual_results.csv.
 
     Returns {event_slug: [1st_name, 2nd_name, 3rd_name, 4th_name]}.
     Lines starting with '#' are ignored.
     """
     from events import EVENTS
-    path = VALIDATION_DIR / "actual_results.csv"
+    if path is None:
+        path = VALIDATION_DIR / "actual_results.csv"
     if not path.exists():
         raise FileNotFoundError(
             f"actual_results.csv not found at {path}\n"
             "Create it or copy the template from validation/actual_results.csv"
         )
     results: dict[str, list[str]] = {}
-    with open(path) as f:
-        headers = None
-        for line in f:
-            line = line.strip()
-            if not line or line.startswith("#"):
-                continue
-            if headers is None:
-                headers = [h.strip() for h in line.split(",")]
-                continue
-            parts = [p.strip() for p in line.split(",")]
-            row = dict(zip(headers, parts))
-            slug = row.get("event_slug", "")
-            if slug in EVENTS:
+    with open(path, newline="", encoding="utf-8") as f:
+        lines = (line for line in f if line.strip() and not line.lstrip().startswith("#"))
+        reader = csv.DictReader(lines)
+        for row in reader:
+            slug = (row.get("event_slug") or "").strip()
+            if slug in EVENTS or path.parent.name.startswith("competition_"):
                 results[slug] = [row.get(f"place_{i}", "") for i in range(1, 5)]
     return results
+
+
+def load_competition_events(competition_id: int) -> tuple[dict[str, ValidationEvent], str]:
+    """Load event manifest + competition metadata for a competition folder.
+
+    Returns:
+      - mapping of event_slug -> ValidationEvent
+      - cutoff date string YYYY-MM-DD from metadata["from"]
+    """
+    from events import EVENTS as BASE_EVENTS
+
+    comp_dir = VALIDATION_DIR / f"competition_{competition_id}"
+    manifest_path = comp_dir / "events_manifest.csv"
+    metadata_path = comp_dir / "competition_metadata.json"
+
+    if not manifest_path.exists():
+        raise FileNotFoundError(f"Missing events manifest: {manifest_path}")
+    if not metadata_path.exists():
+        raise FileNotFoundError(f"Missing competition metadata: {metadata_path}")
+
+    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    from_raw = str(metadata.get("from") or "").strip()
+    if not from_raw:
+        raise ValueError(f"competition_metadata.json missing 'from': {metadata_path}")
+    cutoff_date = from_raw.split("T", 1)[0]
+
+    events_map: dict[str, ValidationEvent] = {}
+    with open(manifest_path, newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            slug = (row.get("event_slug") or "").strip()
+            event_name = (row.get("event_name") or "").strip()
+            discipline_id = (row.get("discipline_id") or "").strip()
+            if not slug or not event_name or not discipline_id:
+                continue
+
+            base = BASE_EVENTS.get(slug)
+            if base is None:
+                continue
+
+            events_map[slug] = ValidationEvent(
+                name=base.name,
+                discipline_id=discipline_id,
+                discipline_name=event_name,
+                world_record=base.world_record,
+                distance=base.distance,
+            )
+
+    return events_map, cutoff_date
 
 
 def load_crowd_top4_probs(
@@ -254,29 +308,46 @@ def _athlete_from_dict(d: dict):
     return a
 
 
-def get_or_cache_athletes(event_slug: str, event, force: bool = False) -> tuple[list, str]:
+def get_or_cache_athletes(
+    event_slug: str,
+    event,
+    *,
+    cache_dir: Path = CACHE_DIR,
+    cutoff_date_override: str | None = None,
+    force: bool = False,
+) -> tuple[list, str]:
     """Return (athletes, event_date), fetching from API or local JSON cache.
 
     Cache lives at validation/athlete_cache/{event_slug}.json.
     Pass force=True to re-fetch even if cache exists.
     """
-    CACHE_DIR.mkdir(parents=True, exist_ok=True)
-    cache_file = CACHE_DIR / f"{event_slug}.json"
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    cache_file = cache_dir / f"{event_slug}.json"
 
     if cache_file.exists() and not force:
         data = json.loads(cache_file.read_text())
-        athletes = [_athlete_from_dict(d) for d in data["athletes"]]
-        return athletes, data["event_date"]
+        cached_before_date = data.get("before_date")
+        if cutoff_date_override and cached_before_date and cached_before_date != cutoff_date_override:
+            # Cache was built with a different cutoff boundary.
+            pass
+        else:
+            athletes = [_athlete_from_dict(d) for d in data["athletes"]]
+            return athletes, data["event_date"]
 
     from fetcher import get_finalists, get_athlete_times
 
     athletes, event_date = get_finalists(event)
+    before_date = cutoff_date_override or event_date
     for athlete in athletes:
-        get_athlete_times(athlete, before_date=event_date, discipline_name=event.discipline_name)
+        get_athlete_times(athlete, before_date=before_date, discipline_name=event.discipline_name)
 
     cache_file.write_text(
         json.dumps(
-            {"event_date": event_date, "athletes": [_athlete_to_dict(a) for a in athletes]},
+            {
+                "event_date": event_date,
+                "before_date": before_date,
+                "athletes": [_athlete_to_dict(a) for a in athletes],
+            },
             indent=2,
         )
     )
@@ -378,8 +449,8 @@ def run_loo_score(
 
     Returns (mean_brier, [(slug, brier), ...]) sorted worst → best.
     """
-    from events import EVENTS
-    from simulation import build_model, run_fast
+    from src.events import EVENTS
+    from src.simulation import build_model, run_fast
 
     hp = hyperparams or {}
     rng = np.random.default_rng(42)
@@ -580,21 +651,30 @@ def _objective(
 # ─── CLI ───────────────────────────────────────────────────────────────────────
 
 def _build_validation_athletes(
-    actual_results: dict[str, list[str]], force_refresh: bool = False
+    actual_results: dict[str, list[str]],
+    *,
+    events_map: dict[str, ValidationEvent],
+    cache_dir: Path,
+    cutoff_date_override: str | None = None,
+    force_refresh: bool = False,
 ) -> dict[str, list]:
-    from events import EVENTS
-
     validation_athletes: dict[str, list] = {}
     for slug in actual_results:
-        if slug not in EVENTS:
+        if slug not in events_map:
             continue
-        event = EVENTS[slug]
+        event = events_map[slug]
         try:
-            athletes, _ = get_or_cache_athletes(slug, event, force=force_refresh)
+            athletes, _ = get_or_cache_athletes(
+                slug,
+                event,
+                cache_dir=cache_dir,
+                cutoff_date_override=cutoff_date_override,
+                force=force_refresh,
+            )
             validation_athletes[slug] = athletes
-            print(f"  ✓ {slug:30s}  {len(athletes)} athletes")
+            print(f"  OK {slug:30s}  {len(athletes)} athletes")
         except Exception as e:
-            print(f"  ✗ {slug:30s}  {e}")
+            print(f"  x  {slug:30s}  {e}")
     return validation_athletes
 
 
@@ -618,17 +698,58 @@ def main() -> None:
     parser.add_argument("--cv-folds",   type=int, default=20, help="Number of repeated CV folds (default: 20)")
     parser.add_argument("--cv-test-size", type=int, default=3, help="Held-out events per CV fold (default: 3)")
     parser.add_argument("--cv-seed",    type=int, default=42, help="Random seed for CV splits (default: 42)")
+    parser.add_argument(
+        "--competition-id",
+        type=int,
+        default=None,
+        help="Use validation/competition_<id>/ data and metadata cutoff for cache building.",
+    )
     args = parser.parse_args()
+    dataset_tag = _dataset_tag(args.competition_id)
+
+    # Dataset + cache context
+    from events import EVENTS as BASE_EVENTS
+    events_map: dict[str, ValidationEvent]
+    actual_results_path: Path
+    cache_dir: Path
+    cutoff_date_override: str | None = None
+
+    if args.competition_id is None:
+        actual_results_path = VALIDATION_DIR / "actual_results.csv"
+        cache_dir = CACHE_DIR
+        events_map = {
+            slug: ValidationEvent(
+                name=event.name,
+                discipline_id=event.discipline_id,
+                discipline_name=event.discipline_name,
+                world_record=event.world_record,
+                distance=event.distance,
+            )
+            for slug, event in BASE_EVENTS.items()
+        }
+    else:
+        comp_dir = VALIDATION_DIR / f"competition_{args.competition_id}"
+        actual_results_path = comp_dir / "actual_results.csv"
+        cache_dir = comp_dir / "athlete_cache"
+        events_map, cutoff_date_override = load_competition_events(args.competition_id)
+        print(
+            f"Using competition {args.competition_id} cutoff date {cutoff_date_override} "
+            f"from {comp_dir / 'competition_metadata.json'}"
+        )
 
     # ── Load ground truth ──────────────────────────────────────────────────────
     print("Loading actual results...")
-    actual_results = load_actual_results()
-    print(f"  {len(actual_results)} events loaded from actual_results.csv\n")
+    actual_results = load_actual_results(path=actual_results_path)
+    print(f"  {len(actual_results)} events loaded from {actual_results_path.relative_to(ROOT)}\n")
 
     # ── Build/load athlete cache ───────────────────────────────────────────────
     print("Loading athlete data (from cache or API)...")
     validation_athletes = _build_validation_athletes(
-        actual_results, force_refresh=args.refresh_cache
+        actual_results,
+        events_map=events_map,
+        cache_dir=cache_dir,
+        cutoff_date_override=cutoff_date_override,
+        force_refresh=args.refresh_cache,
     )
     print(f"\n  {len(validation_athletes)} events ready for simulation\n")
 
@@ -676,13 +797,13 @@ def main() -> None:
     # ── Repeated holdout CV tune (slow) ───────────────────────────────────────
     if args.cv_tune:
         branch = _current_branch_name()
-        db_path = VALIDATION_DIR / f"optuna-{branch}.db"
+        db_path = VALIDATION_DIR / f"optuna-{branch}-{dataset_tag}.db"
         train_events = len(validation_athletes) - args.cv_test_size
         cv_trials = args.cv_trials
         if cv_trials is None:
             cv_trials = max(1, round(1000 * len(validation_athletes) / (args.cv_folds * train_events)))
         study_name_prefix = (
-            f"swim-cv-{branch}-seed{args.cv_seed}"
+            f"swim-cv-{branch}-{dataset_tag}-seed{args.cv_seed}"
             f"-test{args.cv_test_size}-folds{args.cv_folds}"
         )
         print(
@@ -768,8 +889,8 @@ def main() -> None:
     optuna.logging.set_verbosity(optuna.logging.WARNING)
 
     branch = _current_branch_name()
-    db_path = VALIDATION_DIR / f"optuna-{branch}.db"
-    study_name = f"swim-hyperparams-{branch}"
+    db_path = VALIDATION_DIR / f"optuna-{branch}-{dataset_tag}.db"
+    study_name = f"swim-hyperparams-{branch}-{dataset_tag}"
     study = optuna.create_study(
         direction="minimize",
         study_name=study_name,
@@ -837,6 +958,10 @@ def _current_branch_name() -> str:
         ).strip().replace("/", "-")
     except Exception:
         return "main"
+
+
+def _dataset_tag(competition_id: int | None) -> str:
+    return f"competition_{competition_id}" if competition_id is not None else "default"
 
 
 def _cv_recommended_params(

@@ -1,0 +1,944 @@
+{
+  "event_date": "2025-07-30",
+  "before_date": "2025-07-11",
+  "athletes": [
+    {
+      "id": "1544338",
+      "name": "JAOUADI Ahmed",
+      "results": [
+        {
+          "competition": "46th Int. Swim Meeting Ciutat De Barcelona",
+          "time_seconds": 466.37,
+          "date": "2025-05-21"
+        },
+        {
+          "competition": "2025 Championnat R\u00e9gion Sud Printemps Juniors Seniors (50m)",
+          "time_seconds": 478.9,
+          "date": "2025-03-29"
+        },
+        {
+          "competition": "Olympic Games Paris 2024",
+          "time_seconds": 462.83,
+          "date": "2024-07-30"
+        },
+        {
+          "competition": "French Elite 2024",
+          "time_seconds": 465.31,
+          "date": "2024-06-19"
+        },
+        {
+          "competition": "Mare Nostrum Canet 2024",
+          "time_seconds": 472.44,
+          "date": "2024-05-26"
+        },
+        {
+          "competition": "Saint Germain En Laye - Finale",
+          "time_seconds": 479.28,
+          "date": "2024-03-23"
+        },
+        {
+          "competition": "Nice - Camille Muffat",
+          "time_seconds": 471.97,
+          "date": "2024-03-18"
+        },
+        {
+          "competition": "15th Hortillons",
+          "time_seconds": 473.99,
+          "date": "2023-12-17"
+        },
+        {
+          "competition": "French Summer Championships",
+          "time_seconds": 484.47,
+          "date": "2023-07-23"
+        },
+        {
+          "competition": "Mare Nostrum Canet 2023",
+          "time_seconds": 496.02,
+          "date": "2023-05-14"
+        },
+        {
+          "competition": "French Junior National Championships (50m)",
+          "time_seconds": 481.64,
+          "date": "2023-04-09"
+        },
+        {
+          "competition": "15th CANA African Senior Championships",
+          "time_seconds": 490.34,
+          "date": "2022-08-20"
+        },
+        {
+          "competition": "1st Arab Swimming Age Group Championships 2021",
+          "time_seconds": 482.49,
+          "date": "2021-10-26"
+        }
+      ]
+    },
+    {
+      "id": "1134535",
+      "name": "SCHWARZ Sven",
+      "results": [
+        {
+          "competition": "European Aquatics Championships U23",
+          "time_seconds": 458.98,
+          "date": "2025-06-28"
+        },
+        {
+          "competition": "German Championships 2025",
+          "time_seconds": 458.12,
+          "date": "2025-05-02"
+        },
+        {
+          "competition": "Malmsten Swim Open Stockholm 2025",
+          "time_seconds": 466.01,
+          "date": "2025-04-15"
+        },
+        {
+          "competition": "Olympic Games Paris 2024",
+          "time_seconds": 463.59000000000003,
+          "date": "2024-07-30"
+        },
+        {
+          "competition": "Sette colli 2024",
+          "time_seconds": 471.35,
+          "date": "2024-06-22"
+        },
+        {
+          "competition": "World Aquatics Championships - Doha 2024",
+          "time_seconds": 464.29,
+          "date": "2024-02-14"
+        },
+        {
+          "competition": "LEN U23 Championships",
+          "time_seconds": 461.77,
+          "date": "2023-08-13"
+        },
+        {
+          "competition": "GER Championships 2023",
+          "time_seconds": 467.55,
+          "date": "2023-07-07"
+        },
+        {
+          "competition": "Berlin Swim Open 2023",
+          "time_seconds": 463.43,
+          "date": "2023-04-22"
+        },
+        {
+          "competition": "Q!-Cup",
+          "time_seconds": 470.01,
+          "date": "2023-04-15"
+        },
+        {
+          "competition": "European Championships 2022",
+          "time_seconds": 467.36,
+          "date": "2022-08-13"
+        },
+        {
+          "competition": "Berlin Swim Open 2022",
+          "time_seconds": 466.65,
+          "date": "2022-04-09"
+        },
+        {
+          "competition": "31st International Gothaer & Friends Meet",
+          "time_seconds": 468.96,
+          "date": "2022-03-27"
+        },
+        {
+          "competition": "Bundesstuetzpunktwettkampf Magdeburg 2021",
+          "time_seconds": 473.83,
+          "date": "2021-12-10"
+        },
+        {
+          "competition": "Berlin Swim Open 2020",
+          "time_seconds": 479.26,
+          "date": "2020-03-01"
+        },
+        {
+          "competition": "Internationale Deutsche Meisterschaften 2019",
+          "time_seconds": 456.0,
+          "date": "2019-11-16"
+        },
+        {
+          "competition": "European Junior Swimming Championships 2019",
+          "time_seconds": 473.74,
+          "date": "2019-07-06"
+        },
+        {
+          "competition": "German Junior National Championships (50m) 2019",
+          "time_seconds": 481.82,
+          "date": "2019-05-29"
+        },
+        {
+          "competition": "Malmsten Swim Open Stockholm 2019",
+          "time_seconds": 482.27,
+          "date": "2019-04-15"
+        },
+        {
+          "competition": "German Junior National Championships (50m) 2018",
+          "time_seconds": 488.21,
+          "date": "2018-05-30"
+        },
+        {
+          "competition": "German National Championships (50m)",
+          "time_seconds": 491.42,
+          "date": "2018-04-21"
+        }
+      ]
+    },
+    {
+      "id": "1188009",
+      "name": "MAERTENS Lukas",
+      "results": [
+        {
+          "competition": "Malmsten Swim Open Stockholm 2025",
+          "time_seconds": 459.1,
+          "date": "2025-04-15"
+        },
+        {
+          "competition": "Sette colli 2024",
+          "time_seconds": 463.52,
+          "date": "2024-06-22"
+        },
+        {
+          "competition": "World Aquatics Championships - Fukuoka 2023",
+          "time_seconds": 459.48,
+          "date": "2023-07-26"
+        },
+        {
+          "competition": "Berlin Swim Open 2023",
+          "time_seconds": 462.14,
+          "date": "2023-04-22"
+        },
+        {
+          "competition": "European Championships 2022",
+          "time_seconds": 462.65,
+          "date": "2022-08-13"
+        },
+        {
+          "competition": "19th FINA World Championships Budapest 2022",
+          "time_seconds": 475.21,
+          "date": "2022-06-20"
+        },
+        {
+          "competition": "Malmsten Swim Open Stockholm 2022",
+          "time_seconds": 461.43,
+          "date": "2022-04-12"
+        },
+        {
+          "competition": "German National Championships (50m)",
+          "time_seconds": 481.3,
+          "date": "2020-02-09"
+        },
+        {
+          "competition": "7th FINA World Junior Swimming Championships 2019",
+          "time_seconds": 479.97,
+          "date": "2019-08-22"
+        }
+      ]
+    },
+    {
+      "id": "1056309",
+      "name": "FINKE Bobby",
+      "results": [
+        {
+          "competition": "2025 National Championships",
+          "time_seconds": 463.13,
+          "date": "2025-06-07"
+        },
+        {
+          "competition": "2025 TYR Pro Swim Series - Fort Lauderdale",
+          "time_seconds": 470.79,
+          "date": "2025-05-03"
+        },
+        {
+          "competition": "2025 Southern Zone South Sectional Championships",
+          "time_seconds": 477.54,
+          "date": "2025-02-13"
+        },
+        {
+          "competition": "Olympic Games Paris 2024",
+          "time_seconds": 458.75,
+          "date": "2024-07-30"
+        },
+        {
+          "competition": "2024 U.S. Olympic Trials",
+          "time_seconds": 464.22,
+          "date": "2024-06-18"
+        },
+        {
+          "competition": "2024 TYR Pro Series TX",
+          "time_seconds": 474.48,
+          "date": "2024-04-13"
+        },
+        {
+          "competition": "Southern Zone South Sectional Championships",
+          "time_seconds": 473.35,
+          "date": "2024-02-08"
+        },
+        {
+          "competition": "2024 TYR Pro Series TN",
+          "time_seconds": 475.85,
+          "date": "2024-01-13"
+        },
+        {
+          "competition": "Toyota USA Open 2023",
+          "time_seconds": 474.9,
+          "date": "2023-11-29"
+        },
+        {
+          "competition": "World Aquatics Championships - Fukuoka 2023",
+          "time_seconds": 458.67,
+          "date": "2023-07-26"
+        },
+        {
+          "competition": "2023 Phillips 66",
+          "time_seconds": 460.34000000000003,
+          "date": "2023-07-01"
+        },
+        {
+          "competition": "2023 TYR Pro Series IL",
+          "time_seconds": 473.96,
+          "date": "2023-04-12"
+        },
+        {
+          "competition": "TYR Pro Swim Series Knoxville 2023",
+          "time_seconds": 476.97,
+          "date": "2023-01-11"
+        },
+        {
+          "competition": "Phillips 66 National Championships (50m) 2022",
+          "time_seconds": 471.21,
+          "date": "2022-07-30"
+        },
+        {
+          "competition": "19th FINA World Championships Budapest 2022",
+          "time_seconds": 459.36,
+          "date": "2022-06-21"
+        },
+        {
+          "competition": "Phillips 66 International Team Trials 2022",
+          "time_seconds": 463.32,
+          "date": "2022-04-30"
+        },
+        {
+          "competition": "Toyota US Open 2021",
+          "time_seconds": 474.07,
+          "date": "2021-12-01"
+        },
+        {
+          "competition": "Olympic Games Tokyo 2020",
+          "time_seconds": 461.87,
+          "date": "2021-07-29"
+        },
+        {
+          "competition": "Olympic Games Tokyo 2020",
+          "time_seconds": 462.72,
+          "date": "2021-07-27"
+        },
+        {
+          "competition": "US Olympic Team Trials - Wave II",
+          "time_seconds": 468.22,
+          "date": "2021-06-17"
+        },
+        {
+          "competition": "UANA Qualifier For Tokyo hosted by Azura and Montverde Swimming 2021",
+          "time_seconds": 475.05,
+          "date": "2021-04-29"
+        },
+        {
+          "competition": "Toyota US Open 2020",
+          "time_seconds": 473.05,
+          "date": "2020-11-12"
+        },
+        {
+          "competition": "USA Winter National Championships (50m)",
+          "time_seconds": 474.29,
+          "date": "2019-12-04"
+        },
+        {
+          "competition": "Philipps 66 USA National Championships (50m)",
+          "time_seconds": 467.58,
+          "date": "2019-08-04"
+        },
+        {
+          "competition": "13th Pan Pacific Championships 2018",
+          "time_seconds": 472.57,
+          "date": "2018-08-12"
+        },
+        {
+          "competition": "US National Championships (50m)",
+          "time_seconds": 471.45,
+          "date": "2018-07-29"
+        },
+        {
+          "competition": "2018 FL Southern Zone South Sectional",
+          "time_seconds": 485.15,
+          "date": "2018-07-06"
+        },
+        {
+          "competition": "Mesa PSS 2018",
+          "time_seconds": 487.53,
+          "date": "2018-04-13"
+        },
+        {
+          "competition": "US National Championships (50m)",
+          "time_seconds": 479.31,
+          "date": "2017-07-01"
+        },
+        {
+          "competition": "2017 FL SPA - 813 INVIT MEET",
+          "time_seconds": 491.37,
+          "date": "2017-05-21"
+        },
+        {
+          "competition": "Junior Pan Pacific Swimming Championships 2016",
+          "time_seconds": 475.15999999999997,
+          "date": "2016-08-27"
+        },
+        {
+          "competition": "US National Championships (50m)",
+          "time_seconds": 481.99,
+          "date": "2016-08-06"
+        },
+        {
+          "competition": "US Olympic Team Trials - Swimming",
+          "time_seconds": 486.85,
+          "date": "2016-06-26"
+        },
+        {
+          "competition": "2015 FL Southern Zone South Sectional",
+          "time_seconds": 492.55,
+          "date": "2015-07-09"
+        }
+      ]
+    },
+    {
+      "id": "1020758",
+      "name": "JOHANSSON Victor",
+      "results": [
+        {
+          "competition": "2025 Swedish Championships (50m)",
+          "time_seconds": 473.85,
+          "date": "2025-06-28"
+        },
+        {
+          "competition": "Malmsten Swim Open Stockholm 2025",
+          "time_seconds": 469.72,
+          "date": "2025-04-15"
+        },
+        {
+          "competition": "Link\u00f6ping Water Games",
+          "time_seconds": 473.53,
+          "date": "2025-03-28"
+        },
+        {
+          "competition": "Swedish Grand Prix",
+          "time_seconds": 487.42,
+          "date": "2025-03-16"
+        },
+        {
+          "competition": "Olympic Games Paris 2024",
+          "time_seconds": 469.47,
+          "date": "2024-07-29"
+        },
+        {
+          "competition": "Sette colli 2024",
+          "time_seconds": 474.09000000000003,
+          "date": "2024-06-22"
+        },
+        {
+          "competition": "Malmsten Stockholm 2024",
+          "time_seconds": 470.05,
+          "date": "2024-04-08"
+        },
+        {
+          "competition": "Helsinki Swim Meet",
+          "time_seconds": 477.53,
+          "date": "2024-04-01"
+        },
+        {
+          "competition": "World Aquatics Championships - Doha 2024",
+          "time_seconds": 467.08,
+          "date": "2024-02-14"
+        },
+        {
+          "competition": "World Aquatics Championships - Doha 2024",
+          "time_seconds": 467.04,
+          "date": "2024-02-13"
+        },
+        {
+          "competition": "Rotterdam 2023",
+          "time_seconds": 470.14,
+          "date": "2023-12-03"
+        },
+        {
+          "competition": "Swedish Swim Games 2023 - Grand Prix 1",
+          "time_seconds": 464.69,
+          "date": "2023-09-24"
+        },
+        {
+          "competition": "SWE Championships 2023",
+          "time_seconds": 499.87,
+          "date": "2023-07-01"
+        },
+        {
+          "competition": "European Championships 2022",
+          "time_seconds": 474.51,
+          "date": "2022-08-13"
+        },
+        {
+          "competition": "SM/Para-SM/JSM (50m) 2022",
+          "time_seconds": 471.57,
+          "date": "2022-06-30"
+        },
+        {
+          "competition": "Olympic Games Tokyo 2020",
+          "time_seconds": 469.14,
+          "date": "2021-07-27"
+        },
+        {
+          "competition": "Swedish National Championships (50m)",
+          "time_seconds": 497.73,
+          "date": "2021-07-03"
+        },
+        {
+          "competition": "58th International Trophy Sette Colli",
+          "time_seconds": 475.18,
+          "date": "2021-06-26"
+        },
+        {
+          "competition": "Mare Nostrum -  Meeting International de Canet-en-Roussillon 2021",
+          "time_seconds": 478.05,
+          "date": "2021-06-02"
+        },
+        {
+          "competition": "European Championships 2021",
+          "time_seconds": 475.34000000000003,
+          "date": "2021-05-21"
+        },
+        {
+          "competition": "Malmsten Swim Open Stockholm 2021",
+          "time_seconds": 481.29,
+          "date": "2021-04-11"
+        },
+        {
+          "competition": "Final Four 2 Temporarrace",
+          "time_seconds": 469.86,
+          "date": "2021-03-27"
+        },
+        {
+          "competition": "Stockholm Grand Prix 2021",
+          "time_seconds": 488.46,
+          "date": "2021-03-13"
+        },
+        {
+          "competition": "Canadian Swimming Trials 2019",
+          "time_seconds": 479.77,
+          "date": "2019-04-03"
+        },
+        {
+          "competition": "European Championships 2018",
+          "time_seconds": 474.31,
+          "date": "2018-08-07"
+        },
+        {
+          "competition": "SM/Para-SM/JSM (50m) 2018",
+          "time_seconds": 486.68,
+          "date": "2018-07-07"
+        },
+        {
+          "competition": "Malmsten Swim Open Stockholm 2018",
+          "time_seconds": 469.77,
+          "date": "2018-04-08"
+        },
+        {
+          "competition": "Malmsten Swim Open Stockholm 2018",
+          "time_seconds": 469.77,
+          "date": "2018-04-05"
+        },
+        {
+          "competition": "DM-JDM Ostsvenska",
+          "time_seconds": 473.98,
+          "date": "2017-10-15"
+        },
+        {
+          "competition": "17th FINA World Championships 2017",
+          "time_seconds": 472.65999999999997,
+          "date": "2017-07-25"
+        },
+        {
+          "competition": "SM/JSM (50m) 2017",
+          "time_seconds": 481.1,
+          "date": "2017-07-03"
+        },
+        {
+          "competition": "Swim Open Stockholm 2017",
+          "time_seconds": 480.5,
+          "date": "2017-04-11"
+        },
+        {
+          "competition": "DM/JDM Ostsvenska",
+          "time_seconds": 476.38,
+          "date": "2016-10-16"
+        },
+        {
+          "competition": "European Junior Swimming Championships 2016",
+          "time_seconds": 476.64,
+          "date": "2016-07-09"
+        },
+        {
+          "competition": "European Championships 2016",
+          "time_seconds": 481.63,
+          "date": "2016-05-19"
+        },
+        {
+          "competition": "Swim Open Stockholm",
+          "time_seconds": 485.29,
+          "date": "2016-04-02"
+        },
+        {
+          "competition": "Amsterdam Swim Cup 2015",
+          "time_seconds": 491.93,
+          "date": "2015-12-13"
+        },
+        {
+          "competition": "5th FINA World Junior Swimming Championships 2015",
+          "time_seconds": 487.28,
+          "date": "2015-08-27"
+        },
+        {
+          "competition": "Swedish National Championships (50m)",
+          "time_seconds": 495.11,
+          "date": "2015-07-04"
+        },
+        {
+          "competition": "European Junior Swimming Championships 2015",
+          "time_seconds": 499.67,
+          "date": "2015-06-26"
+        },
+        {
+          "competition": "Swedish Grand Prix 3",
+          "time_seconds": 493.17,
+          "date": "2015-04-19"
+        }
+      ]
+    },
+    {
+      "id": "1513857",
+      "name": "TUNCELLI Kuzey",
+      "results": [
+        {
+          "competition": "European Aquatics Junior Swimming Championships 2025",
+          "time_seconds": 466.01,
+          "date": "2025-07-05"
+        },
+        {
+          "competition": "6th International Edirne Cup and Turkiye Youth-Junior and Open Age Long Course Team Selection",
+          "time_seconds": 467.46,
+          "date": "2025-03-07"
+        },
+        {
+          "competition": "Olympic Games Paris 2024",
+          "time_seconds": 467.29,
+          "date": "2024-07-29"
+        },
+        {
+          "competition": "European Junior Swimming Championships",
+          "time_seconds": 468.01,
+          "date": "2024-07-06"
+        },
+        {
+          "competition": "LEN Championships 2024",
+          "time_seconds": 474.12,
+          "date": "2024-06-19"
+        },
+        {
+          "competition": "World Aquatics Championships - Doha 2024",
+          "time_seconds": 468.53,
+          "date": "2024-02-13"
+        },
+        {
+          "competition": "TUR Selection 2024(Jan)",
+          "time_seconds": 474.11,
+          "date": "2024-01-05"
+        },
+        {
+          "competition": "World Aquatics Junior Championships 2023",
+          "time_seconds": 468.75,
+          "date": "2023-09-06"
+        },
+        {
+          "competition": "TUR Arena Championships",
+          "time_seconds": 473.65,
+          "date": "2023-08-06"
+        },
+        {
+          "competition": "LEN Jr Championships 2023",
+          "time_seconds": 472.39,
+          "date": "2023-07-08"
+        },
+        {
+          "competition": "Acropolis Open 2023",
+          "time_seconds": 475.1,
+          "date": "2023-05-05"
+        },
+        {
+          "competition": "Turkish Turkcell Open National Team Selection Meet (50m)",
+          "time_seconds": 482.46,
+          "date": "2023-04-30"
+        },
+        {
+          "competition": "European Junior Swimming Championships 2022",
+          "time_seconds": 495.11,
+          "date": "2022-07-08"
+        },
+        {
+          "competition": "Turkish Turkcell National Team Selection Meet (50m)",
+          "time_seconds": 487.48,
+          "date": "2022-04-14"
+        },
+        {
+          "competition": "Turkish Sehit Kamil Turkcell Open National Team Selection Meet (50m)",
+          "time_seconds": 502.0,
+          "date": "2021-12-30"
+        }
+      ]
+    },
+    {
+      "id": "1499596",
+      "name": "GOEDEMANS Benjamin",
+      "results": [
+        {
+          "competition": "2025 Australian Swimming Trials",
+          "time_seconds": 466.15999999999997,
+          "date": "2025-06-11"
+        },
+        {
+          "competition": "2025 Australian Open Championships",
+          "time_seconds": 472.52,
+          "date": "2025-04-23"
+        },
+        {
+          "competition": "2024 Hancock Prospecting QLD Championships",
+          "time_seconds": 491.51,
+          "date": "2024-12-18"
+        },
+        {
+          "competition": "2024 AUS Olympic Trials",
+          "time_seconds": 475.76,
+          "date": "2024-06-12"
+        },
+        {
+          "competition": "2024 AUS Championships",
+          "time_seconds": 480.05,
+          "date": "2024-04-19"
+        },
+        {
+          "competition": "2024 NSW Championships",
+          "time_seconds": 479.97,
+          "date": "2024-03-16"
+        },
+        {
+          "competition": "2023 Hancock Championships",
+          "time_seconds": 489.75,
+          "date": "2023-12-13"
+        },
+        {
+          "competition": "2023 Australian Trials",
+          "time_seconds": 486.09,
+          "date": "2023-06-15"
+        },
+        {
+          "competition": "Australian Age Championships 2023",
+          "time_seconds": 479.26,
+          "date": "2023-04-10"
+        },
+        {
+          "competition": "NSW State Open Championships 2023",
+          "time_seconds": 483.66,
+          "date": "2023-03-11"
+        },
+        {
+          "competition": "Junior Pan Pacific Swimming Championships 2022",
+          "time_seconds": 493.16,
+          "date": "2022-08-27"
+        },
+        {
+          "competition": "Australian Age Championships 2022",
+          "time_seconds": 487.25,
+          "date": "2022-04-17"
+        },
+        {
+          "competition": "Hancock Prospecting Australian Swimming Trials 2021",
+          "time_seconds": 496.09,
+          "date": "2021-06-14"
+        },
+        {
+          "competition": "Hancock Prospecting Australian Age Group Championships 2021",
+          "time_seconds": 495.8,
+          "date": "2021-04-09"
+        },
+        {
+          "competition": "McDonald\u2019s Queensland Championships 2020",
+          "time_seconds": 496.12,
+          "date": "2020-12-18"
+        },
+        {
+          "competition": "Swimming QLD Prep meet",
+          "time_seconds": 516.11,
+          "date": "2020-11-14"
+        }
+      ]
+    },
+    {
+      "id": "1198105",
+      "name": "WIFFEN Daniel",
+      "results": [
+        {
+          "competition": "46th Int. Swim Meeting Ciutat De Barcelona",
+          "time_seconds": 465.17,
+          "date": "2025-05-21"
+        },
+        {
+          "competition": "Irish Open Championships 2025",
+          "time_seconds": 461.52,
+          "date": "2025-04-12"
+        },
+        {
+          "competition": "Edinburgh International Swim Meet",
+          "time_seconds": 476.9,
+          "date": "2025-03-15"
+        },
+        {
+          "competition": "Olympic Games Paris 2024",
+          "time_seconds": 458.19,
+          "date": "2024-07-30"
+        },
+        {
+          "competition": "Sette colli 2024",
+          "time_seconds": 466.83,
+          "date": "2024-06-22"
+        },
+        {
+          "competition": "IRL Championships 2024",
+          "time_seconds": 480.61,
+          "date": "2024-05-22"
+        },
+        {
+          "competition": "World Aquatics Championships - Doha 2024",
+          "time_seconds": 460.94,
+          "date": "2024-02-14"
+        },
+        {
+          "competition": "Rotterdam 2023",
+          "time_seconds": 465.61,
+          "date": "2023-12-02"
+        },
+        {
+          "competition": "LEN U23 Championships",
+          "time_seconds": 465.59000000000003,
+          "date": "2023-08-13"
+        },
+        {
+          "competition": "World Aquatics Championships - Fukuoka 2023",
+          "time_seconds": 459.19,
+          "date": "2023-07-26"
+        },
+        {
+          "competition": "Sette colli 2023",
+          "time_seconds": 470.64,
+          "date": "2023-06-24"
+        },
+        {
+          "competition": "AP Race London 2023",
+          "time_seconds": 467.52,
+          "date": "2023-05-29"
+        },
+        {
+          "competition": "Malmsten Stockholm 2023",
+          "time_seconds": 464.45,
+          "date": "2023-04-16"
+        },
+        {
+          "competition": "Edinburgh 2023",
+          "time_seconds": 475.27,
+          "date": "2023-03-11"
+        },
+        {
+          "competition": "23rd Luxembourg Euro Meet 2023",
+          "time_seconds": 473.14,
+          "date": "2023-01-28"
+        },
+        {
+          "competition": "19th FINA World Championships Budapest 2022",
+          "time_seconds": 470.63,
+          "date": "2022-06-21"
+        },
+        {
+          "competition": "Mare Nostrum - Trofeu Internacional Ciutat de Barcelona 2022",
+          "time_seconds": 475.15999999999997,
+          "date": "2022-05-25"
+        },
+        {
+          "competition": "Malmsten Swim Open Stockholm 2022",
+          "time_seconds": 470.74,
+          "date": "2022-04-12"
+        },
+        {
+          "competition": "Edinburgh International Swim Meet",
+          "time_seconds": 480.55,
+          "date": "2022-03-12"
+        },
+        {
+          "competition": "Olympic Games Tokyo 2020",
+          "time_seconds": 471.65,
+          "date": "2021-07-27"
+        },
+        {
+          "competition": "European Championships 2021",
+          "time_seconds": 475.02,
+          "date": "2021-05-21"
+        },
+        {
+          "competition": "Irish National Team Trial",
+          "time_seconds": 472.68,
+          "date": "2021-04-20"
+        },
+        {
+          "competition": "53th Challenge International Geneve",
+          "time_seconds": 494.78,
+          "date": "2020-01-19"
+        },
+        {
+          "competition": "7th FINA World Junior Swimming Championships 2019",
+          "time_seconds": 495.14,
+          "date": "2019-08-22"
+        },
+        {
+          "competition": "Irish Summer National Championships (50m)",
+          "time_seconds": 511.94,
+          "date": "2019-07-28"
+        },
+        {
+          "competition": "European Junior Swimming Championships 2019",
+          "time_seconds": 493.72,
+          "date": "2019-07-06"
+        },
+        {
+          "competition": "Mare Nostrum -  Meeting International de Canet-en-Roussillon 2019",
+          "time_seconds": 514.83,
+          "date": "2019-06-12"
+        },
+        {
+          "competition": "Glasgow International Swim Meet",
+          "time_seconds": 507.29,
+          "date": "2019-05-26"
+        },
+        {
+          "competition": "Irish Open Championships 2019",
+          "time_seconds": 496.79,
+          "date": "2019-03-29"
+        }
+      ]
+    }
+  ]
+}
