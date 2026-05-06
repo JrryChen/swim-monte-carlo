@@ -26,7 +26,7 @@ HYPERPARAMETERS TUNED
 ---------------------
   season_decay      — weight given to each prior season (config: SEASON_DECAY)
   max_seasons       — how many seasons of history to include (config: MAX_SEASONS)
-  best_time_decay   — proximity-to-WR weighting steepness (config: BEST_TIME_DECAY)
+  best_time_decay   — proximity-to-PB weighting steepness (config: BEST_TIME_DECAY)
   default_sigma     — fallback σ for athletes with 1 result (config: DEFAULT_SIGMA)
   default_tau       — fallback τ (right-tail skew) (config: DEFAULT_TAU)
 
@@ -157,12 +157,24 @@ def load_actual_results(path: Path | None = None) -> dict[str, list[str]]:
     return results
 
 
-def load_competition_events(competition_id: int) -> tuple[dict[str, ValidationEvent], str]:
+def _distance_from_event_name(event_name: str) -> int:
+    match = re.search(r"(\d+)m", event_name)
+    return int(match.group(1)) if match else 50
+
+
+def load_competition_events(
+    competition_id: int,
+    *,
+    include_unmodeled: bool = False,
+) -> tuple[dict[str, ValidationEvent], str]:
     """Load event manifest + competition metadata for a competition folder.
 
     Returns:
       - mapping of event_slug -> ValidationEvent
       - cutoff date string YYYY-MM-DD from metadata["from"]
+
+    By default, only returns events modeled by src/events.py. Pass
+    include_unmodeled=True for cache inspection tools.
     """
     from events import EVENTS as BASE_EVENTS
 
@@ -193,6 +205,14 @@ def load_competition_events(competition_id: int) -> tuple[dict[str, ValidationEv
 
             base = BASE_EVENTS.get(slug)
             if base is None:
+                if not include_unmodeled:
+                    continue
+                events_map[slug] = ValidationEvent(
+                    name=event_name,
+                    discipline_id=discipline_id,
+                    discipline_name=event_name,
+                    distance=_distance_from_event_name(event_name),
+                )
                 continue
 
             events_map[slug] = ValidationEvent(
@@ -731,7 +751,10 @@ def main() -> None:
         comp_dir = VALIDATION_DIR / f"competition_{args.competition_id}"
         actual_results_path = comp_dir / "actual_results.csv"
         cache_dir = comp_dir / "athlete_cache"
-        events_map, cutoff_date_override = load_competition_events(args.competition_id)
+        events_map, cutoff_date_override = load_competition_events(
+            args.competition_id,
+            include_unmodeled=args.cache_only,
+        )
         print(
             f"Using competition {args.competition_id} cutoff date {cutoff_date_override} "
             f"from {comp_dir / 'competition_metadata.json'}"
@@ -751,11 +774,12 @@ def main() -> None:
         cutoff_date_override=cutoff_date_override,
         force_refresh=args.refresh_cache,
     )
-    print(f"\n  {len(validation_athletes)} events ready for simulation\n")
-
     if args.cache_only:
+        print(f"\n  {len(validation_athletes)} events cached\n")
         print("Cache complete. Run again without --cache-only to tune.")
         return
+
+    print(f"\n  {len(validation_athletes)} events ready for simulation\n")
 
     # ── LOO score (fast) ───────────────────────────────────────────────────────
     if args.loo_score:

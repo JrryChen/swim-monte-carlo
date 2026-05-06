@@ -68,7 +68,10 @@ def inspect_event(
         cache_dir = CACHE_DIR
         cache_hint = "python tune_hyperparams.py --cache-only"
     else:
-        events_map, cutoff_date_override = load_competition_events(competition_id)
+        events_map, cutoff_date_override = load_competition_events(
+            competition_id,
+            include_unmodeled=True,
+        )
         cache_dir = VALIDATION_DIR / f"competition_{competition_id}" / "athlete_cache"
         cache_hint = f"python tune_hyperparams.py --competition-id {competition_id} --cache-only"
 
@@ -99,10 +102,16 @@ def inspect_event(
 
     print(f"\n{'═'*80}")
     print(f"  {event.name}  —  Finals date: {event_date}")
-    print(f"  WR: {fmt_time(event.world_record)}  |  "
+    wr_display = fmt_time(event.world_record) if event.world_record > 0 else "n/a"
+    print(f"  WR: {wr_display}  |  "
           f"SEASON_DECAY={SEASON_DECAY}  MAX_SEASONS={MAX_SEASONS}  "
           f"BEST_TIME_DECAY={BEST_TIME_DECAY}  DECAY_DISTANCE_EXP={DECAY_DISTANCE_EXP}")
     print(f"{'═'*80}")
+
+    if fast_only and event.world_record <= 0:
+        print("No WR is stored for this event, so --fast-only cannot flag suspicious times.")
+        print("Re-run without --fast-only to inspect all cached times.")
+        return
 
     for athlete in athletes:
         dated = [r for r in athlete.results if r.date]
@@ -121,7 +130,8 @@ def inspect_event(
         times = np.array([r.time_seconds for r in in_window])
         seasons = np.array([_get_season_year(r.date) for r in in_window])
         season_weights = np.array([SEASON_DECAY ** (most_recent - s) for s in seasons])
-        proximity_weights = np.exp(-effective_decay * (times - event.world_record))
+        pb = float(np.min(times))
+        proximity_weights = np.exp(-effective_decay * (times - pb))
         total_weights = season_weights * proximity_weights
         if total_weights.sum() > 0:
             norm_weights = total_weights / total_weights.sum()
@@ -139,7 +149,7 @@ def inspect_event(
 
         # Suspicious threshold: faster than WR * 1.005
         # Short course times are typically 1.5–3% faster than long course
-        suspicion_threshold = event.world_record * 1.005
+        suspicion_threshold = event.world_record * 1.005 if event.world_record > 0 else None
 
         rows = []
         any_flagged = False
@@ -149,7 +159,7 @@ def inspect_event(
             p_wt = proximity_weights[idx]
             n_wt = norm_weights[idx]
             season = _get_season_year(r.date)
-            flagged = r.time_seconds < suspicion_threshold
+            flagged = suspicion_threshold is not None and r.time_seconds < suspicion_threshold
             if flagged:
                 any_flagged = True
             flag = "  ⚠ FAST" if flagged else ""
@@ -177,7 +187,7 @@ def inspect_event(
         all_raw = athlete.results  # these are already post-exclusion-filter from fetcher
         print(f"  │  {len(in_window)} result(s) in model window")
 
-        headers = ["", "Time", "Seconds", "Date", "Season", "S.Wt", "P.Wt", "Norm.Wt", "Competition"]
+        headers = ["", "Time", "Seconds", "Date", "Season", "S.Wt", "PB.Wt", "Norm.Wt", "Competition"]
         print(tabulate(
             rows,
             headers=headers,
@@ -185,7 +195,7 @@ def inspect_event(
             colalign=("left", "right", "right", "left", "left", "right", "right", "right", "left"),
         ))
 
-        if any_flagged:
+        if any_flagged and suspicion_threshold is not None:
             print(f"  │  ⚠  Times below {fmt_time(suspicion_threshold)} "
                   f"({suspicion_threshold:.2f}s) may be short-course. "
                   f"Check competition and add to EXCLUDED_COMPETITIONS in config.py if so.")
