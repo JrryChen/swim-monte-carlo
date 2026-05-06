@@ -413,6 +413,7 @@ def brier_score(
 def score_all_events(
     validation_athletes: dict[str, list],
     actual_results: dict[str, list[str]],
+    events_map: dict[str, ValidationEvent] | None = None,
     crowd_probs: dict[str, dict[str, float]] | None = None,
     n_sims: int = 2_000,
     hyperparams: dict | None = None,
@@ -422,7 +423,9 @@ def score_all_events(
     hyperparams — optional dict of kwargs for build_model (season_decay, etc.)
     Returns (mean_sim_brier, mean_crowd_brier).
     """
-    from events import EVENTS
+    if events_map is None:
+        from events import EVENTS
+        events_map = EVENTS
     from simulation import build_model, run_fast
 
     hp = hyperparams or {}
@@ -432,7 +435,9 @@ def score_all_events(
     for slug, athletes in validation_athletes.items():
         if slug not in actual_results:
             continue
-        event = EVENTS[slug]
+        if slug not in events_map:
+            continue
+        event = events_map[slug]
         try:
             models = [build_model(a, event, **hp) for a in athletes]
         except Exception:
@@ -456,6 +461,7 @@ def score_all_events(
 def run_loo_score(
     validation_athletes: dict[str, list],
     actual_results: dict[str, list[str]],
+    events_map: dict[str, ValidationEvent] | None = None,
     n_sims: int = 2_000,
     hyperparams: dict | None = None,
 ) -> tuple[float, list[tuple[str, float]]]:
@@ -469,7 +475,9 @@ def run_loo_score(
 
     Returns (mean_brier, [(slug, brier), ...]) sorted worst → best.
     """
-    from src.events import EVENTS
+    if events_map is None:
+        from src.events import EVENTS
+        events_map = EVENTS
     from src.simulation import build_model, run_fast
 
     hp = hyperparams or {}
@@ -479,7 +487,9 @@ def run_loo_score(
     for slug, athletes in validation_athletes.items():
         if slug not in actual_results:
             continue
-        event = EVENTS[slug]
+        if slug not in events_map:
+            continue
+        event = events_map[slug]
         try:
             models = [build_model(a, event, **hp) for a in athletes]
         except Exception:
@@ -498,6 +508,7 @@ def _loo_tune_objective(
     trial,
     validation_athletes: dict[str, list],
     actual_results: dict[str, list[str]],
+    events_map: dict[str, ValidationEvent],
     held_out: str,
     n_sims: int,
 ) -> float:
@@ -512,13 +523,20 @@ def _loo_tune_objective(
         "default_tau":        trial.suggest_float("default_tau",        0.02, 0.60, log=True),
     }
     subset = {k: v for k, v in validation_athletes.items() if k != held_out}
-    sim_brier, _ = score_all_events(subset, actual_results, hyperparams=params, n_sims=n_sims)
+    sim_brier, _ = score_all_events(
+        subset,
+        actual_results,
+        events_map=events_map,
+        hyperparams=params,
+        n_sims=n_sims,
+    )
     return sim_brier
 
 
 def run_loo_tuning(
     validation_athletes: dict[str, list],
     actual_results: dict[str, list[str]],
+    events_map: dict[str, ValidationEvent],
     n_trials: int = 100,
     n_sims: int = 2_000,
 ) -> tuple[float, list[tuple[str, float, dict]]]:
@@ -546,16 +564,16 @@ def run_loo_tuning(
             _loo_tune_objective,
             validation_athletes=validation_athletes,
             actual_results=actual_results,
+            events_map=events_map,
             held_out=held_out,
             n_sims=n_sims,
         )
         study.optimize(obj, n_trials=n_trials, show_progress_bar=False)
 
         # Score held-out event with best params found on the other 27
-        from events import EVENTS
         from simulation import build_model, run_fast
         best_hp = study.best_params
-        event = EVENTS[held_out]
+        event = events_map[held_out]
         athletes = validation_athletes[held_out]
         try:
             models = [build_model(a, event, **best_hp) for a in athletes]
@@ -578,6 +596,7 @@ def run_loo_tuning(
 def run_cv_tuning(
     validation_athletes: dict[str, list],
     actual_results: dict[str, list[str]],
+    events_map: dict[str, ValidationEvent],
     n_trials: int = 100,
     n_sims: int = 2_000,
     test_size: int = 3,
@@ -622,6 +641,7 @@ def run_cv_tuning(
             _objective,
             validation_athletes=train,
             actual_results=actual_results,
+            events_map=events_map,
             n_sims=n_sims,
         )
         n_done = len(study.trials)
@@ -635,7 +655,11 @@ def run_cv_tuning(
         test = {k: validation_athletes[k] for k in test_slugs}
         best_hp = study.best_params
         fold_brier, event_rows = run_loo_score(
-            test, actual_results, n_sims=n_sims, hyperparams=best_hp
+            test,
+            actual_results,
+            events_map=events_map,
+            n_sims=n_sims,
+            hyperparams=best_hp,
         )
         folds.append((fold_idx, test_slugs, fold_brier, event_rows, best_hp))
         print(f"    held-out mean Brier: {fold_brier:.4f}")
@@ -651,6 +675,7 @@ def _objective(
     trial,
     validation_athletes: dict[str, list],
     actual_results: dict[str, list[str]],
+    events_map: dict[str, ValidationEvent],
     n_sims: int,
 ) -> float:
     params = {
@@ -663,7 +688,11 @@ def _objective(
         "default_tau":     trial.suggest_float("default_tau",     0.02, 0.60, log=True),
     }
     sim_brier, _ = score_all_events(
-        validation_athletes, actual_results, hyperparams=params, n_sims=n_sims
+        validation_athletes,
+        actual_results,
+        events_map=events_map,
+        hyperparams=params,
+        n_sims=n_sims,
     )
     return sim_brier
 
@@ -753,7 +782,7 @@ def main() -> None:
         cache_dir = comp_dir / "athlete_cache"
         events_map, cutoff_date_override = load_competition_events(
             args.competition_id,
-            include_unmodeled=args.cache_only,
+            include_unmodeled=True,
         )
         print(
             f"Using competition {args.competition_id} cutoff date {cutoff_date_override} "
@@ -791,7 +820,13 @@ def main() -> None:
             "default_tau": config.DEFAULT_TAU,
         }
         print("LOO scoring current config (each event treated as held-out)...")
-        mean_loo, rows = run_loo_score(validation_athletes, actual_results, n_sims=args.n_sims, hyperparams=hp)
+        mean_loo, rows = run_loo_score(
+            validation_athletes,
+            actual_results,
+            events_map=events_map,
+            n_sims=args.n_sims,
+            hyperparams=hp,
+        )
         print(f"  {'Event':<30} {'Brier':>8}")
         print(f"  {'─'*28} {'─'*8}")
         for slug, s_b in rows:
@@ -806,6 +841,7 @@ def main() -> None:
         print(f"  Estimated time: ~{est} min")
         mean_loo, rows = run_loo_tuning(
             validation_athletes, actual_results,
+            events_map=events_map,
             n_trials=args.loo_trials, n_sims=args.n_sims,
         )
         print("\n" + "="*55)
@@ -847,6 +883,7 @@ def main() -> None:
         mean_cv, folds = run_cv_tuning(
             validation_athletes,
             actual_results,
+            events_map,
             n_trials=cv_trials,
             n_sims=args.n_sims,
             test_size=args.cv_test_size,
@@ -890,6 +927,7 @@ def main() -> None:
     print("Scoring current config.py hyperparameters...")
     current_sim_brier, current_crowd_brier = score_all_events(
         validation_athletes, actual_results,
+        events_map=events_map,
         crowd_probs=crowd_probs if has_crowd else None,
         n_sims=args.n_sims,
     )
@@ -931,6 +969,7 @@ def main() -> None:
         _objective,
         validation_athletes=validation_athletes,
         actual_results=actual_results,
+        events_map=events_map,
         n_sims=args.n_sims,
     )
     study.optimize(objective, n_trials=n_remaining, n_jobs=args.jobs, show_progress_bar=True)
