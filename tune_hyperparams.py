@@ -26,7 +26,7 @@ HYPERPARAMETERS TUNED
 ---------------------
   season_decay      — weight given to each prior season (config: SEASON_DECAY)
   max_seasons       — how many seasons of history to include (config: MAX_SEASONS)
-  best_time_decay   — proximity-to-WR weighting steepness (config: BEST_TIME_DECAY)
+  best_time_decay   — proximity-to-PB weighting steepness (config: BEST_TIME_DECAY)
   default_sigma     — fallback σ for athletes with 1 result (config: DEFAULT_SIGMA)
   default_tau       — fallback τ (right-tail skew) (config: DEFAULT_TAU)
 
@@ -40,14 +40,17 @@ SCORING
 """
 
 import argparse
+import csv
 import json
 import re
 import sys
 import unicodedata
+from dataclasses import dataclass
 from functools import partial
 from pathlib import Path
 
 import numpy as np
+from config_presets import merged_hyperparams, write_preset
 
 ROOT = Path(__file__).parent
 VALIDATION_DIR = ROOT / "validation"
@@ -87,6 +90,15 @@ SLUG_TO_XLSX = {
 }
 
 
+@dataclass(frozen=True)
+class ValidationEvent:
+    name: str
+    discipline_id: str
+    discipline_name: str
+    world_record: float = 0.0
+    distance: int = 50
+
+
 # ─── Name normalisation ────────────────────────────────────────────────────────
 
 def _normalize(name: str) -> str:
@@ -121,35 +133,98 @@ def names_match(api_name: str, csv_name: str) -> bool:
 
 # ─── Data loading ──────────────────────────────────────────────────────────────
 
-def load_actual_results() -> dict[str, list[str]]:
+def load_actual_results(path: Path | None = None) -> dict[str, list[str]]:
     """Load Paris 2024 actual top-4 from validation/actual_results.csv.
 
     Returns {event_slug: [1st_name, 2nd_name, 3rd_name, 4th_name]}.
     Lines starting with '#' are ignored.
     """
     from events import EVENTS
-    path = VALIDATION_DIR / "actual_results.csv"
+    if path is None:
+        path = VALIDATION_DIR / "actual_results.csv"
     if not path.exists():
         raise FileNotFoundError(
             f"actual_results.csv not found at {path}\n"
             "Create it or copy the template from validation/actual_results.csv"
         )
     results: dict[str, list[str]] = {}
-    with open(path) as f:
-        headers = None
-        for line in f:
-            line = line.strip()
-            if not line or line.startswith("#"):
-                continue
-            if headers is None:
-                headers = [h.strip() for h in line.split(",")]
-                continue
-            parts = [p.strip() for p in line.split(",")]
-            row = dict(zip(headers, parts))
-            slug = row.get("event_slug", "")
-            if slug in EVENTS:
+    with open(path, newline="", encoding="utf-8") as f:
+        lines = (line for line in f if line.strip() and not line.lstrip().startswith("#"))
+        reader = csv.DictReader(lines)
+        for row in reader:
+            slug = (row.get("event_slug") or "").strip()
+            if slug in EVENTS or path.parent.name.startswith("competition_"):
                 results[slug] = [row.get(f"place_{i}", "") for i in range(1, 5)]
     return results
+
+
+def _distance_from_event_name(event_name: str) -> int:
+    match = re.search(r"(\d+)m", event_name)
+    return int(match.group(1)) if match else 50
+
+
+def load_competition_events(
+    competition_id: int,
+    *,
+    include_unmodeled: bool = False,
+) -> tuple[dict[str, ValidationEvent], str]:
+    """Load event manifest + competition metadata for a competition folder.
+
+    Returns:
+      - mapping of event_slug -> ValidationEvent
+      - cutoff date string YYYY-MM-DD from metadata["from"]
+
+    By default, only returns events modeled by src/events.py. Pass
+    include_unmodeled=True for cache inspection tools.
+    """
+    from events import EVENTS as BASE_EVENTS
+
+    comp_dir = VALIDATION_DIR / f"competition_{competition_id}"
+    manifest_path = comp_dir / "events_manifest.csv"
+    metadata_path = comp_dir / "competition_metadata.json"
+
+    if not manifest_path.exists():
+        raise FileNotFoundError(f"Missing events manifest: {manifest_path}")
+    if not metadata_path.exists():
+        raise FileNotFoundError(f"Missing competition metadata: {metadata_path}")
+
+    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    from_raw = str(metadata.get("from") or "").strip()
+    if not from_raw:
+        raise ValueError(f"competition_metadata.json missing 'from': {metadata_path}")
+    cutoff_date = from_raw.split("T", 1)[0]
+
+    events_map: dict[str, ValidationEvent] = {}
+    with open(manifest_path, newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            slug = (row.get("event_slug") or "").strip()
+            event_name = (row.get("event_name") or "").strip()
+            discipline_id = (row.get("discipline_id") or "").strip()
+            if not slug or not event_name or not discipline_id:
+                continue
+
+            base = BASE_EVENTS.get(slug)
+            if base is None:
+                if not include_unmodeled:
+                    continue
+                events_map[slug] = ValidationEvent(
+                    name=event_name,
+                    discipline_id=discipline_id,
+                    discipline_name=event_name,
+                    distance=_distance_from_event_name(event_name),
+                )
+                continue
+
+            events_map[slug] = ValidationEvent(
+                name=base.name,
+                discipline_id=discipline_id,
+                discipline_name=event_name,
+                world_record=base.world_record,
+                distance=base.distance,
+            )
+
+    return events_map, cutoff_date
 
 
 def load_crowd_top4_probs(
@@ -254,29 +329,46 @@ def _athlete_from_dict(d: dict):
     return a
 
 
-def get_or_cache_athletes(event_slug: str, event, force: bool = False) -> tuple[list, str]:
+def get_or_cache_athletes(
+    event_slug: str,
+    event,
+    *,
+    cache_dir: Path = CACHE_DIR,
+    cutoff_date_override: str | None = None,
+    force: bool = False,
+) -> tuple[list, str]:
     """Return (athletes, event_date), fetching from API or local JSON cache.
 
     Cache lives at validation/athlete_cache/{event_slug}.json.
     Pass force=True to re-fetch even if cache exists.
     """
-    CACHE_DIR.mkdir(parents=True, exist_ok=True)
-    cache_file = CACHE_DIR / f"{event_slug}.json"
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    cache_file = cache_dir / f"{event_slug}.json"
 
     if cache_file.exists() and not force:
         data = json.loads(cache_file.read_text())
-        athletes = [_athlete_from_dict(d) for d in data["athletes"]]
-        return athletes, data["event_date"]
+        cached_before_date = data.get("before_date")
+        if cutoff_date_override and cached_before_date and cached_before_date != cutoff_date_override:
+            # Cache was built with a different cutoff boundary.
+            pass
+        else:
+            athletes = [_athlete_from_dict(d) for d in data["athletes"]]
+            return athletes, data["event_date"]
 
     from fetcher import get_finalists, get_athlete_times
 
     athletes, event_date = get_finalists(event)
+    before_date = cutoff_date_override or event_date
     for athlete in athletes:
-        get_athlete_times(athlete, before_date=event_date, discipline_name=event.discipline_name)
+        get_athlete_times(athlete, before_date=before_date, discipline_name=event.discipline_name)
 
     cache_file.write_text(
         json.dumps(
-            {"event_date": event_date, "athletes": [_athlete_to_dict(a) for a in athletes]},
+            {
+                "event_date": event_date,
+                "before_date": before_date,
+                "athletes": [_athlete_to_dict(a) for a in athletes],
+            },
             indent=2,
         )
     )
@@ -322,6 +414,7 @@ def brier_score(
 def score_all_events(
     validation_athletes: dict[str, list],
     actual_results: dict[str, list[str]],
+    events_map: dict[str, ValidationEvent] | None = None,
     crowd_probs: dict[str, dict[str, float]] | None = None,
     n_sims: int = 2_000,
     hyperparams: dict | None = None,
@@ -331,7 +424,9 @@ def score_all_events(
     hyperparams — optional dict of kwargs for build_model (season_decay, etc.)
     Returns (mean_sim_brier, mean_crowd_brier).
     """
-    from events import EVENTS
+    if events_map is None:
+        from events import EVENTS
+        events_map = EVENTS
     from simulation import build_model, run_fast
 
     hp = hyperparams or {}
@@ -341,7 +436,9 @@ def score_all_events(
     for slug, athletes in validation_athletes.items():
         if slug not in actual_results:
             continue
-        event = EVENTS[slug]
+        if slug not in events_map:
+            continue
+        event = events_map[slug]
         try:
             models = [build_model(a, event, **hp) for a in athletes]
         except Exception:
@@ -365,6 +462,7 @@ def score_all_events(
 def run_loo_score(
     validation_athletes: dict[str, list],
     actual_results: dict[str, list[str]],
+    events_map: dict[str, ValidationEvent] | None = None,
     n_sims: int = 2_000,
     hyperparams: dict | None = None,
 ) -> tuple[float, list[tuple[str, float]]]:
@@ -378,8 +476,10 @@ def run_loo_score(
 
     Returns (mean_brier, [(slug, brier), ...]) sorted worst → best.
     """
-    from events import EVENTS
-    from simulation import build_model, run_fast
+    if events_map is None:
+        from src.events import EVENTS
+        events_map = EVENTS
+    from src.simulation import build_model, run_fast
 
     hp = hyperparams or {}
     rng = np.random.default_rng(42)
@@ -388,7 +488,9 @@ def run_loo_score(
     for slug, athletes in validation_athletes.items():
         if slug not in actual_results:
             continue
-        event = EVENTS[slug]
+        if slug not in events_map:
+            continue
+        event = events_map[slug]
         try:
             models = [build_model(a, event, **hp) for a in athletes]
         except Exception:
@@ -407,6 +509,7 @@ def _loo_tune_objective(
     trial,
     validation_athletes: dict[str, list],
     actual_results: dict[str, list[str]],
+    events_map: dict[str, ValidationEvent],
     held_out: str,
     n_sims: int,
 ) -> float:
@@ -421,13 +524,20 @@ def _loo_tune_objective(
         "default_tau":        trial.suggest_float("default_tau",        0.02, 0.60, log=True),
     }
     subset = {k: v for k, v in validation_athletes.items() if k != held_out}
-    sim_brier, _ = score_all_events(subset, actual_results, hyperparams=params, n_sims=n_sims)
+    sim_brier, _ = score_all_events(
+        subset,
+        actual_results,
+        events_map=events_map,
+        hyperparams=params,
+        n_sims=n_sims,
+    )
     return sim_brier
 
 
 def run_loo_tuning(
     validation_athletes: dict[str, list],
     actual_results: dict[str, list[str]],
+    events_map: dict[str, ValidationEvent],
     n_trials: int = 100,
     n_sims: int = 2_000,
 ) -> tuple[float, list[tuple[str, float, dict]]]:
@@ -455,16 +565,16 @@ def run_loo_tuning(
             _loo_tune_objective,
             validation_athletes=validation_athletes,
             actual_results=actual_results,
+            events_map=events_map,
             held_out=held_out,
             n_sims=n_sims,
         )
         study.optimize(obj, n_trials=n_trials, show_progress_bar=False)
 
         # Score held-out event with best params found on the other 27
-        from events import EVENTS
         from simulation import build_model, run_fast
         best_hp = study.best_params
-        event = EVENTS[held_out]
+        event = events_map[held_out]
         athletes = validation_athletes[held_out]
         try:
             models = [build_model(a, event, **best_hp) for a in athletes]
@@ -487,6 +597,7 @@ def run_loo_tuning(
 def run_cv_tuning(
     validation_athletes: dict[str, list],
     actual_results: dict[str, list[str]],
+    events_map: dict[str, ValidationEvent],
     n_trials: int = 100,
     n_sims: int = 2_000,
     test_size: int = 3,
@@ -531,6 +642,7 @@ def run_cv_tuning(
             _objective,
             validation_athletes=train,
             actual_results=actual_results,
+            events_map=events_map,
             n_sims=n_sims,
         )
         n_done = len(study.trials)
@@ -544,7 +656,11 @@ def run_cv_tuning(
         test = {k: validation_athletes[k] for k in test_slugs}
         best_hp = study.best_params
         fold_brier, event_rows = run_loo_score(
-            test, actual_results, n_sims=n_sims, hyperparams=best_hp
+            test,
+            actual_results,
+            events_map=events_map,
+            n_sims=n_sims,
+            hyperparams=best_hp,
         )
         folds.append((fold_idx, test_slugs, fold_brier, event_rows, best_hp))
         print(f"    held-out mean Brier: {fold_brier:.4f}")
@@ -560,6 +676,7 @@ def _objective(
     trial,
     validation_athletes: dict[str, list],
     actual_results: dict[str, list[str]],
+    events_map: dict[str, ValidationEvent],
     n_sims: int,
 ) -> float:
     params = {
@@ -572,7 +689,11 @@ def _objective(
         "default_tau":     trial.suggest_float("default_tau",     0.02, 0.60, log=True),
     }
     sim_brier, _ = score_all_events(
-        validation_athletes, actual_results, hyperparams=params, n_sims=n_sims
+        validation_athletes,
+        actual_results,
+        events_map=events_map,
+        hyperparams=params,
+        n_sims=n_sims,
     )
     return sim_brier
 
@@ -580,21 +701,30 @@ def _objective(
 # ─── CLI ───────────────────────────────────────────────────────────────────────
 
 def _build_validation_athletes(
-    actual_results: dict[str, list[str]], force_refresh: bool = False
+    actual_results: dict[str, list[str]],
+    *,
+    events_map: dict[str, ValidationEvent],
+    cache_dir: Path,
+    cutoff_date_override: str | None = None,
+    force_refresh: bool = False,
 ) -> dict[str, list]:
-    from events import EVENTS
-
     validation_athletes: dict[str, list] = {}
     for slug in actual_results:
-        if slug not in EVENTS:
+        if slug not in events_map:
             continue
-        event = EVENTS[slug]
+        event = events_map[slug]
         try:
-            athletes, _ = get_or_cache_athletes(slug, event, force=force_refresh)
+            athletes, _ = get_or_cache_athletes(
+                slug,
+                event,
+                cache_dir=cache_dir,
+                cutoff_date_override=cutoff_date_override,
+                force=force_refresh,
+            )
             validation_athletes[slug] = athletes
-            print(f"  ✓ {slug:30s}  {len(athletes)} athletes")
+            print(f"  OK {slug:30s}  {len(athletes)} athletes")
         except Exception as e:
-            print(f"  ✗ {slug:30s}  {e}")
+            print(f"  x  {slug:30s}  {e}")
     return validation_athletes
 
 
@@ -609,6 +739,8 @@ def main() -> None:
     parser.add_argument("--trials",  type=int, default=200, help="Number of Optuna trials (default: 200)")
     parser.add_argument("--n-sims",  type=int, default=2_000, help="Simulations per event per trial (default: 2000)")
     parser.add_argument("--apply-best", action="store_true", help="Print recommended config.py edits for best params found")
+    parser.add_argument("--config", default=None, help="JSON config preset to use for current-config scoring")
+    parser.add_argument("--save-config", default=None, help="Write recommended/best params to this JSON config preset")
     parser.add_argument("--jobs", type=int, default=1, help="Parallel Optuna jobs (default: 1)")
     parser.add_argument("--loo-score",  action="store_true", help="Score current config event-by-event (LOO-style breakdown)")
     parser.add_argument("--loo-tune",   action="store_true", help="Full LOO tuning: tune on N-1 events, score on held-out (slow)")
@@ -618,35 +750,82 @@ def main() -> None:
     parser.add_argument("--cv-folds",   type=int, default=20, help="Number of repeated CV folds (default: 20)")
     parser.add_argument("--cv-test-size", type=int, default=3, help="Held-out events per CV fold (default: 3)")
     parser.add_argument("--cv-seed",    type=int, default=42, help="Random seed for CV splits (default: 42)")
+    parser.add_argument(
+        "--competition-id",
+        type=int,
+        default=None,
+        help="Use validation/competition_<id>/ data and metadata cutoff for cache building.",
+    )
     args = parser.parse_args()
+    dataset_tag = _dataset_tag(args.competition_id)
+    current_hp = merged_hyperparams(args.config)
+    if args.config:
+        print(f"Using config preset overrides from {args.config}")
+
+    # Dataset + cache context
+    from events import EVENTS as BASE_EVENTS
+    events_map: dict[str, ValidationEvent]
+    actual_results_path: Path
+    cache_dir: Path
+    cutoff_date_override: str | None = None
+
+    if args.competition_id is None:
+        actual_results_path = VALIDATION_DIR / "actual_results.csv"
+        cache_dir = CACHE_DIR
+        events_map = {
+            slug: ValidationEvent(
+                name=event.name,
+                discipline_id=event.discipline_id,
+                discipline_name=event.discipline_name,
+                world_record=event.world_record,
+                distance=event.distance,
+            )
+            for slug, event in BASE_EVENTS.items()
+        }
+    else:
+        comp_dir = VALIDATION_DIR / f"competition_{args.competition_id}"
+        actual_results_path = comp_dir / "actual_results.csv"
+        cache_dir = comp_dir / "athlete_cache"
+        events_map, cutoff_date_override = load_competition_events(
+            args.competition_id,
+            include_unmodeled=True,
+        )
+        print(
+            f"Using competition {args.competition_id} cutoff date {cutoff_date_override} "
+            f"from {comp_dir / 'competition_metadata.json'}"
+        )
 
     # ── Load ground truth ──────────────────────────────────────────────────────
     print("Loading actual results...")
-    actual_results = load_actual_results()
-    print(f"  {len(actual_results)} events loaded from actual_results.csv\n")
+    actual_results = load_actual_results(path=actual_results_path)
+    print(f"  {len(actual_results)} events loaded from {actual_results_path.relative_to(ROOT)}\n")
 
     # ── Build/load athlete cache ───────────────────────────────────────────────
     print("Loading athlete data (from cache or API)...")
     validation_athletes = _build_validation_athletes(
-        actual_results, force_refresh=args.refresh_cache
+        actual_results,
+        events_map=events_map,
+        cache_dir=cache_dir,
+        cutoff_date_override=cutoff_date_override,
+        force_refresh=args.refresh_cache,
     )
-    print(f"\n  {len(validation_athletes)} events ready for simulation\n")
-
     if args.cache_only:
+        print(f"\n  {len(validation_athletes)} events cached\n")
         print("Cache complete. Run again without --cache-only to tune.")
         return
 
+    print(f"\n  {len(validation_athletes)} events ready for simulation\n")
+
     # ── LOO score (fast) ───────────────────────────────────────────────────────
     if args.loo_score:
-        import config
-        hp = {
-            "season_decay": config.SEASON_DECAY, "max_seasons": config.MAX_SEASONS,
-            "best_time_decay": config.BEST_TIME_DECAY, "decay_distance_exp": config.DECAY_DISTANCE_EXP,
-            "sigma_distance_exp": config.SIGMA_DISTANCE_EXP, "default_sigma": config.DEFAULT_SIGMA,
-            "default_tau": config.DEFAULT_TAU,
-        }
         print("LOO scoring current config (each event treated as held-out)...")
-        mean_loo, rows = run_loo_score(validation_athletes, actual_results, n_sims=args.n_sims, hyperparams=hp)
+        mean_loo, rows = run_loo_score(
+            validation_athletes,
+            actual_results,
+            events_map=events_map,
+            n_sims=args.n_sims,
+            hyperparams=current_hp,
+        )
         print(f"  {'Event':<30} {'Brier':>8}")
         print(f"  {'─'*28} {'─'*8}")
         for slug, s_b in rows:
@@ -661,6 +840,7 @@ def main() -> None:
         print(f"  Estimated time: ~{est} min")
         mean_loo, rows = run_loo_tuning(
             validation_athletes, actual_results,
+            events_map=events_map,
             n_trials=args.loo_trials, n_sims=args.n_sims,
         )
         print("\n" + "="*55)
@@ -676,13 +856,13 @@ def main() -> None:
     # ── Repeated holdout CV tune (slow) ───────────────────────────────────────
     if args.cv_tune:
         branch = _current_branch_name()
-        db_path = VALIDATION_DIR / f"optuna-{branch}.db"
+        db_path = VALIDATION_DIR / f"optuna-{branch}-{dataset_tag}.db"
         train_events = len(validation_athletes) - args.cv_test_size
         cv_trials = args.cv_trials
         if cv_trials is None:
             cv_trials = max(1, round(1000 * len(validation_athletes) / (args.cv_folds * train_events)))
         study_name_prefix = (
-            f"swim-cv-{branch}-seed{args.cv_seed}"
+            f"swim-cv-{branch}-{dataset_tag}-seed{args.cv_seed}"
             f"-test{args.cv_test_size}-folds{args.cv_folds}"
         )
         print(
@@ -702,6 +882,7 @@ def main() -> None:
         mean_cv, folds = run_cv_tuning(
             validation_athletes,
             actual_results,
+            events_map,
             n_trials=cv_trials,
             n_sims=args.n_sims,
             test_size=args.cv_test_size,
@@ -731,8 +912,16 @@ def main() -> None:
         print("\n  Mean CV Brier (out-of-sample):", f"{mean_cv:.4f}")
 
         recommended = _cv_recommended_params(folds)
-        _print_cv_param_summary(folds, recommended)
+        _print_cv_param_summary(folds, recommended, current_hp)
         _print_config_patch(recommended)
+        if args.save_config:
+            _save_config_preset(
+                args.save_config,
+                recommended,
+                source="cv",
+                competition_id=args.competition_id,
+                dataset_tag=dataset_tag,
+            )
         return
 
     # ── Load crowd baseline ────────────────────────────────────────────────────
@@ -742,11 +931,13 @@ def main() -> None:
     print(f"  {'Crowd data loaded' if has_crowd else 'Crowd data unavailable (no XLSX)'}\n")
 
     # ── Score current config ───────────────────────────────────────────────────
-    print("Scoring current config.py hyperparameters...")
+    print("Scoring current hyperparameters...")
     current_sim_brier, current_crowd_brier = score_all_events(
         validation_athletes, actual_results,
+        events_map=events_map,
         crowd_probs=crowd_probs if has_crowd else None,
         n_sims=args.n_sims,
+        hyperparams=current_hp,
     )
     print(f"  Current config Brier score : {current_sim_brier:.4f}")
     if current_crowd_brier is not None:
@@ -768,8 +959,8 @@ def main() -> None:
     optuna.logging.set_verbosity(optuna.logging.WARNING)
 
     branch = _current_branch_name()
-    db_path = VALIDATION_DIR / f"optuna-{branch}.db"
-    study_name = f"swim-hyperparams-{branch}"
+    db_path = VALIDATION_DIR / f"optuna-{branch}-{dataset_tag}.db"
+    study_name = f"swim-hyperparams-{branch}-{dataset_tag}"
     study = optuna.create_study(
         direction="minimize",
         study_name=study_name,
@@ -786,6 +977,7 @@ def main() -> None:
         _objective,
         validation_athletes=validation_athletes,
         actual_results=actual_results,
+        events_map=events_map,
         n_sims=args.n_sims,
     )
     study.optimize(objective, n_trials=n_remaining, n_jobs=args.jobs, show_progress_bar=True)
@@ -798,7 +990,7 @@ def main() -> None:
     print(f"  BEST HYPERPARAMETERS  (Brier: {best_brier:.4f})")
     print(f"{'='*60}")
     for k, v in best.items():
-        current_val = _get_current_config(k)
+        current_val = _get_current_config(k, current_hp)
         flag = "  ← changed" if current_val is not None and abs(float(current_val) - float(v)) > 1e-4 else ""
         fmt = ".0f" if k == "max_seasons" else ".4f"
         print(f"  {k:<22} {v:{fmt}}{flag}")
@@ -811,10 +1003,21 @@ def main() -> None:
 
     if args.apply_best:
         _print_config_patch(best)
+    if args.save_config:
+        _save_config_preset(
+            args.save_config,
+            best,
+            source="optuna",
+            competition_id=args.competition_id,
+            dataset_tag=dataset_tag,
+            brier=best_brier,
+        )
 
 
-def _get_current_config(param_name: str):
+def _get_current_config(param_name: str, current_params: dict | None = None):
     """Return the current value of a config param, or None if not found."""
+    if current_params is not None and param_name in current_params:
+        return current_params[param_name]
     import config
     mapping = {
         "season_decay":    "SEASON_DECAY",
@@ -839,6 +1042,10 @@ def _current_branch_name() -> str:
         return "main"
 
 
+def _dataset_tag(competition_id: int | None) -> str:
+    return f"competition_{competition_id}" if competition_id is not None else "default"
+
+
 def _cv_recommended_params(
     folds: list[tuple[int, list[str], float, list[tuple[str, float]], dict]]
 ) -> dict:
@@ -860,6 +1067,7 @@ def _cv_recommended_params(
 def _print_cv_param_summary(
     folds: list[tuple[int, list[str], float, list[tuple[str, float]], dict]],
     recommended: dict,
+    current_params: dict | None = None,
 ) -> None:
     """Print fold-winning parameter spread and the median recommendation."""
     if not folds:
@@ -873,7 +1081,7 @@ def _print_cv_param_summary(
 
     for key, rec in recommended.items():
         values = np.array([fold_best[key] for _, _, _, _, fold_best in folds], dtype=float)
-        current_val = _get_current_config(key)
+        current_val = _get_current_config(key, current_params)
         changed = (
             current_val is not None
             and abs(float(current_val) - float(rec)) > 1e-4
@@ -911,6 +1119,26 @@ def _print_config_patch(best_params: dict) -> None:
             print(f"  {cfg_name} = {int(v)}")
         else:
             print(f"  {cfg_name} = {v:.4f}")
+
+
+def _save_config_preset(
+    path: str,
+    params: dict,
+    *,
+    source: str,
+    competition_id: int | None,
+    dataset_tag: str,
+    brier: float | None = None,
+) -> None:
+    metadata = {
+        "source": source,
+        "competition_id": competition_id,
+        "dataset_tag": dataset_tag,
+    }
+    if brier is not None:
+        metadata["brier"] = float(brier)
+    preset_path = write_preset(path, params, metadata=metadata)
+    print(f"\nWrote config preset to {preset_path}")
 
 
 if __name__ == "__main__":

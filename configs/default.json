@@ -1,0 +1,14 @@
+{
+  "hyperparams": {
+    "season_decay": 0.5486,
+    "max_seasons": 4,
+    "best_time_decay": 0.3296,
+    "decay_distance_exp": 1.3976,
+    "sigma_distance_exp": 1.0711,
+    "default_sigma": 0.2023,
+    "default_tau": 0.0793
+  },
+  "metadata": {
+    "source": "current src/config.py snapshot"
+  }
+}

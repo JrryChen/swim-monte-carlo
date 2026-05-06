@@ -5,6 +5,7 @@ __pycache__/
 .env
 .claude/
 results/
+validation/optuna-*.db
 fetch_actual_results.py
 src/fetcher.py
 CLAUDE.md

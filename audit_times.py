@@ -8,6 +8,7 @@ otherwise suspicious results contaminating the model.
 
 Usage:
     python audit_times.py --event men_100_free
+    python audit_times.py --competition-id 4725 --event men_100_free
     python audit_times.py --event men_100_free --swimmer CECCON
     python audit_times.py --event men_100_free --fast-only   # only show flagged times
 
@@ -19,7 +20,7 @@ For each swimmer, prints every result used to build their model, showing:
 
 Any competition that appears suspicious can be added to EXCLUDED_COMPETITIONS
 in config.py to remove it from future model builds. Then delete the event's
-cache file (validation/athlete_cache/{event}.json) and re-run --cache-only.
+cache file and re-run --cache-only.
 """
 
 import argparse
@@ -27,6 +28,8 @@ import numpy as np
 from tabulate import tabulate
 
 ROOT = Path(__file__).parent
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 
 def fmt_time(seconds: float) -> str:
@@ -43,25 +46,53 @@ def _get_season_year(date: str, season_start_month: int = 9) -> int:
     return year if month >= season_start_month else year - 1
 
 
-def inspect_event(event_slug: str, swimmer_filter: str | None, fast_only: bool) -> None:
+def inspect_event(
+    event_slug: str,
+    swimmer_filter: str | None,
+    fast_only: bool,
+    competition_id: int | None = None,
+) -> None:
     from events import EVENTS
     from config import SEASON_DECAY, MAX_SEASONS, BEST_TIME_DECAY, DECAY_DISTANCE_EXP
     from simulation import build_model
-    from tune_hyperparams import get_or_cache_athletes
+    from tune_hyperparams import (
+        get_or_cache_athletes,
+        load_competition_events,
+        CACHE_DIR,
+        VALIDATION_DIR,
+    )
 
-    if event_slug not in EVENTS:
+    cutoff_date_override = None
+    if competition_id is None:
+        events_map = EVENTS
+        cache_dir = CACHE_DIR
+        cache_hint = "python tune_hyperparams.py --cache-only"
+    else:
+        events_map, cutoff_date_override = load_competition_events(
+            competition_id,
+            include_unmodeled=True,
+        )
+        cache_dir = VALIDATION_DIR / f"competition_{competition_id}" / "athlete_cache"
+        cache_hint = f"python tune_hyperparams.py --competition-id {competition_id} --cache-only"
+
+    if event_slug not in events_map:
         print(f"Unknown event: {event_slug}")
-        print(f"Available: {', '.join(EVENTS)}")
+        print(f"Available: {', '.join(events_map)}")
         return
 
-    event = EVENTS[event_slug]
-    cache_path = ROOT / "validation" / "athlete_cache" / f"{event_slug}.json"
+    event = events_map[event_slug]
+    cache_path = cache_dir / f"{event_slug}.json"
 
     if not cache_path.exists():
-        print(f"No cache for {event_slug}. Run:  python tune_hyperparams.py --cache-only")
+        print(f"No cache for {event_slug} at {cache_path}. Run:  {cache_hint}")
         return
 
-    athletes, event_date = get_or_cache_athletes(event_slug, event)
+    athletes, event_date = get_or_cache_athletes(
+        event_slug,
+        event,
+        cache_dir=cache_dir,
+        cutoff_date_override=cutoff_date_override,
+    )
 
     if swimmer_filter:
         athletes = [a for a in athletes if swimmer_filter.upper() in a.name.upper()]
@@ -71,10 +102,16 @@ def inspect_event(event_slug: str, swimmer_filter: str | None, fast_only: bool) 
 
     print(f"\n{'═'*80}")
     print(f"  {event.name}  —  Finals date: {event_date}")
-    print(f"  WR: {fmt_time(event.world_record)}  |  "
+    wr_display = fmt_time(event.world_record) if event.world_record > 0 else "n/a"
+    print(f"  WR: {wr_display}  |  "
           f"SEASON_DECAY={SEASON_DECAY}  MAX_SEASONS={MAX_SEASONS}  "
           f"BEST_TIME_DECAY={BEST_TIME_DECAY}  DECAY_DISTANCE_EXP={DECAY_DISTANCE_EXP}")
     print(f"{'═'*80}")
+
+    if fast_only and event.world_record <= 0:
+        print("No WR is stored for this event, so --fast-only cannot flag suspicious times.")
+        print("Re-run without --fast-only to inspect all cached times.")
+        return
 
     for athlete in athletes:
         dated = [r for r in athlete.results if r.date]
@@ -93,7 +130,8 @@ def inspect_event(event_slug: str, swimmer_filter: str | None, fast_only: bool) 
         times = np.array([r.time_seconds for r in in_window])
         seasons = np.array([_get_season_year(r.date) for r in in_window])
         season_weights = np.array([SEASON_DECAY ** (most_recent - s) for s in seasons])
-        proximity_weights = np.exp(-effective_decay * (times - event.world_record))
+        pb = float(np.min(times))
+        proximity_weights = np.exp(-effective_decay * (times - pb))
         total_weights = season_weights * proximity_weights
         if total_weights.sum() > 0:
             norm_weights = total_weights / total_weights.sum()
@@ -111,7 +149,7 @@ def inspect_event(event_slug: str, swimmer_filter: str | None, fast_only: bool) 
 
         # Suspicious threshold: faster than WR * 1.005
         # Short course times are typically 1.5–3% faster than long course
-        suspicion_threshold = event.world_record * 1.005
+        suspicion_threshold = event.world_record * 1.005 if event.world_record > 0 else None
 
         rows = []
         any_flagged = False
@@ -121,7 +159,7 @@ def inspect_event(event_slug: str, swimmer_filter: str | None, fast_only: bool) 
             p_wt = proximity_weights[idx]
             n_wt = norm_weights[idx]
             season = _get_season_year(r.date)
-            flagged = r.time_seconds < suspicion_threshold
+            flagged = suspicion_threshold is not None and r.time_seconds < suspicion_threshold
             if flagged:
                 any_flagged = True
             flag = "  ⚠ FAST" if flagged else ""
@@ -149,7 +187,7 @@ def inspect_event(event_slug: str, swimmer_filter: str | None, fast_only: bool) 
         all_raw = athlete.results  # these are already post-exclusion-filter from fetcher
         print(f"  │  {len(in_window)} result(s) in model window")
 
-        headers = ["", "Time", "Seconds", "Date", "Season", "S.Wt", "P.Wt", "Norm.Wt", "Competition"]
+        headers = ["", "Time", "Seconds", "Date", "Season", "S.Wt", "PB.Wt", "Norm.Wt", "Competition"]
         print(tabulate(
             rows,
             headers=headers,
@@ -157,7 +195,7 @@ def inspect_event(event_slug: str, swimmer_filter: str | None, fast_only: bool) 
             colalign=("left", "right", "right", "left", "left", "right", "right", "right", "left"),
         ))
 
-        if any_flagged:
+        if any_flagged and suspicion_threshold is not None:
             print(f"  │  ⚠  Times below {fmt_time(suspicion_threshold)} "
                   f"({suspicion_threshold:.2f}s) may be short-course. "
                   f"Check competition and add to EXCLUDED_COMPETITIONS in config.py if so.")
@@ -171,12 +209,14 @@ def main() -> None:
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument("--event",    required=True, help="Event slug, e.g. men_100_free")
+    parser.add_argument("--competition-id", type=int, default=None,
+                        help="Use validation/competition_<id>/ manifest and athlete cache")
     parser.add_argument("--swimmer",  default=None,  help="Filter to one swimmer (partial name match)")
     parser.add_argument("--fast-only", action="store_true",
                         help="Only show swimmers with at least one flagged time")
     args = parser.parse_args()
 
-    inspect_event(args.event, args.swimmer, args.fast_only)
+    inspect_event(args.event, args.swimmer, args.fast_only, args.competition_id)
 
 
 if __name__ == "__main__":

@@ -89,7 +89,11 @@ def print_odds(results: list[SimResult], winning_times: np.ndarray) -> None:
     print(f"  Projected winning time: {np.mean(winning_times):.3f}s  (median {np.median(winning_times):.3f}s)")
 
 
-def show_distributions(models: list[RaceModel], event_name: str = "Men's 50m Freestyle") -> None:
+def show_distributions(
+    models: list[RaceModel],
+    event_name: str = "Men's 50m Freestyle",
+    output_dir: str = RESULTS_DIR,
+) -> None:
     """Plot each swimmer's ex-Gaussian time distribution with a mean line."""
     # Sort by projected mean so the legend reads fastest → slowest
     sorted_models = sorted(models, key=lambda m: m.mu)
@@ -119,14 +123,18 @@ def show_distributions(models: list[RaceModel], event_name: str = "Men's 50m Fre
     ax.set_title(f"2024 Paris Olympics — {event_name} Final\nSwimmer Time Distributions (Ex-Gaussian)")
     ax.legend(fontsize=8, loc="upper right")
     plt.tight_layout()
-    os.makedirs(RESULTS_DIR, exist_ok=True)
-    path = os.path.join(RESULTS_DIR, "distributions.png")
+    os.makedirs(output_dir, exist_ok=True)
+    path = os.path.join(output_dir, "distributions.png")
     fig.savefig(path, dpi=150)
     print(f"Distributions chart saved to {path}")
     plt.show()
 
 
-def show_chart(results: list[SimResult], event_name: str = "Men's 50m Freestyle") -> None:
+def show_chart(
+    results: list[SimResult],
+    event_name: str = "Men's 50m Freestyle",
+    output_dir: str = RESULTS_DIR,
+) -> None:
     """Display a horizontal bar chart of win probabilities."""
     sorted_results = _sorted_results(results)
     names = [r.name for r in sorted_results]
@@ -139,16 +147,16 @@ def show_chart(results: list[SimResult], event_name: str = "Men's 50m Freestyle"
     ax.set_title(f"2024 Paris Olympics — {event_name} Final\nWin Probability (Monte Carlo)")
     ax.invert_yaxis()
     plt.tight_layout()
-    os.makedirs(RESULTS_DIR, exist_ok=True)
-    path = os.path.join(RESULTS_DIR, "win_probabilities.png")
+    os.makedirs(output_dir, exist_ok=True)
+    path = os.path.join(output_dir, "win_probabilities.png")
     fig.savefig(path, dpi=150)
     print(f"Win probability chart saved to {path}")
     plt.show()
 
 
-def save_csv(results: list[SimResult]) -> None:
+def save_csv(results: list[SimResult], output_dir: str = RESULTS_DIR) -> None:
     """Save full probability table to results/probabilities.csv."""
-    os.makedirs(RESULTS_DIR, exist_ok=True)
+    os.makedirs(output_dir, exist_ok=True)
     num_places = len(results)
     rows = []
     for r in _sorted_results(results):
@@ -158,14 +166,14 @@ def save_csv(results: list[SimResult]) -> None:
         rows.append(row)
 
     df = pd.DataFrame(rows)
-    path = os.path.join(RESULTS_DIR, "probabilities.csv")
+    path = os.path.join(output_dir, "probabilities.csv")
     df.to_csv(path, index=False)
     print(f"CSV saved to {path}")
 
 
-def save_json(results: list[SimResult]) -> None:
+def save_json(results: list[SimResult], output_dir: str = RESULTS_DIR) -> None:
     """Save full probability table to results/probabilities.json."""
-    os.makedirs(RESULTS_DIR, exist_ok=True)
+    os.makedirs(output_dir, exist_ok=True)
     output = []
     for r in _sorted_results(results):
         output.append({
@@ -173,7 +181,7 @@ def save_json(results: list[SimResult]) -> None:
             "place_probabilities": {str(k): round(v, 4) for k, v in r.place_probs.items()},
         })
 
-    path = os.path.join(RESULTS_DIR, "probabilities.json")
+    path = os.path.join(output_dir, "probabilities.json")
     with open(path, "w") as f:
         json.dump(output, f, indent=2)
     print(f"JSON saved to {path}")

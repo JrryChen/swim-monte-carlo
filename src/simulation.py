@@ -32,7 +32,7 @@ def build_model(
 
     default_sigma, default_tau, and best_time_decay are tuned for 50m sprints.
     They are scaled by distance/50 (or 50/distance for decay) so that fallback
-    values and proximity weighting are proportionally equivalent across events.
+    values and PB-proximity weighting are proportionally equivalent across events.
 
     All numeric hyperparameters default to the values in config.py; pass explicit
     values to override (e.g. during hyperparameter tuning with tune_hyperparams.py).
@@ -52,10 +52,11 @@ def build_model(
 
     times = np.array([r.time_seconds for r in dated])
     seasons = np.array([_get_season_year(r.date) for r in dated])
+    pb = float(np.min(times))
 
     season_weights = np.array([season_decay ** (most_recent - s) for s in seasons])
 
-    proximity_weights = np.exp(-effective_decay * (times - event.world_record))
+    proximity_weights = np.exp(-effective_decay * (times - pb))
     weights = season_weights * proximity_weights
 
     mu_raw = float(np.average(times, weights=weights))
@@ -82,8 +83,6 @@ def build_model(
     season_only_weights = season_weights / season_weights.sum()
     mu_season = float(np.average(times, weights=season_only_weights))
     mu = mu_season * (1 - season_drop)
-
-    pb = float(np.min(times))
 
     if len(times) >= 3:
         m3 = float(np.average((times - mu_raw) ** 3, weights=weights))
