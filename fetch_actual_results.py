@@ -120,7 +120,7 @@ def fetch_top4(discipline_id: str, event_name: str) -> list[str]:
 
 
 def main() -> None:
-    from events import EVENTS_2024_PARIS
+    from src.events import EVENTS_2024_PARIS
 
     VALIDATION_DIR.mkdir(parents=True, exist_ok=True)
 
