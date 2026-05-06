@@ -1,12 +1,12 @@
 {
   "hyperparams": {
-    "season_decay": 0.548591,
+    "season_decay": 0.573934,
     "max_seasons": 4,
-    "best_time_decay": 0.329555,
-    "decay_distance_exp": 1.39757,
-    "sigma_distance_exp": 1.07109,
-    "default_sigma": 0.202273,
-    "default_tau": 0.079339
+    "best_time_decay": 0.340654,
+    "decay_distance_exp": 1.318423,
+    "sigma_distance_exp": 0.82957,
+    "default_sigma": 0.268183,
+    "default_tau": 0.106571
   },
   "metadata": {
     "source": "cv",
