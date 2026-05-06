@@ -1,0 +1,17 @@
+{
+  "hyperparams": {
+    "season_decay": 0.497208,
+    "max_seasons": 6,
+    "best_time_decay": 0.302738,
+    "decay_distance_exp": 1.463248,
+    "sigma_distance_exp": 0.791086,
+    "default_sigma": 0.59952,
+    "default_tau": 0.02883
+  },
+  "metadata": {
+    "source": "optuna",
+    "competition_id": 4725,
+    "dataset_tag": "competition_4725",
+    "brier": 0.17186123917483656
+  }
+}

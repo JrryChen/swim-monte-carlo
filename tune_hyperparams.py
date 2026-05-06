@@ -50,6 +50,7 @@ from functools import partial
 from pathlib import Path
 
 import numpy as np
+from config_presets import merged_hyperparams, write_preset
 
 ROOT = Path(__file__).parent
 VALIDATION_DIR = ROOT / "validation"
@@ -738,6 +739,8 @@ def main() -> None:
     parser.add_argument("--trials",  type=int, default=200, help="Number of Optuna trials (default: 200)")
     parser.add_argument("--n-sims",  type=int, default=2_000, help="Simulations per event per trial (default: 2000)")
     parser.add_argument("--apply-best", action="store_true", help="Print recommended config.py edits for best params found")
+    parser.add_argument("--config", default=None, help="JSON config preset to use for current-config scoring")
+    parser.add_argument("--save-config", default=None, help="Write recommended/best params to this JSON config preset")
     parser.add_argument("--jobs", type=int, default=1, help="Parallel Optuna jobs (default: 1)")
     parser.add_argument("--loo-score",  action="store_true", help="Score current config event-by-event (LOO-style breakdown)")
     parser.add_argument("--loo-tune",   action="store_true", help="Full LOO tuning: tune on N-1 events, score on held-out (slow)")
@@ -755,6 +758,9 @@ def main() -> None:
     )
     args = parser.parse_args()
     dataset_tag = _dataset_tag(args.competition_id)
+    current_hp = merged_hyperparams(args.config)
+    if args.config:
+        print(f"Using config preset overrides from {args.config}")
 
     # Dataset + cache context
     from events import EVENTS as BASE_EVENTS
@@ -812,20 +818,13 @@ def main() -> None:
 
     # ── LOO score (fast) ───────────────────────────────────────────────────────
     if args.loo_score:
-        import config
-        hp = {
-            "season_decay": config.SEASON_DECAY, "max_seasons": config.MAX_SEASONS,
-            "best_time_decay": config.BEST_TIME_DECAY, "decay_distance_exp": config.DECAY_DISTANCE_EXP,
-            "sigma_distance_exp": config.SIGMA_DISTANCE_EXP, "default_sigma": config.DEFAULT_SIGMA,
-            "default_tau": config.DEFAULT_TAU,
-        }
         print("LOO scoring current config (each event treated as held-out)...")
         mean_loo, rows = run_loo_score(
             validation_athletes,
             actual_results,
             events_map=events_map,
             n_sims=args.n_sims,
-            hyperparams=hp,
+            hyperparams=current_hp,
         )
         print(f"  {'Event':<30} {'Brier':>8}")
         print(f"  {'─'*28} {'─'*8}")
@@ -913,8 +912,16 @@ def main() -> None:
         print("\n  Mean CV Brier (out-of-sample):", f"{mean_cv:.4f}")
 
         recommended = _cv_recommended_params(folds)
-        _print_cv_param_summary(folds, recommended)
+        _print_cv_param_summary(folds, recommended, current_hp)
         _print_config_patch(recommended)
+        if args.save_config:
+            _save_config_preset(
+                args.save_config,
+                recommended,
+                source="cv",
+                competition_id=args.competition_id,
+                dataset_tag=dataset_tag,
+            )
         return
 
     # ── Load crowd baseline ────────────────────────────────────────────────────
@@ -924,12 +931,13 @@ def main() -> None:
     print(f"  {'Crowd data loaded' if has_crowd else 'Crowd data unavailable (no XLSX)'}\n")
 
     # ── Score current config ───────────────────────────────────────────────────
-    print("Scoring current config.py hyperparameters...")
+    print("Scoring current hyperparameters...")
     current_sim_brier, current_crowd_brier = score_all_events(
         validation_athletes, actual_results,
         events_map=events_map,
         crowd_probs=crowd_probs if has_crowd else None,
         n_sims=args.n_sims,
+        hyperparams=current_hp,
     )
     print(f"  Current config Brier score : {current_sim_brier:.4f}")
     if current_crowd_brier is not None:
@@ -982,7 +990,7 @@ def main() -> None:
     print(f"  BEST HYPERPARAMETERS  (Brier: {best_brier:.4f})")
     print(f"{'='*60}")
     for k, v in best.items():
-        current_val = _get_current_config(k)
+        current_val = _get_current_config(k, current_hp)
         flag = "  ← changed" if current_val is not None and abs(float(current_val) - float(v)) > 1e-4 else ""
         fmt = ".0f" if k == "max_seasons" else ".4f"
         print(f"  {k:<22} {v:{fmt}}{flag}")
@@ -995,10 +1003,21 @@ def main() -> None:
 
     if args.apply_best:
         _print_config_patch(best)
+    if args.save_config:
+        _save_config_preset(
+            args.save_config,
+            best,
+            source="optuna",
+            competition_id=args.competition_id,
+            dataset_tag=dataset_tag,
+            brier=best_brier,
+        )
 
 
-def _get_current_config(param_name: str):
+def _get_current_config(param_name: str, current_params: dict | None = None):
     """Return the current value of a config param, or None if not found."""
+    if current_params is not None and param_name in current_params:
+        return current_params[param_name]
     import config
     mapping = {
         "season_decay":    "SEASON_DECAY",
@@ -1048,6 +1067,7 @@ def _cv_recommended_params(
 def _print_cv_param_summary(
     folds: list[tuple[int, list[str], float, list[tuple[str, float]], dict]],
     recommended: dict,
+    current_params: dict | None = None,
 ) -> None:
     """Print fold-winning parameter spread and the median recommendation."""
     if not folds:
@@ -1061,7 +1081,7 @@ def _print_cv_param_summary(
 
     for key, rec in recommended.items():
         values = np.array([fold_best[key] for _, _, _, _, fold_best in folds], dtype=float)
-        current_val = _get_current_config(key)
+        current_val = _get_current_config(key, current_params)
         changed = (
             current_val is not None
             and abs(float(current_val) - float(rec)) > 1e-4
@@ -1099,6 +1119,26 @@ def _print_config_patch(best_params: dict) -> None:
             print(f"  {cfg_name} = {int(v)}")
         else:
             print(f"  {cfg_name} = {v:.4f}")
+
+
+def _save_config_preset(
+    path: str,
+    params: dict,
+    *,
+    source: str,
+    competition_id: int | None,
+    dataset_tag: str,
+    brier: float | None = None,
+) -> None:
+    metadata = {
+        "source": source,
+        "competition_id": competition_id,
+        "dataset_tag": dataset_tag,
+    }
+    if brier is not None:
+        metadata["brier"] = float(brier)
+    preset_path = write_preset(path, params, metadata=metadata)
+    print(f"\nWrote config preset to {preset_path}")
 
 
 if __name__ == "__main__":

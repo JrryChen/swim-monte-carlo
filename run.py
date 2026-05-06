@@ -9,6 +9,7 @@ from simulation import build_model, run
 from output import print_models, print_table, print_odds, show_distributions, show_chart, save_csv, save_json
 from events import EVENTS
 from config import N_SIMULATIONS, DEFAULT_EVENT
+from config_presets import load_preset
 
 ROOT = Path(__file__).parent
 VALIDATION_DIR = ROOT / "validation"
@@ -57,6 +58,11 @@ def _load_from_cache(event_slug: str, cache_dir: Path, competition_id: int | Non
     return athletes, data["event_date"]
 
 
+def _results_dir(competition_id: int | None, event_slug: str) -> Path:
+    competition_part = f"competition_{competition_id}" if competition_id is not None else "default"
+    return ROOT / "results" / competition_part / event_slug
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Swim race Monte Carlo simulator")
     parser.add_argument(
@@ -87,6 +93,11 @@ def main() -> None:
         action="store_true",
         help="Skip matplotlib charts; still prints tables and saves CSV/JSON.",
     )
+    parser.add_argument(
+        "--config",
+        default=None,
+        help="JSON config preset with hyperparameter overrides.",
+    )
     args = parser.parse_args()
 
     events_map, cache_dir, cutoff_date = _competition_context(args.competition_id)
@@ -95,10 +106,15 @@ def main() -> None:
         parser.error(f"Unknown event: {event_slug}. Available: {', '.join(events_map)}")
 
     event = events_map[event_slug]
+    output_dir = _results_dir(args.competition_id, event_slug)
+    hyperparams = load_preset(args.config)
 
     print(f"Event: {event.name}")
     if args.competition_id is not None:
         print(f"Competition: {args.competition_id}")
+    if args.config:
+        print(f"Config preset: {args.config}")
+    print(f"Results directory: {output_dir.relative_to(ROOT)}")
 
     if args.from_cache:
         print(f"Loading athlete data from cache...")
@@ -117,7 +133,7 @@ def main() -> None:
             get_athlete_times(athlete, before_date=before_date, discipline_name=event.discipline_name)
             print(f"  {athlete.name}: {len(athlete.results)} results")
 
-    models = [build_model(a, event) for a in athletes]
+    models = [build_model(a, event, **hyperparams) for a in athletes]
     print_models(models)
 
     print(f"\nRunning {args.n_sims:,} simulations...")
@@ -125,11 +141,11 @@ def main() -> None:
 
     print_table(results)
     print_odds(results, winning_times)
-    save_csv(results)
-    save_json(results)
+    save_csv(results, output_dir=str(output_dir))
+    save_json(results, output_dir=str(output_dir))
     if not args.no_plots:
-        show_distributions(models, event_name=event.name)
-        show_chart(results, event_name=event.name)
+        show_distributions(models, event_name=event.name, output_dir=str(output_dir))
+        show_chart(results, event_name=event.name, output_dir=str(output_dir))
 
 
 if __name__ == "__main__":

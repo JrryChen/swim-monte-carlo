@@ -1,0 +1,16 @@
+{
+  "hyperparams": {
+    "season_decay": 0.546487,
+    "max_seasons": 3,
+    "best_time_decay": 1.697806,
+    "decay_distance_exp": 1.026244,
+    "sigma_distance_exp": 0.988523,
+    "default_sigma": 0.233964,
+    "default_tau": 0.14874
+  },
+  "metadata": {
+    "source": "cv",
+    "competition_id": 2943,
+    "dataset_tag": "competition_2943"
+  }
+}
