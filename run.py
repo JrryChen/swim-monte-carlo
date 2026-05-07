@@ -5,11 +5,11 @@ sys.path.insert(0, str(Path(__file__).parent / "src"))
 
 import argparse
 import json
-from simulation import build_model, run
-from output import print_models, print_table, print_odds, show_distributions, show_chart, save_csv, save_json
-from events import EVENTS
-from config import N_SIMULATIONS, DEFAULT_EVENT
-from config_presets import load_preset
+from src.simulation import build_model, run
+from src.output import print_models, print_table, print_odds, show_distributions, show_chart, save_csv, save_json
+from src.events import EVENTS
+from src.config import N_SIMULATIONS, DEFAULT_EVENT
+from src.config_presets import load_preset
 
 ROOT = Path(__file__).parent
 VALIDATION_DIR = ROOT / "validation"
